@@ -124,7 +124,7 @@ package extensions
 				MBlock.app.topBarPart.setDisconnectedTitle();
 				return;
 			}else{
-				MBlock.app.topBarPart.setConnectedTitle("Serial Port");
+				MBlock.app.topBarPart.setConnectedTitle("Connect");
 			}
 		}
 		
@@ -164,7 +164,7 @@ package extensions
 			_selectPort = port;
 			ArduinoManager.sharedManager().isUploading = false;
 			if(r==0){
-				MBlock.app.topBarPart.setConnectedTitle("Serial Port");
+				MBlock.app.topBarPart.setConnectedTitle("Connect");
 			}
 			return r == 0;
 		}
@@ -225,33 +225,10 @@ package extensions
 		}
 		public function openSource():void{
 			MBlock.app.track("/OpenSerial/ViewSource");
-			var file:File = ApplicationManager.sharedManager().documents.resolvePath("mBlock/firmware/" + getFirmwareName());
+			var file:File = ApplicationManager.sharedManager().documents.resolvePath("mBlock/firmware/mbot_firmware");
 			if(file.exists && file.isDirectory){
 				file.openWithDefaultApplication();
 			}
-		}
-		static private function getFirmwareName():String
-		{
-			var boardName:String = DeviceManager.sharedManager().currentBoard;
-			if(boardName == "mbot_uno"){
-				return "mbot_firmware";
-			}
-			if(boardName.indexOf("me/orion_uno")>-1){
-				return "orion_firmware";
-			}
-			if(boardName.indexOf("me/baseboard")>-1){
-				return "baseboard_firmware";
-			}
-			if(boardName.indexOf("me/uno_shield")>-1){
-				return "shield_firmware";
-			}
-			if(boardName.indexOf("me/auriga") >= 0){
-				return "Firmware_for_Auriga";
-			}
-			if(boardName.indexOf("me/mega_pi") >= 0){
-				return "Firmware_for_MegaPi";
-			}
-			return "orion_firmware";
 		}
 		public function disconnect():void{
 			currentPort = "";
@@ -286,8 +263,6 @@ package extensions
 				upgradeFirmware();
 				SerialDevice.sharedDevice().port = temp;
 			}
-			
-			
 		}
 		
 		static private function getAvrDude():File
@@ -316,129 +291,50 @@ package extensions
 			var tf:File;
 			var currentDevice:String = DeviceManager.sharedManager().currentDevice;
 			currentPort = SerialDevice.sharedDevice().port;
-//			if(NativeProcess.isSupported) {
-				var nativeProcessStartupInfo:NativeProcessStartupInfo =new NativeProcessStartupInfo();
-				nativeProcessStartupInfo.executable = file;
-				var v:Vector.<String> = new Vector.<String>();//外部应用程序需要的参数
-				v.push("-C");
-				v.push(getAvrDudeConfig().nativePath)
-				v.push("-v");
-				v.push("-v");
-				v.push("-v");
-				v.push("-v");
-				if(currentDevice=="leonardo"){
-					v.push("-patmega32u4");
-					v.push("-cavr109");
-					v.push("-P"+currentPort);
-					v.push("-b57600");
-					v.push("-D");
-					v.push("-U");
-					if(_hexToDownload.length==0){
-						var hexFile_baseboard:String = getHexFilePath();
-						tf = new File(hexFile_baseboard);
-						v.push("flash:w:"+hexFile_baseboard+":i");
-					}else{
-						tf = new File(_hexToDownload);
-						v.push("flash:w:"+_hexToDownload+":i");
-					}
-				}else if(currentDevice=="uno"){
-					v.push("-patmega328p");
-					v.push("-carduino"); 
-					v.push("-P"+currentPort);
-					v.push("-b115200");
-					v.push("-D");
-					v.push("-V");
-					v.push("-U");
-					if(_hexToDownload.length==0){
-						var hexFile_uno:String = getHexFilePath();
-						v.push("flash:w:"+hexFile_uno+":i");
-						tf = new File(hexFile_uno);
-					}else{
-						v.push("flash:w:"+_hexToDownload+":i");
-						tf = new File(_hexToDownload);
-					}
-				}else if(currentDevice=="mega1280"){
-					v.push("-patmega1280");
-					v.push("-cwiring");
-					v.push("-P"+currentPort);
-					v.push("-b57600");
-					v.push("-D");
-					v.push("-U");
-					if(_hexToDownload.length==0){
-						var hexFile_mega1280:String = (ApplicationManager.sharedManager().documents.nativePath+"/mBlock/tools/hex/mega1280.hex");//.split("\\").join("/");
-						tf = new File(hexFile_mega1280);
-						v.push("flash:w:"+hexFile_mega1280+":i");
-					}else{
-						tf = new File(_hexToDownload);
-						v.push("flash:w:"+_hexToDownload+":i");
-					}
-				}else if(currentDevice=="mega2560"){
-					v.push("-patmega2560");
-					v.push("-cwiring");
-					v.push("-P"+currentPort);
-					v.push("-b115200");
-					v.push("-D");
-					v.push("-U");
-					if(_hexToDownload.length==0){
-						var hexFile_mega2560:String = getHexFilePath();//.split("\\").join("/");
-						tf = new File(hexFile_mega2560);
-						v.push("flash:w:"+hexFile_mega2560+":i");
-					}else{
-						tf = new File(_hexToDownload);
-						v.push("flash:w:"+_hexToDownload+":i");
-					}
-				}else if(currentDevice=="nano328"){
-					v.push("-patmega328p");
-					v.push("-carduino");
-					v.push("-P"+currentPort);
-					v.push("-b57600");
-					v.push("-D");
-					v.push("-U");
-					if(_hexToDownload.length==0){
-						var hexFile_nano328:String = (ApplicationManager.sharedManager().documents.nativePath+"/mBlock/tools/hex/nano328.hex");//.split("\\").join("/");
-						tf = new File(hexFile_nano328);
-						v.push("flash:w:"+hexFile_nano328+":i");
-					}else{
-						tf = new File(_hexToDownload);
-						v.push("flash:w:"+_hexToDownload+":i");
-					}
-				}else if(currentDevice=="nano168"){
-					v.push("-patmega168");
-					v.push("-carduino");
-					v.push("-P"+currentPort);
-					v.push("-b19200");
-					v.push("-D");
-					v.push("-U");
-					if(_hexToDownload.length==0){
-						var hexFile_nano168:String = (ApplicationManager.sharedManager().documents.nativePath+"/mBlock/tools/hex/nano168.hex");//.split("\\").join("/");
-						tf = new File(hexFile_nano168);
-						v.push("flash:w:"+hexFile_nano168+":i");
-					}else{
-						tf = new File(_hexToDownload);
-						v.push("flash:w:"+_hexToDownload+":i");
-					}
-				}
-				if(tf!=null && tf.exists){
-					_upgradeBytesTotal = tf.size;
-//					trace("total:",_upgradeBytesTotal);
+			var nativeProcessStartupInfo:NativeProcessStartupInfo =new NativeProcessStartupInfo();
+			nativeProcessStartupInfo.executable = file;
+			var v:Vector.<String> = new Vector.<String>();//外部应用程序需要的参数
+			v.push("-C");
+			v.push(getAvrDudeConfig().nativePath)
+			v.push("-v");
+			v.push("-v");
+			v.push("-v");
+			v.push("-v");
+			if(currentDevice=="uno"){
+				v.push("-patmega328p");
+				v.push("-carduino"); 
+				v.push("-P"+currentPort);
+				v.push("-b115200");
+				v.push("-D");
+				v.push("-V");
+				v.push("-U");
+				if(_hexToDownload.length==0){
+					var hexFile_uno:String = getHexFilePath();
+					v.push("flash:w:"+hexFile_uno+":i");
+					tf = new File(hexFile_uno);
 				}else{
-					_upgradeBytesTotal = 0;
+					v.push("flash:w:"+_hexToDownload+":i");
+					tf = new File(_hexToDownload);
 				}
-				nativeProcessStartupInfo.arguments = v;
-				process = new NativeProcess();
-				process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA,onStandardOutputData);
-				process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, onErrorData);
-				process.addEventListener(NativeProcessExitEvent.EXIT, onExit);
-//				process.addEventListener(IOErrorEvent.STANDARD_OUTPUT_IO_ERROR, onIOError);
-//				process.addEventListener(IOErrorEvent.STANDARD_ERROR_IO_ERROR, onIOError);
-				process.start(nativeProcessStartupInfo);
-				sizeInfo.reset();
-				MBlock.app.scriptsPart.clearInfo();
-				MBlock.app.scriptsPart.appendMessage(nativeProcessStartupInfo.executable.nativePath + " " + v.join(" "));
-				ArduinoManager.sharedManager().isUploading = true;
-//			}else{
-//				trace("no support");
-//			}
+			}
+			if(tf!=null && tf.exists){
+				_upgradeBytesTotal = tf.size;
+//				trace("total:",_upgradeBytesTotal);
+			}else{
+				_upgradeBytesTotal = 0;
+			}
+			nativeProcessStartupInfo.arguments = v;
+			process = new NativeProcess();
+			process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA,onStandardOutputData);
+			process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, onErrorData);
+			process.addEventListener(NativeProcessExitEvent.EXIT, onExit);
+//			process.addEventListener(IOErrorEvent.STANDARD_OUTPUT_IO_ERROR, onIOError);
+//			process.addEventListener(IOErrorEvent.STANDARD_ERROR_IO_ERROR, onIOError);
+			process.start(nativeProcessStartupInfo);
+			sizeInfo.reset();
+			MBlock.app.scriptsPart.clearInfo();
+			MBlock.app.scriptsPart.appendMessage(nativeProcessStartupInfo.executable.nativePath + " " + v.join(" "));
+			ArduinoManager.sharedManager().isUploading = true;
 			
 		}
 		
@@ -449,38 +345,14 @@ package extensions
 			if(board.indexOf("_uno") > 0){
 				if(board.indexOf("mbot") >= 0){
 					fileName = "mbot";
-				}else if(board.indexOf("shield") >= 0){
-					fileName = "shield";
 				}else{
 					fileName = "uno";
-				}
-			}else if(board.indexOf("_leonardo") > 0){
-				if(board.indexOf("baseboard") >= 0){
-					fileName = "baseboard";
-				}else{
-					fileName = "leonardo";
-				}
-			}else if(board.indexOf("_mega2560") > 0){
-				if(board.indexOf("auriga") >= 0){
-					fileName = "auriga";
-				}else if(board.indexOf("mega_pi") >= 0){
-					fileName = "mega_pi";
-				}else{
-					fileName = "mega2560";
 				}
 			}else{
 				throw new Error(board);
 			}
 			return ApplicationManager.sharedManager().documents.nativePath + "/mBlock/tools/hex/" + fileName + ".hex";
 		}
-		/*
-		private function onStandardOutputData(event:ProgressEvent):void {
-//			_upgradeBytesLoaded+=process.standardOutput.bytesAvailable;
-			
-//			_dialog.setText(Translator.map('Executing')+" ... "+_upgradeBytesLoaded+"%");
-			LogManager.sharedManager().log(process.standardOutput.readUTFBytes(process.standardOutput.bytesAvailable ));
-		}
-		*/
 		private var errorText:String;
 		private var sizeInfo:UploadSizeInfo = new UploadSizeInfo();
 		private function onStandardOutputData(event:ProgressEvent):void
@@ -515,12 +387,6 @@ package extensions
 			errorText = null;
 			//setTimeout(_dialog.cancel,2000);
 		}
-		/*
-		public function onIOError(event:IOErrorEvent):void
-		{
-			LogManager.sharedManager().log(event.toString());
-		}
-		*/
 		public function executeUpgrade():void {
 			if(!_isInitUpgrade){
 				_isInitUpgrade = true;

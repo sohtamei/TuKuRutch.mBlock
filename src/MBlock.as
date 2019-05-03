@@ -40,12 +40,9 @@ package {
 	import cc.makeblock.util.FlashSprite;
 	import cc.makeblock.util.InvokeMgr;
 	
-	import extensions.BluetoothManager;
 	import extensions.DeviceManager;
 	import extensions.ExtensionManager;
-	import extensions.HIDManager;
 	import extensions.SerialManager;
-	import extensions.SocketManager;
 	
 	import interpreter.Interpreter;
 	
@@ -108,7 +105,7 @@ package {
 //		public const isOffline:Boolean = true; // true when running as an offline (i.e. stand-alone) app
 		public var isSmallPlayer:Boolean; // true when displaying as a scaled-down player (e.g. in search results)
 		public var stageIsContracted:Boolean; // true when the stage is half size to give more space on small screens
-		public var stageIsHided:Boolean;
+		public var stageIsHided:Boolean = true;
 		public var stageIsArduino:Boolean;
 	
 		private var systemMenu:TopSystemMenu;
@@ -214,7 +211,7 @@ package {
 			initRuntime();
 //			try{
 				extensionManager = new ExtensionManager(this);
-				var extensionsPath:File = ApplicationManager.sharedManager().documents.resolvePath("mBlock");
+				var extensionsPath:File = ApplicationManager.sharedManager().documents.resolvePath("RemoconRobo");
 				if(!extensionsPath.exists){
 					SharedObjectManager.sharedManager().clear();
 					SharedObjectManager.sharedManager().setObject(versionString+".0."+_currentVer,true);
@@ -242,7 +239,6 @@ package {
 			else runtime.installEmptyProject();
 			
 			fixLayout();
-			setTimeout(SocketManager.sharedManager, 100);
 			setTimeout(DeviceManager.sharedManager, 100);
 			if(!SharedObjectManager.sharedManager().getObject("mblock-first-launch",false))
 			{
@@ -261,7 +257,7 @@ package {
 			//VersionManager.sharedManager().start(); //在线更新资源文件
 			if(SharedObjectManager.sharedManager().getObject("first-launch",true)){
 				SharedObjectManager.sharedManager().setObject("first-launch",false);
-				openWelcome();
+				//openWelcome();
 			}
 			initExtension();
 			MenuBuilder.BuildMenuList(XMLList(FileUtil.LoadFile("assets/context_menus.xml")));
@@ -303,7 +299,6 @@ package {
 		private function initExtension():void{
 //			ClickerManager.sharedManager().update();
 			SerialManager.sharedManager().setMBlock(this);
-			HIDManager.sharedManager().setMBlock(this);
 		}
 		private function openWelcome():void{
 			openSwf("welcome.swf");
@@ -377,7 +372,6 @@ package {
 			else
 			{
 				SerialManager.sharedManager().disconnect();
-				HIDManager.sharedManager().disconnect();
 			}
 			MBlock.app.gh.mouseUp(new MouseEvent(MouseEvent.MOUSE_UP));
 			
@@ -387,7 +381,6 @@ package {
 		public function quitApp():void
 		{
 			SerialManager.sharedManager().disconnect();
-			HIDManager.sharedManager().disconnect();
 			NativeApplication.nativeApplication.exit();
 			track("/app/exit");
 			LogManager.sharedManager().save();
@@ -747,10 +740,6 @@ package {
 			systemMenu.changeLang();
 		}
 		
-		public function openBluetooth(b:*):void{
-			BluetoothManager.sharedManager().discover();
-		}
-		
 		private function clearProject():void
 		{
 			startNewProject('', '');
@@ -1030,11 +1019,11 @@ package {
 				var file:File = new File(File.applicationDirectory.nativePath);
 				if(ApplicationManager.sharedManager().system==ApplicationManager.WINDOWS)
 				{
-					file = file.resolvePath("mBlock.exe");
+					file = file.resolvePath("RemoconRobo.exe");
 				}
 				else
 				{
-					file = file.resolvePath("../MacOS/mBlock");
+					file = file.resolvePath("../MacOS/RemoconRobo");
 				}
 				
 				if(!file.exists)

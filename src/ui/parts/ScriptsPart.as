@@ -89,14 +89,6 @@ public class ScriptsPart extends UIPart {
 	private var backBt:Button = new Button(Translator.map("Back"));
 	private var uploadBt:Button = new Button(Translator.map("Upload to Arduino"));
 	private var openBt:Button = new Button(Translator.map("Open with Arduino IDE"));
-//	private var sendBt:Button = new Button(Translator.map("Send"));
-//	private var sendTextPane:TextPane;
-//	
-//	private var isByteDisplayMode:Boolean = true;
-//	private var displayModeBtn:Button = new Button(Translator.map("binary mode"));
-	
-//	private var isByteInputMode:Boolean = false;
-//	private var inputModeBtn:Button = new Button(Translator.map("char mode"));
 	
 	private var arduinoCodeText:String = "";
 	
@@ -131,15 +123,7 @@ public class ScriptsPart extends UIPart {
 //		arduinoTextPane.type = TextFieldType.INPUT;
 		var ft:TextFormat = new TextFormat("Arial",14,0x00325a);
 		ft.blockIndent = 5;
-		/*
-		sendTextPane = new TextPane();
-		sendTextPane.textField.defaultTextFormat = ft;
-		sendTextPane.textField.background = true;
-		sendTextPane.textField.backgroundColor = 0xf8f8f8;
-		sendTextPane.textField.type = TextFieldType.INPUT;
-		sendTextPane.textField.multiline = false;
-		sendTextPane.scrollbar.visible = false;
-		*/
+
 		backBt.x = 10;
 		backBt.y = 10;
 		backBt.addEventListener(MouseEvent.CLICK,onHideArduino);
@@ -210,43 +194,6 @@ public class ScriptsPart extends UIPart {
 		paletteFrame.hideRightPart();
 		setChildIndex(paletteFrame, paletteIndex);
 	}
-	/*
-	private function onInputModeChange(evt:MouseEvent):void
-	{
-		var str:String = sendTextPane.textField.text;
-//		isByteInputMode = !isByteInputMode;
-		if(isByteInputMode){
-			sendTextPane.textField.restrict = "0-9 a-fA-F";
-//			inputModeBtn.setLabel(Translator.map("binary mode"));
-		}else{
-			sendTextPane.textField.restrict = null;
-//			inputModeBtn.setLabel(Translator.map("char mode"));
-		}
-		if(str.length <= 0){
-			return;
-		}
-		var bytes:ByteArray;
-		if(isByteInputMode){
-			bytes = new ByteArray();
-			bytes.writeUTFBytes(str);
-			sendTextPane.textField.text = HexUtil.bytesToString(bytes);
-		}else{
-			bytes = HexUtil.stringToBytes(str);
-			sendTextPane.textField.text = bytes.readUTFBytes(bytes.length);
-		}
-		bytes.clear();
-	}
-	
-	private function onDisplayModeChange(evt:MouseEvent):void
-	{
-		isByteDisplayMode = !isByteDisplayMode;
-		if(isByteDisplayMode){
-			displayModeBtn.setLabel(Translator.map("binary mode"));
-		}else{
-			displayModeBtn.setLabel(Translator.map("char mode"));
-		}
-	}
-	*/
 	public function appendMessage(msg:String):void{
 		appendRawMessage(msg+"\n");
 	}
@@ -365,30 +312,6 @@ public class ScriptsPart extends UIPart {
 		}
 	}
 	
-	static private const classNameList:Array = [
-		"SoftwareSerial",
-		"MeBoard",
-		"MeDCMotor",
-		"MeServo",
-		"MeIR",
-		"Me7SegmentDisplay",
-		"MeRGBLed",
-		"MePort",
-		"MeGyro",
-		"MeJoystick",
-		"MeLight",
-		"MeSound",
-		"MeStepper",
-		"MeEncoderMotor",
-		"MeInfraredReceiver",
-		"MeTemperature",
-		"MeUltrasonicSensor",
-		"MeSerial",
-		"Servo",
-		"mBot",
-		"Arduino",
-	];
-	
 	public function showArduinoCode(arg:String=""):Boolean{
 		var retcode:String = "";
 		try{
@@ -407,67 +330,7 @@ public class ScriptsPart extends UIPart {
 		for(var i:uint=0;i<5;i++){
 			formatCode = formatCode.split("\r\n\r\n").join("\r\n").split("\r\n\t\r\n").join("\r\n");
 		}
-		/*
-		var codes:Array = formatCode.split("\n");
-		var fontGreen:TextFormat = new TextFormat("Arial",14,0x006633);
-		var fontYellow:TextFormat = new TextFormat("Arial",14,0x999900);
-		var fontOrange:TextFormat = new TextFormat("Arial",14,0x996600);
-		var fontRed:TextFormat = new TextFormat("Arial",14,0x990000);
-		var fontBlue:TextFormat = new TextFormat("Arial",14,0x000099);
-		*/
 		arduinoCodeText = formatCode;
-		/*
-		formatKeyword(/(setup|loop)(?=\(\))/g, fontOrange);
-		formatKeyword(/for|if|else|while/g, fontOrange);
-		formatKeyword(/(?=^|\s)(void|String|int|char|double|boolean|true|false|#include)(?= )/gm, fontRed);
-		formatKeyword(/(PORT|SLOT)_\d/g, fontOrange);
-		
-		formatKeyword(arduinoTextPane.textField," setup()",fontRed,1,2);
-		formatKeyword(arduinoTextPane.textField," loop()",fontRed,1,2);
-		formatKeyword(arduinoTextPane.textField,"Serial.",fontRed,0,1);
-		formatKeyword(arduinoTextPane.textField,".begin(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".available(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".println(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".print(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".read(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".length(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,"return ",fontOrange,0,1);
-		formatKeyword(arduinoTextPane.textField,".run(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".runSpeed(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".setMaxSpeed(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".move(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".moveTo(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".attach(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".charAt(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,"memset",fontOrange,0,0);
-		formatKeyword(arduinoTextPane.textField,".write(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".display(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".setColorAt(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".show(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".dWrite1(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".dWrite2(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".dRead1(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,".dRead2(",fontOrange,1,1);
-		formatKeyword(arduinoTextPane.textField,"delay(",fontRed,0,1);
-		formatKeyword(arduinoTextPane.textField,"OUTPUT)",fontOrange,0,1);
-		formatKeyword(arduinoTextPane.textField,"INPUT)",fontOrange,0,1);
-		formatKeyword(arduinoTextPane.textField,"pinMode(",fontRed,0,1);
-		formatKeyword(arduinoTextPane.textField,"digitalWrite(",fontRed,0,1);
-		formatKeyword(arduinoTextPane.textField,"digitalRead(",fontRed,0,1);
-		formatKeyword(arduinoTextPane.textField,"analogWrite(",fontRed,0,1);
-		formatKeyword(arduinoTextPane.textField,"analogRead(",fontRed,0,1);
-		formatKeyword(arduinoTextPane.textField,"getAngle(",fontRed,0,1);
-		formatKeyword(arduinoTextPane.textField,"refresh(",fontRed,0,1);
-		formatKeyword(arduinoTextPane.textField,"update(",fontRed,0,1);
-		
-		formatKeyword(arduinoTextPane.textField,"tone(",fontRed,0,1);
-		formatKeyword(arduinoTextPane.textField,"noTone(",fontRed,0,1);
-		formatKeyword(arduinoTextPane.textField,"Wire.",fontGreen,0,1);
-		
-		for each(var clsName:String in classNameList){
-			formatKeyword(arduinoTextPane.textField, clsName, fontGreen, 0, 0);
-		}
-		*/
 		
 		htmlLoader.window.setCode(arduinoCodeText);
 		
@@ -501,10 +364,6 @@ public class ScriptsPart extends UIPart {
 		return true;
 	}
 	static private var isDialogBoxShowing:Boolean;
-//	private function formatKeyword(pattern:RegExp,format:TextFormat,subStart:uint=0,subEnd:uint=0):void
-//	{
-//		arduinoCodeText = arduinoCodeText.replace(pattern, '<font color="#' + format.color.toString(16) + '">$&</font>');
-//	}
 	public function resetCategory():void { selector.select(Specs.motionCategory) }
 
 	public function updatePalette():void {
@@ -600,23 +459,7 @@ public class ScriptsPart extends UIPart {
 		htmlLoader.y = arduinoFrame.y + 40;
 		htmlLoader.width = arduinoWidth;
 		htmlLoader.height = arduinoHeight - 40;
-//		arduinoTextPane.setWidthHeight(arduinoWidth-lineNumWidth-lineNumText.x-5,arduinoHeight-255);
-//		arduinoTextPane.x = lineNumText.x+lineNumText.width+5;
-//		arduinoTextPane.y = 45;
-//		messageTextPane.x = 4;
-//		messageTextPane.y = arduinoHeight-200;
-//		messageTextPane.setWidthHeight(arduinoWidth-messageTextPane.x,155);
 		openBt.x = arduinoWidth - openBt.width - 10;
-//		sendTextPane.x = 8 + 200;
-//		sendTextPane.y = arduinoHeight - 33;
-//		sendTextPane.setWidthHeight(arduinoWidth-sendBt.width-sendTextPane.x-10,20);
-//		sendBt.x = arduinoWidth - sendBt.width - 10;
-//		sendBt.y = arduinoHeight - 35;
-//		displayModeBtn.x = htmlLoader.width - displayModeBtn.width;
-//		displayModeBtn.y = htmlLoader.height - 200;
-//		inputModeBtn.x = 4;
-//		inputModeBtn.y = sendBt.y;
-//		messageTextPane.updateScrollbar(null);
 		spriteWatermark.x = w - arduinoWidth - 60;
 		spriteWatermark.y = scriptsFrame.y + 10;
 		xyDisplay.x = spriteWatermark.x + 1;

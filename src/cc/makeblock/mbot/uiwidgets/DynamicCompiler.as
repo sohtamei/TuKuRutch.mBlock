@@ -84,17 +84,8 @@ package cc.makeblock.mbot.uiwidgets
 		
 		private function getFileName():String
 		{
-			switch(DeviceManager.sharedManager().currentName){
-				case "mBot":
-					return "firmware/mbot_firmware/mbot_firmware.ino";
-				case "Me Orion":
-					return "firmware/orion_firmware/orion_firmware.ino";
-				case "Me Baseboard":
-					return "firmware/baseboard_firmware/baseboard_firmware.ino";
-				case "UNO Shield":
-					return "firmware/shield_firmware/shield_firmware.ino";
-			}
-			return null;
+		//	switch(DeviceManager.sharedManager().currentName){
+			return "firmware/mbot_firmware/mbot_firmware.ino";
 		}
 		
 		private function __onCompile(evt:AWEvent):void

@@ -67,7 +67,8 @@ public class Translator {
 	public static function initializeLanguageList():void {
 		// Get a list of language names for the languages menu from the server.
 		languages = MBlock.app.server.getLanguageList();
-		setLanguage(SharedObjectManager.sharedManager().getObject("lang",Capabilities.language=="zh-CN"?'zh_CN':(Capabilities.language=="zh-TW"?'zh_TW':'en')));
+	//	setLanguage(SharedObjectManager.sharedManager().getObject("lang",Capabilities.language=="zh-CN"?'zh_CN':(Capabilities.language=="zh-TW"?'zh_TW':'en')));
+		setLanguage('ja');
 	}
 	
 	public static function setLanguage(lang:String):void {

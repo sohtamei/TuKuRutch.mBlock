@@ -64,8 +64,6 @@ package ui.parts {
 		protected var extensionMenu:IconButton;
 		
 	//	protected var serialMenu:IconButton;
-	//	protected var bluetoothMenu:IconButton;
-	//	protected var socketMenu:IconButton;
 		protected var shareMenu:IconButton;
 		protected var faqMenu:IconButton;
 		protected var aboutMenu:IconButton;
@@ -282,7 +280,6 @@ package ui.parts {
 	//		if(ApplicationManager.sharedManager().system==ApplicationManager.WINDOWS){
 	//			addChild(bluetoothMenu = makeMenuButton(!SerialManager.sharedManager().isBluetoothSupported?"No Bluetooth":(SerialManager.sharedManager().isBluetoothConnected?'Disconnect Bluetooth':'Bluetooth'), app.openBluetooth, false));
 	//		}
-	//		addChild(socketMenu = makeMenuButton('Network',app.showNetworkMenu,true));
 			addChild(deviceMenu = makeMenuButton(Translator.map('Boards')+" ( "+DeviceManager.sharedManager().currentName+" )",app.showBoardMenu,true));
 			addChild(extensionMenu = makeMenuButton('Extensions',app.showExtensionMenu,true));
 			if(ApplicationManager.sharedManager().isCatVersion){
@@ -399,18 +396,6 @@ package ui.parts {
 			this.fixLayout();
 			*/
 		}
-	//	public function setSocketConnectedTitle(title:String):void{
-	//		removeChild(socketMenu);
-	//		addChild(socketMenu = makeMenuButton(title, app.showNetworkMenu, true));
-	//		this.fixLayout();
-	//	}
-	//	public function setBluetoothTitle(connected:Boolean):void{
-	//		if(ApplicationManager.sharedManager().system==ApplicationManager.WINDOWS){
-	//			removeChild(bluetoothMenu);
-	//			addChild(bluetoothMenu = makeMenuButton(!SerialManager.sharedManager().isBluetoothSupported?"No Bluetooth":(connected?"Disconnect Bluetooth":"Bluetooth"), app.openBluetooth, false));
-	//		}
-	//		this.fixLayout();
-	//	}
 		public function setDisconnectedTitle():void{
 			AppTitleMgr.Instance.setConnectInfo(null);
 			/*
@@ -419,10 +404,5 @@ package ui.parts {
 			this.fixLayout();
 			*/
 		}
-	//	public function setSocketDisconnectedTitle():void{
-	//		removeChild(socketMenu);
-	//		addChild(socketMenu = makeMenuButton('Network', app.showNetworkMenu, true));
-	//		this.fixLayout();
-	//	}
 	}
 }

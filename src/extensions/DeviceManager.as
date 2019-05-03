@@ -32,29 +32,10 @@ package extensions
 			this.board = value;
 			var oldBoard:String = SharedObjectManager.sharedManager().getObject("board");
 			SharedObjectManager.sharedManager().setObject("board",_board);
-			if(_board=="picoboard_unknown"){
-				MBlock.app.extensionManager.singleSelectExtension("PicoBoard");
-			}else{
-				if(_board=="mbot_uno"){
-					MBlock.app.extensionManager.singleSelectExtension("mBot");
-				}else if(_board.indexOf("arduino")>-1){
-					MBlock.app.extensionManager.singleSelectExtension("Arduino");
-				}else if(_board.indexOf("me/orion_uno")>-1){
-					if(oldBoard.indexOf("me/orion_uno") < 0){
-						MBlock.app.openOrion();
-					}
-					MBlock.app.extensionManager.singleSelectExtension("Orion");
-				}else if(_board.indexOf("me/baseboard")>-1){
-					MBlock.app.extensionManager.singleSelectExtension("BaseBoard");
-				}else if(_board.indexOf("me/uno_shield")>-1){
-					MBlock.app.extensionManager.singleSelectExtension("UNO Shield");
-				}else if(_board.indexOf("me/auriga") >= 0){
-					MBlock.app.extensionManager.singleSelectExtension("Auriga");
-				}else if(_board.indexOf("me/mega_pi") >= 0){
-					MBlock.app.extensionManager.singleSelectExtension("MegaPi");
-				}else{
-					MBlock.app.extensionManager.singleSelectExtension("PicoBoard");
-				}
+			if(_board=="mbot_uno"){
+				MBlock.app.extensionManager.singleSelectExtension("FamilyDay");//"mBot");
+			}else if(_board.indexOf("arduino")>-1){
+				MBlock.app.extensionManager.singleSelectExtension("Arduino");
 			}
 			MBlock.app.topBarPart.setBoardTitle();
 		}
@@ -65,20 +46,8 @@ package extensions
 			_name = "";
 			if(_board.indexOf("mbot")>-1){
 				_name = "mBot";
-			}else if(_board.indexOf("orion")>-1){
-				_name = "Me Orion";
-			}else if(_board.indexOf("baseboard")>-1){
-				_name = "Me Baseboard";
 			}else if(_board.indexOf("arduino")>-1){
 				_name = "Arduino "+_device.substr(0,1).toLocaleUpperCase()+_device.substr(1,_device.length);
-			}else if(_board.indexOf("picoboard")>-1){
-				_name = "PicoBoard";
-			}else if(_board.indexOf("shield") > -1){
-				_name = "UNO Shield";
-			}else if(_board.indexOf("auriga") >= 0){
-				_name = "Me Auriga";
-			}else if(_board.indexOf("mega_pi") >= 0){
-				_name = "Mega Pi";
 			}
 			return _name;
 		}

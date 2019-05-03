@@ -27,18 +27,6 @@ package extensions
 		}
 		public function onConnect(name:String):void{
 			switch(name){
-				case "discover_bt":{
-					BluetoothManager.sharedManager().discover();
-					break;
-				}
-				case "clear_bt":{
-					BluetoothManager.sharedManager().clearHistory();
-					break;
-				}
-				case "netframework":{
-					navigateToURL(new URLRequest("http://www.microsoft.com/en-us/download/details.aspx?id=30653"));
-					break;
-				}
 				case "view_source":{
 					SerialManager.sharedManager().openSource();
 					break;
@@ -49,10 +37,6 @@ package extensions
 				}
 				case "reset_program":{
 					SerialManager.sharedManager().upgrade(ApplicationManager.sharedManager().documents.resolvePath("mBlock/tools/hex/mbot_reset.hex").nativePath);
-					break;
-				}
-				case "connect_network":{
-					SocketManager.sharedManager().probe("custom");
 					break;
 				}
 				case "driver":{
@@ -68,15 +52,6 @@ package extensions
 					}
 					break;
 				}
-				case "connect_hid":{
-					BlockInterpreter.Instance.stopAllThreads();
-					if(!HIDManager.sharedManager().isConnected){
-						HIDManager.sharedManager().onOpen();
-					}else{
-						HIDManager.sharedManager().onClose();
-					}
-					break;
-				}
 				default:{
 					BlockInterpreter.Instance.stopAllThreads();
 					var isConnectCmd:Boolean = false;
@@ -85,16 +60,6 @@ package extensions
 						MBlock.app.track("/Connect/Serial");
 						isConnectCmd = true;
 						SerialManager.sharedManager().connect(name.split("serial_").join(""));
-					}
-					if(name.indexOf("bt_")>-1){
-						MBlock.app.track("/Connect/Bluetooth");
-						isConnectCmd = true;
-						BluetoothManager.sharedManager().connect(name.split("bt_").join(""));
-					}
-					if(name.indexOf("net_")>-1){
-						MBlock.app.track("/Connect/Net");
-						isConnectCmd = true;
-						SocketManager.sharedManager().probe(name.split("net_")[1]);
 					}
 					
 					if(isConnectCmd) {	// collect data on what type of board it connected to
@@ -108,15 +73,7 @@ package extensions
 		public function open(port:String,baud:uint=115200):Boolean{
 			LogManager.sharedManager().log("connection:"+port);
 			if(port){
-				if(port.indexOf("COM")>-1||port.indexOf("/dev/tty.")>-1){
-					return SerialManager.sharedManager().open(port,baud);
-				}else if(port.indexOf(" (")>-1){
-					return BluetoothManager.sharedManager().open(port);
-				}else if(port.indexOf("HID")>-1){
-					return HIDManager.sharedManager().open();
-				}else{
-					return SocketManager.sharedManager().open(port);
-				}
+				return SerialManager.sharedManager().open(port,baud);
 			}
 			return false;
 		}
@@ -125,11 +82,7 @@ package extensions
 			if(!SerialDevice.sharedDevice().connected){
 				MBlock.app.topBarPart.setDisconnectedTitle();
 			}else{
-				if(SerialManager.sharedManager().isConnected||HIDManager.sharedManager().isConnected||BluetoothManager.sharedManager().isConnected){
-					MBlock.app.topBarPart.setConnectedTitle("Serial Port");
-				}else{
-					MBlock.app.topBarPart.setConnectedTitle("Network");
-				}
+				MBlock.app.topBarPart.setConnectedTitle("Connect");
 			}
 			BlockInterpreter.Instance.stopAllThreads();
 			this.dispatchEvent(new Event(Event.CLOSE));
@@ -157,10 +110,6 @@ package extensions
 		public function sendBytes(bytes:ByteArray):void{
 			if(SerialManager.sharedManager().isConnected){
 				SerialManager.sharedManager().sendBytes(bytes);
-			}else if(BluetoothManager.sharedManager().isConnected){
-				BluetoothManager.sharedManager().sendBytes(bytes);
-			}else if(HIDManager.sharedManager().isConnected){
-				HIDManager.sharedManager().sendBytes(bytes);
 			}
 			bytes.clear();
 		}

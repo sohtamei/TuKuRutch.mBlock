@@ -31,7 +31,6 @@ package cc.makeblock.interpreter
 		}
 		
 		private var mbotTimer:int;
-		private var netExt:NetExtension = new NetExtension();
 		private var speechAPI:SpeechToText = new SpeechToText();
 		private var speakerAPI:SpeakerDetection = new SpeakerDetection();
 		private var emotionAPI:EmotionDetection = new EmotionDetection();
@@ -50,10 +49,6 @@ package cc.makeblock.interpreter
 			}
 			var extName:String = name.slice(0, index);
 			var opName:String = name.slice(index+1);
-			if(extName == "Communication"){
-				netExt.exec(thread, opName, argList);
-				return;
-			}
 			var ext:ScratchExtension = MBlock.app.extensionManager.extensionByName(extName);
 			if(extName.toLocaleLowerCase().indexOf("microsoft cognitive services")>-1){
 				var o:* = ext.getStateVar(opName)

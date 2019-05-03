@@ -510,8 +510,7 @@ package scratch {
 //			app.oldWebsiteURL = '';
 			installProject(new ScratchStage());
 			var io:ProjectIO = new ProjectIO(app);
-			//21d7c8705a0fdeea32affb616ee6c984
-			io.fetchSprite("mcat.json", whenDone);
+			io.fetchSprite("21d7c8705a0fdeea32affb616ee6c984.json", whenDone);
 		}
 	
 		public function installNewProject():void {

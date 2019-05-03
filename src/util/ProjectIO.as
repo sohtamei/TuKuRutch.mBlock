@@ -165,11 +165,13 @@ public class ProjectIO {
 		}
 		if (jsonData == null) return null;
 		jsonData = fixForNewExtension(jsonData);
-		if(jsonData.indexOf("PicoBoard")>-1){
-			DeviceManager.sharedManager().onSelectBoard("picoboard_unknown");
-		}else if(jsonData.indexOf("Makeblock")>-1){
+		if(jsonData.indexOf("Makeblock")>-1){
 			if(!MBlock.app.extensionManager.checkExtensionSelected("Makeblock")){
 				MBlock.app.extensionManager.onSelectExtension("Makeblock");
+			}
+		}else if(jsonData.indexOf("FamilyDay")>-1){
+			if(!MBlock.app.extensionManager.checkExtensionSelected("FamilyDay")){
+				MBlock.app.extensionManager.onSelectExtension("FamilyDay");
 			}
 		}else if(jsonData.indexOf("Arduino.")>-1){
 			if(!MBlock.app.extensionManager.checkExtensionSelected("Arduino")){

@@ -37,7 +37,7 @@ package extensions
 			return _instance;
 		}
 		public function get connected():Boolean{
-			if(SerialManager.sharedManager().isConnected||SocketManager.sharedManager().connected()||HIDManager.sharedManager().isConnected){
+			if(SerialManager.sharedManager().isConnected){
 				return true;
 			}
 			return false;
@@ -65,7 +65,6 @@ package extensions
 		}
 		public function parseEncode(url:String,encode:String,nextID:int,args:*,ext:ScratchExtension):void{
 			SerialManager.sharedManager().update();
-			SocketManager.sharedManager().update();
 			encode = substitute(encode,args,ext);
 			var bytes:ByteArray = new ByteArray;
 			bytes.endian = Endian.LITTLE_ENDIAN;
@@ -137,7 +136,6 @@ package extensions
 		}
 		public function parse(url:String):void{
 			//SerialManager.sharedManager().update();
-			//SocketManager.sharedManager().update();
 			if(url.indexOf("serial")>-1){
 				var c:Array = url.split("/");
 				var buf:ByteArray = new ByteArray();
@@ -177,12 +175,6 @@ package extensions
 		public function sendBytes(bytes:ByteArray):void{
 			if(SerialManager.sharedManager().isConnected){
 				SerialManager.sharedManager().sendBytes(bytes);
-			}
-			if(SocketManager.sharedManager().connected()){
-				SocketManager.sharedManager().sendBytes(bytes);
-			}
-			if(HIDManager.sharedManager().isConnected){
-				HIDManager.sharedManager().sendBytes(bytes);
 			}
 		}
 		

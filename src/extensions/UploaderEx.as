@@ -65,20 +65,6 @@ package extensions
 		
 		private function getBoardInfo():String
 		{
-			var board:String = DeviceManager.sharedManager().currentBoard;
-			if(board.indexOf("_uno") >= 0){
-				return "arduino:avr:uno";
-			}else if(board.indexOf("_leonardo") >= 0){
-				return "arduino:avr:leonardo";
-			}else if(board.indexOf("_mega2560") >= 0){
-				return "arduino:avr:mega:cpu=atmega2560";
-			}else if(board.indexOf("_mega1280") >= 0){
-				return "arduino:avr:mega:cpu=atmega1280";
-			}else if(board.indexOf("_nano328") >= 0){
-				return "arduino:avr:nano:cpu=atmega328";
-			}else if(board.indexOf("_nano168") >= 0){
-				return "arduino:avr:nano:cpu=atmega168";
-			}
 			return "arduino:avr:uno";
 		}
 		
@@ -88,15 +74,7 @@ package extensions
 			if(event.exitCode == 0){
 				_dialog.setText(Translator.map('Upload Finish'));
 			}else{
-				if(DeviceManager.sharedManager().currentBoard=="me/orion_uno")
-				{
-					_dialog.setText(Translator.map('Upload Failed, please remove the bluetooth module'));
-				}
-				else
-				{
-					_dialog.setText(Translator.map('Upload Failed'));
-				}
-				
+				_dialog.setText(Translator.map('Upload Failed'));
 			}
 			AppTitleMgr.Instance.setConnectInfo(null);
 			//SerialManager.sharedManager().reopen();
