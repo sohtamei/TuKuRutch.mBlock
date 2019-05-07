@@ -24,8 +24,8 @@
 	May have multiple values for each language. See samples or xsd schema file. Optional. -->
 	<name>
         <text xml:lang="zh-CN">RemoconRobo</text>
-		<text xml:lang="EN">RemoconRobo - Based On Scratch2.0(MIT Media Lab) and mBlock3(Makeblock)</text>
-		<text xml:lang="JA">リモコンロボ - スクラッチ2.0とmBlock3を元に開発</text>
+		<text xml:lang="EN">RemoconRobo1.0 - Based On Scratch2.0(MIT Media Lab) and mBlock3(Makeblock)</text>
+		<text xml:lang="JA">リモコンロボ1.0 (スクラッチ2.0とmBlock3から)</text>
 	</name>
 	
 	<!-- A string value of the format <0-999>.<0-999>.<0-999> that represents application version which can be used to check for application upgrade. 

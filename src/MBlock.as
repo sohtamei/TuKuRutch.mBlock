@@ -181,7 +181,7 @@ package {
 		
 		private function initStage(evt:Event):void{
 			removeEventListener(Event.ADDED_TO_STAGE,initStage);
-			stage.nativeWindow.title += "(" + versionString + ")";
+		//	stage.nativeWindow.title += "(" + versionString + ")";
 			AsWingManager.initAsStandard(this);
 			UIManager.setLookAndFeel(new MyLookAndFeel());
 			AppTitleMgr.Instance.init(stage.nativeWindow);
@@ -190,7 +190,7 @@ package {
 			track("/app/launch");
 			new InvokeMgr();
 			stage.nativeWindow.addEventListener(Event.CLOSING,onExiting);
-			AppUpdater.getInstance().start();
+		//	AppUpdater.getInstance().start();
 			stage.align = StageAlign.TOP_LEFT;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			
