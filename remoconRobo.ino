@@ -1,56 +1,70 @@
+// copyright to SohtaMei 2019.
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <Arduino.h>
 #include <util/delay.h>
 
-#include "familydayLibrary.h"
+#include "remoconRoboLib.h"
 
-//#define CAT_TIRE
-
-enum {
-	T_C4=262, T_D4=294, T_E4=330, T_F4=349, T_G4=392, T_A4=440, T_B4=494,
-	T_C5=523, T_D5=587, T_E5=659, T_F5=698,
-};
+//#define DEF_CH4
 
 static int speed = 255;
 static const uint8_t SpeedTable[10] = { 48, 71, 94, 117, 140, 163, 186, 209, 232, 255};
 
+
 void setup()
 {
-	familyday_init();
+	remoconRobo_init();
 
-//	Serial.begin(9600);
-
+//	Serial.begin(115200);
+#ifdef DEF_CH4
+	remoconRobo_initCh4();
+#endif
 	beep(T_C4);
 	beep(T_D4);
 	beep(T_E4);
-//	char buf[64]; sprintf(buf, "%d\n", familyday_getCalib()); Serial.print(buf);
+//	char buf[64]; sprintf(buf, "%d\n", remoconRobo_getCalib()); Serial.print(buf);
 }
 
 void loop()
 {
 	while (1) {
-		int key = familyday_getRemoteUpdated();
-		if(key & 0x100) {
-			switch(key & 0xFF) {
-			case BUTTON_A: if(!familyday_calibLeft())  {beep(T_C4);} break;
-			case BUTTON_B: if(!familyday_calibRight()) {beep(T_D4);} break;
-		//	case BUTTON_C: beep(T_E4); break;
+		int remote = remoconRobo_checkRemote();
+		if(remote) {
+			union remoconData rData =  remoconRobo_getRemoteData();
 
-			case BUTTON_D:		familyday_setMotor(2,  speed); digitalWrite(13, 1); break;
-			case BUTTON_E:		familyday_setMotor(2, -speed); digitalWrite(13, 1); break;
+			//char buf[64]; sprintf(buf, "%d, %d, %d\r\n", rData.keys, rData.down_up, rData.LR); Serial.print(buf);
+			if(remote == REMOTE_ANALOG)
+				remoconRobo_setRobotLR(rData.down_up + rData.LR,	// L
+									 rData.down_up - rData.LR);	// R
+
+			switch(rData.keys) {
+			case BUTTON_A: if(!remoconRobo_calibLeft())  {beep(T_C4);} break;
+		//	case BUTTON_B:
+			case BUTTON_C: if(!remoconRobo_calibRight()) {beep(T_D4);} break;
+
+			case BUTTON_A_RIGHT:
+			case BUTTON_D:		remoconRobo_setMotor(CH3,  speed); break;
+			case BUTTON_A_LEFT:
+			case BUTTON_E:		remoconRobo_setMotor(CH3, -speed); break;
 
 			case BUTTON_CENTER:
-			case BUTTON_UP:		familyday_setRobot(DIR_FORWARD, speed); digitalWrite(13, 1); break;
-			case BUTTON_DOWN:	familyday_setRobot(DIR_BACK,    speed); digitalWrite(13, 1); break;
-		#ifdef CAT_TIRE
-			case BUTTON_LEFT:	familyday_setRobot(DIR_ROLL_LEFT, speed); digitalWrite(13, 1); break;
-			case BUTTON_RIGHT:	familyday_setRobot(DIR_ROLL_RIGHT,speed); digitalWrite(13, 1); break;
+			case BUTTON_UP:		remoconRobo_setRobot(DIR_FORWARD, speed); break;
+			case BUTTON_DOWN:	remoconRobo_setRobot(DIR_BACK,    speed); break;
+		#ifdef DEF_CH4
+			case BUTTON_LEFT:	remoconRobo_setRobot(DIR_ROLL_LEFT, speed); break;
+			case BUTTON_RIGHT:	remoconRobo_setRobot(DIR_ROLL_RIGHT,speed); break;
+
+			case BUTTON_A_UP:
+			case BUTTON_0:		remoconRobo_setMotor(CH4,  1); break;
+			case BUTTON_A_DOWN:
+			case BUTTON_F:		remoconRobo_setMotor(CH4, -1); break;
 		#else
-			case BUTTON_LEFT:	familyday_setRobot(DIR_LEFT,    speed); digitalWrite(13, 1); break;
-			case BUTTON_RIGHT:	familyday_setRobot(DIR_RIGHT,   speed); digitalWrite(13, 1); break;
-			case BUTTON_0:		familyday_setRobot(DIR_ROLL_LEFT, speed); digitalWrite(13, 1); break;
-			case BUTTON_F:		familyday_setRobot(DIR_ROLL_RIGHT,speed); digitalWrite(13, 1); break;
+			case BUTTON_LEFT:	remoconRobo_setRobot(DIR_LEFT,    speed); break;
+			case BUTTON_RIGHT:	remoconRobo_setRobot(DIR_RIGHT,   speed); break;
+			case BUTTON_0:		remoconRobo_setRobot(DIR_ROLL_LEFT, speed); break;
+			case BUTTON_F:		remoconRobo_setRobot(DIR_ROLL_RIGHT,speed); break;
 		#endif
 			case BUTTON_1: beep(T_C4); speed = SpeedTable[1]; break;
 			case BUTTON_2: beep(T_D4); speed = SpeedTable[2]; break;
@@ -62,7 +76,13 @@ void loop()
 			case BUTTON_8: beep(T_C5); speed = SpeedTable[8]; break;
 			case BUTTON_9: beep(T_D5); speed = SpeedTable[9]; break;
 
-			default: familyday_setRobot(DIR_FORWARD, 0); familyday_setMotor(2, 0); digitalWrite(13, 0); break;
+			default:
+				if(remote != REMOTE_ANALOG) remoconRobo_setRobotLR(0, 0);
+				remoconRobo_setMotor(CH3, 0);
+			#ifdef DEF_CH4
+				remoconRobo_setMotor(CH4, 0);
+			#endif
+				break;
 			}
 		}
 		delay(50);
@@ -71,5 +91,5 @@ void loop()
 
 static void beep(int sound)
 {
-	familyday_tone(sound, 300);
+	remoconRobo_tone(sound, 300);
 }
