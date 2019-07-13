@@ -433,9 +433,9 @@ int remoconRobo_incCalib(int offset)
 
 // MP3 ----------------
 
-#include "SoftwareSerial.h"
+#include "SoftwareSerialRR.h"
 
-static _SoftwareSerial mySerial(PORT_TONE, 9600); // RX, TX
+static SoftwareSerialRR mySerial(PORT_TONE, 9600); // RX, TX
 
 static uint8_t loop_flag = 1;
 

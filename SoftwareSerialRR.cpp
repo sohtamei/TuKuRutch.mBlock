@@ -30,15 +30,15 @@ http://arduiniana.org.
 */
 
 #include <Arduino.h>
-#include "SoftwareSerial.h"
+#include "SoftwareSerialRR.h"
 #include <util/delay_basic.h>
 
 /* static */ 
-inline void _SoftwareSerial::tunedDelay(uint16_t delay) { 
+inline void SoftwareSerialRR::tunedDelay(uint16_t delay) { 
   _delay_loop_2(delay);
 }
 
-_SoftwareSerial::_SoftwareSerial(uint8_t tx, long speed)
+SoftwareSerialRR::SoftwareSerialRR(uint8_t tx, long speed)
 {
   digitalWrite(tx, HIGH);
   pinMode(tx, OUTPUT);
@@ -56,11 +56,11 @@ _SoftwareSerial::_SoftwareSerial(uint8_t tx, long speed)
   _tx_delay = bit_delay - 15 / 4;
 }
 
-_SoftwareSerial::~_SoftwareSerial()
+SoftwareSerialRR::~SoftwareSerialRR()
 {
 }
 
-size_t _SoftwareSerial::write(uint8_t b)
+size_t SoftwareSerialRR::write(uint8_t b)
 {
   if (_tx_delay == 0) {
     return 0;

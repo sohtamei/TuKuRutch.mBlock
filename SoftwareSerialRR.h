@@ -38,7 +38,7 @@ http://arduiniana.org.
 * Definitions
 ******************************************************************************/
 
-class _SoftwareSerial
+class SoftwareSerialRR
 {
 private:
   uint8_t _transmitBitMask;
@@ -49,8 +49,8 @@ private:
 
 public:
   // public methods
-  _SoftwareSerial(uint8_t tx, long speed);
-  ~_SoftwareSerial();
+  SoftwareSerialRR(uint8_t tx, long speed);
+  ~SoftwareSerialRR();
 
   virtual size_t write(uint8_t byte);
 };
