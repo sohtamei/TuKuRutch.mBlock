@@ -9,26 +9,29 @@ void remoconRobo_initCh4(void);
 // Remote
 
 enum {
-// analog remote
-	BUTTON_A_CENTER = 0x01,
-	BUTTON_A_UP,
-	BUTTON_A_RIGHT,
-	BUTTON_A_LEFT,
-	BUTTON_A_DOWN,
-
 //NEC Code table
+#if 0
 	BUTTON_A		= 0x45,
 	BUTTON_B		= 0x46,
 	BUTTON_C		= 0x47,
 	BUTTON_D		= 0x44,
 	BUTTON_E		= 0x43,
+	BUTTON_F		= 0x0D,
+#else
+	BUTTON_POWER	= 0x45,
+	BUTTON_B		= 0x46,
+	BUTTON_MENU		= 0x47,
+	BUTTON_TEST		= 0x44,
+	BUTTON_RETURN	= 0x43,
+	BUTTON_C		= 0x0D,
+#endif
 	BUTTON_UP		= 0x40,
 	BUTTON_LEFT		= 0x07,
 	BUTTON_CENTER	= 0x15,
 	BUTTON_RIGHT	= 0x09,
 	BUTTON_DOWN		= 0x19,
-	BUTTON_F		= 0x0D,
 	BUTTON_0		= 0x16,
+
 	BUTTON_1		= 0x0C,
 	BUTTON_2		= 0x18,
 	BUTTON_3		= 0x5E,
@@ -38,26 +41,36 @@ enum {
 	BUTTON_7		= 0x42,
 	BUTTON_8		= 0x52,
 	BUTTON_9		= 0x4A,
+
+// analog remote
+	BUTTON_A_XY		= 0x60,
+	BUTTON_A_CENTER = 0x61,
+	BUTTON_A_UP		= 0x62,
+	BUTTON_A_RIGHT	= 0x63,
+	BUTTON_A_LEFT	= 0x64,
+	BUTTON_A_DOWN	= 0x65,
 };
 
 struct remoconData {
-	int16_t  LR;
-	int16_t  down_up;
+	int16_t  x;
+	int16_t  y;
 	uint8_t  keys;
 };
 
 enum {
 	REMOTE_OFF = 0,
 	REMOTE_YES,
-	REMOTE_ANALOG
+	REMOTE_ANALOG,
 };
 
-int remoconRobo_checkRemote(void);
-union remoconData remoconRobo_getRemoteData(void);
-int remoconRobo_getRemoteLR(void);
-int remoconRobo_getRemoteDownUp(void);
+int remoconRobo_checkRemoteUpdated(void);
+int remoconRobo_checkRemoteKey(void);
+struct remoconData remoconRobo_getRemoteData(void);
+int remoconRobo_getRemoteX(void);
+int remoconRobo_getRemoteY(void);
 int remoconRobo_getRemoteKeys(void);
-int remoconRobo_checkRemoteKey(int key);
+int remoconRobo_isRemoteKey(int key);
+int remoconRobo_getRemoteCh(void);
 
 // Tone
 
@@ -90,9 +103,9 @@ void remoconRobo_setMotor(int ch, int speed);
 void remoconRobo_setRobot(int direction, int speed);
 void remoconRobo_setRobotLR(int speedL, int speedR);
 
-int remoconRobo_calibRight(void);
-int remoconRobo_calibLeft(void);
 int remoconRobo_getCalib(void);
+int remoconRobo_setCalib(int calib);
+int remoconRobo_incCalib(int offset);
 
 // MP3
 

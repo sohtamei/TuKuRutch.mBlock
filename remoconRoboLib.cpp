@@ -52,9 +52,10 @@ static volatile uint32_t rawData;
 
 static volatile uint32_t last_timer;
 static volatile uint32_t last_timer2 = 0;
+static volatile uint32_t last_timer3 = 0;
 
-static union remoconData remoconData1;
-static union remoconData remoconData2;
+static struct remoconData remoconData1;
+static struct remoconData remoconData2;
 static int updated = 0;
 
 
@@ -80,18 +81,18 @@ static int updated = 0;
 	&& ticks <= (desired_us) + (DUR_T/2))
 
 #define DUR_T			350
-//#define DUR_H_TIMEOUT	300UL	// ms
+#define DUR_H_TIMEOUT_A	300UL	// ms
 
-#define DOWN_UP_CENTER	16
-#define LR_CENTER		16
+#define Y_CENTER		16
+#define X_CENTER		16
 #define BIT_SIZE		15
 
 union analogRemote {
 	uint16_t data;
 	struct {
 		unsigned int keys		: 3;	// bit2~0  :
-		unsigned int LR			: 5;	// bit7~3  :
-		unsigned int down_up	: 5;	// bit12~8 :
+		unsigned int x			: 5;	// bit7~3  :
+		unsigned int y			: 5;	// bit12~8 :
 		unsigned int ch			: 2;	// bit14~13: (1)chA, (2)chB, (0)chC
 	} b;
 };
@@ -156,9 +157,9 @@ static void irq_int0(void)
 				analog_ch = rData.b.ch;
 			} else if(rData.b.ch == analog_ch) {
 				memset(&remoconData1, 0, sizeof(remoconData1));
-				remoconData1.keys		= rData.b.keys;
-				remoconData1.LR			= (rData.b.LR - LR_CENTER)*16;
-				remoconData1.down_up	= (rData.b.down_up - DOWN_UP_CENTER)*16;
+				remoconData1.keys	= rData.b.keys + BUTTON_A_XY;
+				remoconData1.x		= (rData.b.x - X_CENTER)*16;
+				remoconData1.y		= (rData.b.y - Y_CENTER)*16;
 				last_timer2 = millis();
 				updated = REMOTE_ANALOG;
 				digitalWrite(PORT_LED, 1);
@@ -239,13 +240,31 @@ static void _initRemote(void)
 	memset(&remoconData1, 0, sizeof(remoconData1));
 }
 
-int remoconRobo_checkRemote(void)
+int remoconRobo_checkRemoteUpdated(void)
 {
-	if(last_timer2 && (millis() - last_timer2) >= DUR_H_TIMEOUT) {
-		last_timer2 = 0;
-		memset(&remoconData1, 0, sizeof(remoconData1));
-		updated = REMOTE_YES;
-		digitalWrite(PORT_LED, 0);
+	if(last_timer2) {
+		int timeout = (remoconData1.keys >= BUTTON_A_XY) ? DUR_H_TIMEOUT_A : DUR_H_TIMEOUT;
+		if(millis() - last_timer2 >= timeout) {
+			last_timer2 = 0;
+			memset(&remoconData1, 0, sizeof(remoconData1));
+			updated = REMOTE_YES;
+			digitalWrite(PORT_LED, 0);
+			last_timer3 = millis();
+		}
+	} else {
+		if(!last_timer3) {
+			last_timer3 = millis();
+		} else {
+			uint16_t d = (millis() - last_timer3) >> 7;
+		//	char buf[64]; sprintf(buf, "%d\r\n", d); Serial.print(buf);
+			if(d == 0) {
+				;
+			} else if((d % 16) == 0) {	// 2048
+				digitalWrite(PORT_LED, 1);
+			} else if((d % 16) == 1) {
+				digitalWrite(PORT_LED, 0);
+			}
+		}
 	}
 	int _updated = updated;
 	remoconData2 = remoconData1;
@@ -253,7 +272,13 @@ int remoconRobo_checkRemote(void)
 	return _updated;
 }
 
-union remoconData remoconRobo_getRemoteData(void)
+int remoconRobo_checkRemoteKey(void)
+{
+	remoconRobo_checkRemoteUpdated();
+	return remoconData2.keys;
+}
+
+struct remoconData remoconRobo_getRemoteData(void)
 {
 	return remoconData2;
 }
@@ -263,23 +288,27 @@ int remoconRobo_getRemoteKeys(void)
 	return remoconData2.keys;
 }
 
-int remoconRobo_getRemoteLR(void)
+int remoconRobo_getRemoteX(void)
 {
-	return remoconData2.LR;
+	return remoconData2.x;
 }
 
-int remoconRobo_getRemoteDownUp(void)
+int remoconRobo_getRemoteY(void)
 {
-	return remoconData2.down_up;
+	return remoconData2.y;
 }
 
-int remoconRobo_checkRemoteKey(int key)
+int remoconRobo_isRemoteKey(int key)
 {
-	remoconRobo_checkRemote();
 	if(key == 0xFF)
 		return remoconData2.keys != 0;
 	else
 		return remoconData2.keys == key;
+}
+
+int remoconRobo_getRemoteCh(void)
+{
+	return analog_ch;
 }
 
 // other -------
@@ -311,7 +340,7 @@ void remoconRobo_init(void)
 	_initRemote();
 	calibLR = EEPROM.read(EEPROM_CALIB);
 
-//	Serial.begin(9600);
+//	Serial.begin(115200);
 }
 
 void remoconRobo_initCh4(void)
@@ -322,9 +351,14 @@ void remoconRobo_initCh4(void)
 
 // Motor -----------
 
+static uint8_t initCh4 = 0;
 void remoconRobo_setMotor(int ch, int speed)
 {
 	if(ch == CH4) {
+		if(!initCh4) {
+			initCh4 = 1;
+			remoconRobo_initCh4();
+		}
 		digitalWrite(PORT_CH4F, speed > 0 ? 1: 0);
 		digitalWrite(PORT_CH4R, speed < 0 ? 1: 0);
 	} else {
@@ -375,26 +409,26 @@ int remoconRobo_getCalib(void)
 	return calibLR;
 }
 
-int remoconRobo_calibRight(void)
+int remoconRobo_setCalib(int calib)
 {
+	int overflow = 0;
+	calibLR = calib;
 	if(calibLR >= 127) {
 		calibLR = 127;
-		return -1;
+		overflow = -1;
 	}
-	calibLR++;
-	EEPROM.update(EEPROM_CALIB, calibLR & 0xFF);
-	return 0;
-}
-
-int remoconRobo_calibLeft(void)
-{
 	if(calibLR <= -128) {
 		calibLR = -128;
-		return -1;
+		overflow = -1;
 	}
-	calibLR--;
 	EEPROM.update(EEPROM_CALIB, calibLR & 0xFF);
-	return 0;
+	return overflow;
+}
+
+int remoconRobo_incCalib(int offset)
+{
+	calibLR += offset;
+	return remoconRobo_setCalib(calibLR);
 }
 
 // MP3 ----------------
@@ -406,7 +440,7 @@ static _SoftwareSerial mySerial(PORT_TONE, 9600); // RX, TX
 static uint8_t loop_flag = 1;
 
 #define SendMP3(buf) sendMP3(buf, sizeof(buf))
-static void sendMP3(uint8_t* buf, int size)
+static void sendMP3(const uint8_t* buf, int size)
 {
 	int i;
 
@@ -428,12 +462,20 @@ void remoconRobo_initMP3(int volume)
 
 void remoconRobo_playMP3(int track, int loop)
 {
+	enum {
+		LOOP_ALL,
+		LOOP_FOLDER,
+		LOOP_ONE,
+		LOOP_RAM,
+		LOOP_ONE_STOP,
+	};
+
 	loop_flag = loop;
-	uint8_t loopOne[2] = {0x11,0x02};	// 0-all, 1-, 2-oneloop, 3-, 4-loopOnce
+	uint8_t loopOne[2] = {0x11,0x02};	// 0-all, 1-folder, 2-oneloop, 3-RAM?, 4-loopOnce
 	if(loop)
-		loopOne[1] = 0x02;
+		loopOne[1] = LOOP_ONE;
 	else
-		loopOne[1] = 0x04;
+		loopOne[1] = LOOP_ONE_STOP;
 	SendMP3(loopOne);
 
 //	const uint8_t play[1] = {0x0D};
@@ -444,7 +486,7 @@ void remoconRobo_playMP3(int track, int loop)
 
 void remoconRobo_stopMP3(void)
 {
-	if(loop_flag) {
+	if(1) {//loop_flag) {
 		loop_flag = 0;
 		const uint8_t pause[1] = {0x0A};
 		SendMP3(pause);
