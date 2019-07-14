@@ -32,8 +32,15 @@ void loop()
 {
 	while (1) {
 		int updated = remoconRobo_checkRemoteUpdated();
+		union remoconData rData = remoconRobo_getRemoteData();
+
+		switch(rData.keys) {
+		case BUTTON_POWER:	if(!remoconRobo_incCalib(-1)) {remoconRobo_tone(T_C4+remoconRobo_getCalib(),150);} break;
+		case BUTTON_B:
+		case BUTTON_MENU:	if(!remoconRobo_incCalib(+1)) {remoconRobo_tone(T_C4+remoconRobo_getCalib(),150);} break;
+		}
+
 		if(updated) {
-			union remoconData rData =  remoconRobo_getRemoteData();
 
 			//char buf[64]; sprintf(buf, "%d, %d, %d\r\n", rData.keys, rData.y, rData.x); Serial.print(buf);
 			if(updated == REMOTE_ANALOG)
@@ -41,10 +48,6 @@ void loop()
 									 rData.y - rData.x);	// R
 
 			switch(rData.keys) {
-			case BUTTON_POWER:	if(!remoconRobo_incCalib(-1)) {beep(T_C4);} break;
-			case BUTTON_B:
-			case BUTTON_MENU:	if(!remoconRobo_incCalib(+1)) {beep(T_D4);} break;
-
 			case BUTTON_A_RIGHT:
 			case BUTTON_TEST:	remoconRobo_setMotor(CH3,  speed); break;
 			case BUTTON_A_LEFT:

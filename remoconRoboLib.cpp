@@ -24,7 +24,7 @@ struct MotorPort {
 #define PORT_CH4R	10
 #define PORT_LED	13
 
-static volatile int8_t calibLR;
+static volatile int calibLR;
 #define EEPROM_CALIB	0x00
 
 /*
@@ -211,7 +211,8 @@ static void irq_int0(void)
 				state = STATE_H_BIT;
 			}
 		} else {
-			state = STATE_H_IDLE;		}
+			state = STATE_H_IDLE;
+		}
 		break;
 	case STATE_H_BIT:	// L_BIT -> H_BIT
 		state = STATE_L_BIT;
@@ -243,31 +244,37 @@ static void _initRemote(void)
 int remoconRobo_checkRemoteUpdated(void)
 {
 	if(last_timer2) {
-		int timeout = (remoconData1.keys >= BUTTON_A_XY) ? DUR_H_TIMEOUT_A : DUR_H_TIMEOUT;
-		if(millis() - last_timer2 >= timeout) {
-			last_timer2 = 0;
-			memset(&remoconData1, 0, sizeof(remoconData1));
+		uint32_t timeout = (remoconData1.keys >= BUTTON_A_XY) ? DUR_H_TIMEOUT_A : DUR_H_TIMEOUT;
+		if(millis() - last_timer2 < timeout) {
+			if(!remoconData2.keys && remoconData1.keys) {
+				updated = REMOTE_YES;
+				digitalWrite(PORT_LED, 1);
+			}
+			remoconData2 = remoconData1;
+		} else if(remoconData2.keys) {
+			memset(&remoconData2, 0, sizeof(remoconData2));
 			updated = REMOTE_YES;
 			digitalWrite(PORT_LED, 0);
+			last_timer2 = 0;
 			last_timer3 = millis();
 		}
 	} else {
-		if(!last_timer3) {
-			last_timer3 = millis();
-		} else {
-			uint16_t d = (millis() - last_timer3) >> 7;
-		//	char buf[64]; sprintf(buf, "%d\r\n", d); Serial.print(buf);
-			if(d == 0) {
-				;
-			} else if((d % 16) == 0) {	// 2048
-				digitalWrite(PORT_LED, 1);
-			} else if((d % 16) == 1) {
-				digitalWrite(PORT_LED, 0);
-			}
+		if(!last_timer3) last_timer3 = millis();
+		uint32_t diff = millis() - last_timer3;
+		if(remoconData1.keys && diff > DUR_H_TIMEOUT)
+			memset(&remoconData1, 0, sizeof(remoconData1));
+
+		diff >>= 7;
+	//	char buf[64]; sprintf(buf, "%d\r\n", diff); Serial.print(buf);
+		if(diff == 0) {
+			;
+		} else if((diff % 16) == 0) {	// 2048
+			digitalWrite(PORT_LED, 1);
+		} else if((diff % 16) == 1) {
+			digitalWrite(PORT_LED, 0);
 		}
 	}
 	int _updated = updated;
-	remoconData2 = remoconData1;
 	updated = 0;
 	return _updated;
 }
@@ -339,6 +346,7 @@ void remoconRobo_init(void)
 
 	_initRemote();
 	calibLR = EEPROM.read(EEPROM_CALIB);
+	if(calibLR >= 0x80) calibLR -= 0x100;
 
 //	Serial.begin(115200);
 }
@@ -413,11 +421,11 @@ int remoconRobo_setCalib(int calib)
 {
 	int overflow = 0;
 	calibLR = calib;
-	if(calibLR >= 127) {
+	if(calibLR > 127) {
 		calibLR = 127;
 		overflow = -1;
 	}
-	if(calibLR <= -128) {
+	if(calibLR < -128) {
 		calibLR = -128;
 		overflow = -1;
 	}
