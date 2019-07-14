@@ -14,15 +14,15 @@ package cc.makeblock.interpreter
 		
 		private const requestList:Array = [];
 		private var timerId:uint;
-		private var reader:PacketParser;
+	//	private var reader:PacketParser;
 		private var oldValue:Object=0;
 		public function RemoteCallMgr()
 		{
-			reader = new PacketParser(onPacketRecv);
+	//		reader = new PacketParser(onPacketRecv);
 		}
 		public function init():void
 		{
-			SerialDevice.sharedDevice().dataRecvSignal.add(__onSerialRecv);
+	//		SerialDevice.sharedDevice().dataRecvSignal.add(__onSerialRecv);
 		}
 	
 		public function interruptThread():void
@@ -36,9 +36,22 @@ package cc.makeblock.interpreter
 			clearTimeout(timerId);
 			send();
 		}
+	/*
 		private function __onSerialRecv(bytes:Array):void
 		{
 			reader.append(bytes);
+		}
+	*/
+		private var value2:Object;
+		public function onPacketRecv2(value:Object=null):void
+		{
+		//	onPacketRecv(value);
+			value2 = value;
+			setTimeout(onTimeout2, 0);
+		}
+		private function onTimeout2():void
+		{
+			onPacketRecv(value2);
 		}
 
 		public function onPacketRecv(value:Object=null):void
@@ -80,7 +93,7 @@ package cc.makeblock.interpreter
 			var info:Array = requestList[0];
 			var ext:ScratchExtension = info[3];
 			ext.js.call(info[1], info[2], null);
-			if(info[1]=="runBuzzer")
+			if(info[1].slice(0,9) == "runBuzzer")
 			{
 				timerId = setTimeout(onTimeout, 5000);
 			}
@@ -88,7 +101,6 @@ package cc.makeblock.interpreter
 			{
 				timerId = setTimeout(onTimeout, 500);
 			}
-			
 		}
 		
 		private function onTimeout():void

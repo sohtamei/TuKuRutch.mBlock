@@ -1,5 +1,5 @@
 /*************************************************************************
-* File Name          : mbot_firmware.ino
+* File Name          : remoconRobo_firmware.ino
 * Author             : Ander, Mark Yan
 * Updated            : Ander, Mark Yan
 * Version            : V06.01.106
@@ -9,10 +9,11 @@
 * Copyright (C) 2013 - 2016 Maker Works Technology Co., Ltd. All right reserved.
 * http://www.makeblock.cc/
 **************************************************************************/
+// copyright to SohtaMei 2019.
 #include <Wire.h>
 #include <Servo.h>
 #include <EEPROM.h>
-#include "familydayLibrary.h"
+#include "remoconRoboLib.h"
 
 union{
 	byte byteVal[4];
@@ -48,7 +49,7 @@ static int servo_pins[8]={0,0,0,0,0,0,0,0};
 
 void setup()
 {
-	familyday_init();
+	remoconRobo_init();
 
 	digitalWrite(13, HIGH);
 	delay(300);
@@ -57,7 +58,7 @@ void setup()
 	Serial.begin(115200);
 	delay(500);
 
-	familyday_tone(500, 50); 
+	remoconRobo_tone(500, 50); 
 	Serial.print("Version: ");
 	Serial.println(mVersion);
 }
@@ -121,7 +122,7 @@ static void parseData()
 			callOK();
 			break;
 		case TYPE_RESET:
-			familyday_init();
+			remoconRobo_init();
 			callOK();
 			break;
 		case TYPE_START:
@@ -185,10 +186,10 @@ static void runModule(int device)
 	int pin = buffer[6];
 	switch(device){
 		case CMD_MOTOR:
-			familyday_setMotor(pin-1, readShort(7));
+			remoconRobo_setMotor(pin-1, readShort(7));
 			break;
 		case CMD_ROBOT:
-			familyday_setRobot(pin, buffer[7]);
+			remoconRobo_setRobot(pin, buffer[7]);
 			break;
 		case CMD_DIGITAL:
 			pinMode(pin, OUTPUT);
@@ -201,7 +202,7 @@ static void runModule(int device)
 			break;
 */
 		case CMD_TONE:
-			familyday_tone(readShort(6), readShort(8));
+			remoconRobo_tone(readShort(6), readShort(8));
 			break;
 		case CMD_SERVO: {
 			int v = buffer[7];
@@ -241,10 +242,10 @@ static void readSensor(int device)
 	int pin = buffer[6];
 	switch(device){
 		case CMD_CHECKREMOTE:
-			sendByte(familyday_checkRemote(pin));
+			sendByte(remoconRobo_checkRemote(pin));
 			break;
 		case CMD_GETREMOTE:
-			sendByte(familyday_getRemote());
+			sendByte(remoconRobo_getRemote());
 			break;
 		case CMD_VERSION:
 			sendString(mVersion);

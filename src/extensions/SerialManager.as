@@ -223,6 +223,7 @@ package extensions
 				currentPort = "";
 			}
 		}
+	/*
 		public function openSource():void{
 			MBlock.app.track("/OpenSerial/ViewSource");
 			var file:File = ApplicationManager.sharedManager().documents.resolvePath("mBlock/firmware/mbot_firmware");
@@ -230,6 +231,7 @@ package extensions
 				file.openWithDefaultApplication();
 			}
 		}
+	*/
 		public function disconnect():void{
 			currentPort = "";
 			MBlock.app.topBarPart.setDisconnectedTitle();
@@ -300,7 +302,7 @@ package extensions
 			v.push("-v");
 			v.push("-v");
 			v.push("-v");
-			if(currentDevice=="uno"){
+		//	if(currentDevice=="uno"){
 				v.push("-patmega328p");
 				v.push("-carduino"); 
 				v.push("-P"+currentPort);
@@ -308,15 +310,17 @@ package extensions
 				v.push("-D");
 				v.push("-V");
 				v.push("-U");
+			/*
 				if(_hexToDownload.length==0){
 					var hexFile_uno:String = getHexFilePath();
 					v.push("flash:w:"+hexFile_uno+":i");
 					tf = new File(hexFile_uno);
 				}else{
+			*/
 					v.push("flash:w:"+_hexToDownload+":i");
 					tf = new File(_hexToDownload);
-				}
-			}
+		//		}
+		//	}
 			if(tf!=null && tf.exists){
 				_upgradeBytesTotal = tf.size;
 //				trace("total:",_upgradeBytesTotal);
@@ -338,6 +342,7 @@ package extensions
 			
 		}
 		
+	/*
 		private function getHexFilePath():String
 		{
 			var board:String = DeviceManager.sharedManager().currentBoard;
@@ -353,6 +358,7 @@ package extensions
 			}
 			return ApplicationManager.sharedManager().documents.nativePath + "/mBlock/tools/hex/" + fileName + ".hex";
 		}
+	*/
 		private var errorText:String;
 		private var sizeInfo:UploadSizeInfo = new UploadSizeInfo();
 		private function onStandardOutputData(event:ProgressEvent):void

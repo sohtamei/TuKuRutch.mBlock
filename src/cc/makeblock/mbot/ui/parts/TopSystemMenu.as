@@ -8,7 +8,7 @@ package cc.makeblock.mbot.ui.parts
 	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
 	
-	import cc.makeblock.mbot.uiwidgets.DynamicCompiler;
+//	import cc.makeblock.mbot.uiwidgets.DynamicCompiler;
 	import cc.makeblock.mbot.uiwidgets.errorreport.ErrorReportFrame;
 	import cc.makeblock.mbot.uiwidgets.extensionMgr.ExtensionUtil;
 	import cc.makeblock.media.MediaManager;
@@ -53,12 +53,12 @@ package cc.makeblock.mbot.ui.parts
 			register("Manage Extensions", ExtensionUtil.OnManagerExtension);
 			register("Restore Extensions", ExtensionUtil.OnLoadExtension);
 			register("Clear Cache", ArduinoManager.sharedManager().clearTempFiles);
-			register("Reset Default Program", __onResetDefaultProgram);
+		//	register("Reset Default Program", __onResetDefaultProgram);
 		}
-		
+		/*
 		private function __onResetDefaultProgram(item:NativeMenuItem):void
 		{
-			var filePath:String = "mBlock/tools/hex/FamilyDay.hex";
+			var filePath:String = "mBlock/tools/hex/remoconRobo.hex";
 			var file:File = ApplicationManager.sharedManager().documents.resolvePath(filePath);
 			if(file.exists){
 				SerialManager.sharedManager().upgrade(file.nativePath);
@@ -66,7 +66,7 @@ package cc.makeblock.mbot.ui.parts
 				MBlock.app.scriptsPart.appendMessage("File not exist: " + file.nativePath);
 			}
 		}
-		
+		*/
 		public function changeLang():void
 		{
 			MenuUtil.ForEach(getNativeMenu(), changeLangImpl);
@@ -172,13 +172,15 @@ package cc.makeblock.mbot.ui.parts
 			}else{
 				key = menuItem.name;
 			}
+		/*
 			if("upgrade_custom_firmware" == key){
 				var panel:DynamicCompiler = new DynamicCompiler();
 				panel.show();
 				AsWingUtils.centerLocate(panel);
 			}else{
+		*/
 				ConnectionManager.sharedManager().onConnect(key);
-			}
+		//	}
 		}
 		
 		private function __onShowLanguage(evt:Event):void
@@ -270,11 +272,11 @@ package cc.makeblock.mbot.ui.parts
 			else
 			{
 				for(var i:int=0;i<arr.length;i++){
-					var item:NativeMenuItem = menu.addItem(new NativeMenuItem("ロボットに接続("+arr[i]+")"));
+					var item:NativeMenuItem = menu.addItem(new NativeMenuItem(Translator.map("Connect to Robot") + "(" + arr[i] + ")"));
 					item.name = "serial_"+arr[i];
 					
 					item.enabled = enabled;
-					item.checked = SerialDevice.sharedDevice().ports.indexOf(arr[i])>-1 && SerialManager.sharedManager().isConnected;
+					item.checked = SerialDevice.sharedDevice().ports.indexOf(arr[i]) > -1 && SerialManager.sharedManager().isConnected;
 				}
 			}
 			

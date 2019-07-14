@@ -27,18 +27,23 @@ package extensions
 		}
 		public function onConnect(name:String):void{
 			switch(name){
+/*
 				case "view_source":{
 					SerialManager.sharedManager().openSource();
 					break;
 				}
+*/
 				case "upgrade_firmware":{
-					SerialManager.sharedManager().upgrade();
+					SerialManager.sharedManager().upgrade(File.applicationDirectory.nativePath + "/tools/hex/remoconRobo_monitor.hex");
+				//	SerialManager.sharedManager().upgrade(ApplicationManager.sharedManager().documents.nativePath + "/mBlock/tools/hex/remoconRobo_monitor.hex");
 					break;
 				}
 				case "reset_program":{
-					SerialManager.sharedManager().upgrade(ApplicationManager.sharedManager().documents.resolvePath("mBlock/tools/hex/mbot_reset.hex").nativePath);
+					SerialManager.sharedManager().upgrade(File.applicationDirectory.nativePath + "/tools/hex/remoconRobo.hex");
+				//	SerialManager.sharedManager().upgrade(ApplicationManager.sharedManager().documents.resolvePath("mBlock/tools/hex/remoconRobo.hex").nativePath);
 					break;
 				}
+/*
 				case "driver":{
 					MBlock.app.track("/OpenSerial/InstallDriver");
 					var fileDriver:File;
@@ -52,6 +57,7 @@ package extensions
 					}
 					break;
 				}
+*/
 				default:{
 					BlockInterpreter.Instance.stopAllThreads();
 					var isConnectCmd:Boolean = false;

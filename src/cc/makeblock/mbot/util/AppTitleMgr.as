@@ -60,13 +60,13 @@ package cc.makeblock.mbot.util
 				if(str == Uploading){
 					str = Translator.map(str);
 				}else{
-					str = Translator.map(str) + " " + Translator.map("Connected");
+					str = Translator.map("Connected");
 				}
 			}else{
 				str = Translator.map("Disconnected");
 			}
 			result += " - " + str;
-			result += " - " + Translator.map(strList[2]==null ||strList[2] ? "Not saved" :  "Saved");
+		//	result += " - " + Translator.map(strList[2]==null ||strList[2] ? "Not saved" :  "Saved");
 			
 			return result;
 		}

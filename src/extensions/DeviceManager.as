@@ -11,7 +11,7 @@ package extensions
 		private var _name:String = "";
 		public function DeviceManager()
 		{
-			onSelectBoard(SharedObjectManager.sharedManager().getObject("board","mbot_uno"));
+			onSelectBoard(SharedObjectManager.sharedManager().getObject("board","remoconRobo"));
 		}
 		public static function sharedManager():DeviceManager{
 			if(_instance==null){
@@ -32,16 +32,20 @@ package extensions
 			this.board = value;
 			var oldBoard:String = SharedObjectManager.sharedManager().getObject("board");
 			SharedObjectManager.sharedManager().setObject("board",_board);
+		/*
 			if(_board=="mbot_uno"){
 				MBlock.app.extensionManager.singleSelectExtension("FamilyDay");//"mBot");
 			}else if(_board.indexOf("arduino")>-1){
 				MBlock.app.extensionManager.singleSelectExtension("Arduino");
 			}
+		*/
+			MBlock.app.extensionManager.singleSelectExtension("remoconRobo");
 			MBlock.app.topBarPart.setBoardTitle();
 		}
 		public function checkCurrentBoard(board:String):Boolean{
 			return _board==board;
 		}
+	/*
 		public function get currentName():String{
 			_name = "";
 			if(_board.indexOf("mbot")>-1){
@@ -51,6 +55,7 @@ package extensions
 			}
 			return _name;
 		}
+	*/
 		public function get currentBoard():String{
 //			LogManager.sharedManager().log("currentBoard:"+_board);
 			return _board;

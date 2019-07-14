@@ -315,50 +315,44 @@ public class ExtensionManager {
 		_extensionList = [];
 		//重新加载所有的扩展时，应该清除extensionDict，解决扩展面板删除扩展时，实时更新选项卡
 		extensionDict = {};
-//		SharedObjectManager.sharedManager().setObject("mBot_selected",true);
-		if(ApplicationManager.sharedManager().documents.resolvePath("mBlock/libraries/").exists){
-			var docs:Array =  ApplicationManager.sharedManager().documents.resolvePath("mBlock/libraries/").getDirectoryListing();
-			for each(var doc:File in docs){
-				if(!doc.isDirectory){
-					continue;
-				}
-				var fs:Array = doc.getDirectoryListing();
-				for each(var f:File in fs){
-					if(f.extension=="s2e"||f.extension=="json"){
-						/*
-						function onLoadedFile(evt:Event):void{
-							var extObj:Object;
-							try {
-								extObj = util.JSON.parse(evt.target.data.toString());
-								var ldr:MeURLLoader = evt.target as MeURLLoader;
-								extObj.srcPath = ldr.url;
-								_extensionList.push(extObj);
-								if(checkExtensionSelected(extObj.extensionName)){
-									loadRawExtension(extObj);
-								}
-							} catch(e:*) {}
-						}
-						var urlloader:MeURLLoader = new MeURLLoader();
-						urlloader.addEventListener(Event.COMPLETE,onLoadedFile);
-						urlloader.url = f.url;
-						urlloader.load(new URLRequest(f.url));
-						*/
-						var extObj:Object = util.JSON.parse(FileUtil.ReadString(f));
-						extObj.srcPath = f.url;
-						_extensionList.push(extObj);
-						if(checkExtensionSelected(extObj.extensionName)){
-							loadRawExtension(extObj);
-						}
+	//	SharedObjectManager.sharedManager().setObject("mBot_selected",true);
+	//	if(ApplicationManager.sharedManager().documents.resolvePath("mBlock/libraries/").exists){
+	//	var docs:Array =  ApplicationManager.sharedManager().documents.resolvePath("mBlock/libraries/").getDirectoryListing();
+		var docs:Array = File.applicationDirectory.resolvePath("ext/libraries/").getDirectoryListing();
+		for each(var doc:File in docs){
+			if(!doc.isDirectory){
+				continue;
+			}
+			var fs:Array = doc.getDirectoryListing();
+			for each(var f:File in fs){
+				if(f.extension=="s2e"||f.extension=="json"){
+					/*
+					function onLoadedFile(evt:Event):void{
+						var extObj:Object;
+						try {
+							extObj = util.JSON.parse(evt.target.data.toString());
+							var ldr:MeURLLoader = evt.target as MeURLLoader;
+							extObj.srcPath = ldr.url;
+							_extensionList.push(extObj);
+							if(checkExtensionSelected(extObj.extensionName)){
+								loadRawExtension(extObj);
+							}
+						} catch(e:*) {}
+					}
+					var urlloader:MeURLLoader = new MeURLLoader();
+					urlloader.addEventListener(Event.COMPLETE,onLoadedFile);
+					urlloader.url = f.url;
+					urlloader.load(new URLRequest(f.url));
+					*/
+					var extObj:Object = util.JSON.parse(FileUtil.ReadString(f));
+					extObj.srcPath = f.url;
+					_extensionList.push(extObj);
+					if(checkExtensionSelected(extObj.extensionName)){
+						loadRawExtension(extObj);
 					}
 				}
-				_extensionList.sortOn("sort", Array.NUMERIC);
 			}
-		}else{
-			if(SharedObjectManager.sharedManager().available("first-launch")){
-				SharedObjectManager.sharedManager().clear();
-				SerialManager.sharedManager().device = "uno";
-			}else{
-			}
+			_extensionList.sortOn("sort", Array.NUMERIC);
 		}
 		
 		return;
@@ -869,7 +863,7 @@ public class ExtensionManager {
 		for each (var ext:ScratchExtension in extensionDict) {
 			if (ext.showBlocks) {
 //				if (ext.blockSpecs.length == 0) httpGetSpecs(ext);
-				if((!ext.isInternal && ext.port > 0&&ext.useSerial==false)){
+				if((!ext.isInternal && ext.port > 0 && ext.useSerial == false)){
 					httpPoll(ext);
 				}
 			}
