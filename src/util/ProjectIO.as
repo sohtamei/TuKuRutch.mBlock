@@ -186,7 +186,7 @@ public class ProjectIO {
 			if(jsonObj['info']['boardVersion']){
 				DeviceManager.sharedManager().onSelectBoard(jsonObj['info']['boardVersion']);
 			}else{
-				DeviceManager.sharedManager().onSelectBoard("mbot_uno");
+				DeviceManager.sharedManager().onSelectBoard("remoconRobo");
 			}
 		}
 		if (jsonObj['children']) { // project JSON
@@ -241,7 +241,7 @@ public class ProjectIO {
 				* "1:led right¦2:led left" 替代的项，1:led right 表示如果值为1，则替换成led right
 				*/
 				
-				if(board=="mbot_uno")
+				if(board=="remoconRobo")
 				{
 					//fix mBot 
 					fixCategoryRecursion(blocks,["mBot.runLed", "Port1¦Port2¦Port3¦Port4", "??", "??", "??", "??"],["mBot.runLedExternal"]);

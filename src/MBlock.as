@@ -31,7 +31,7 @@ package {
 	
 	import cc.makeblock.mbot.lookandfeel.MyLookAndFeel;
 	import cc.makeblock.mbot.ui.parts.TopSystemMenu;
-	import cc.makeblock.mbot.uiwidgets.errorreport.ErrorReportFrame;
+//	import cc.makeblock.mbot.uiwidgets.errorreport.ErrorReportFrame;
 	import cc.makeblock.mbot.util.AppTitleMgr;
 	import cc.makeblock.mbot.util.PopupUtil;
 	import cc.makeblock.menu.MenuBuilder;
@@ -171,7 +171,7 @@ package {
 				return;
 			}
 			errorFlag = true;
-			ErrorReportFrame.OpenSendWindow(errorText);
+		//	ErrorReportFrame.OpenSendWindow(errorText);
 			if(saveNeeded)
 			{
 				autoSaveFile();

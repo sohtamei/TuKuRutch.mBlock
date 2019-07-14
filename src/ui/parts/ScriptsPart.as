@@ -370,7 +370,7 @@ public class ScriptsPart extends UIPart {
 		selector.updateTranslation();
 		if(!MBlock.app.stageIsArduino && MBlock.app.viewedObj() is ScratchStage){
 			if(selector.selectedCategory == Specs.motionCategory){
-				selector.selectedCategory = Specs.looksCategory;
+				selector.selectedCategory = Specs.myBlocksCategory;//looksCategory;
 			}
 		}
 		selector.select(selector.selectedCategory);

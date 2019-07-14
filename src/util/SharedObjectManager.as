@@ -43,6 +43,7 @@ package util
 			}
 			return true;
 		}
+	/*
 		public function setLocalFile(key:String,value:*):void{
 			var file:File = ApplicationManager.sharedManager().documents.resolvePath("mBlock/store/"+key+".txt");
 			var stream:FileStream = new FileStream();
@@ -59,6 +60,7 @@ package util
 			}
 			return def;
 		}
+	*/
 		public function clear():void{
 			_so.clear();
 		}

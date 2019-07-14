@@ -75,7 +75,7 @@ package extensions
 		
 		private var codeTemplate:String = ( <![CDATA[#include <Arduino.h>
 #include <Wire.h>
-#include <SoftwareSerial.h>
+//#include <SoftwareSerial.h>
 
 //include
 double angle_rad = PI/180.0;

@@ -8,9 +8,7 @@
 	</subMenu>
 	<subMenu name="Connect" label="连接">
 		<item name="Upgrade Firmware" label="安装固件" action="upgrade_firmware" />
-		<item name="Reset Default Program" label="恢复出厂程序" />
-		<item isSeparator="true" />
-		<item name="Install Arduino Driver" label="安装Arduino驱动" action="driver" />
+		<item name="Reset Default Program" label="恢复出厂程序" action="reset_program" />
 		<item isSeparator="true" />
 	</subMenu>
 	<subMenu name="Edit" label="编辑">
@@ -20,7 +18,7 @@
 		<item name="Arduino mode" label="Arduino模式" keyEquivalent="" />
 	</subMenu>
 	<subMenu name="Boards" label="控制板">
-		<item name="mbot_uno" label="FamilyDay" />
+		<item name="remoconRobo" label="FamilyDay" />
 	</subMenu>
 	<subMenu name="Extensions" label="扩展">
 		<item name="Restore Extensions" label="检查最新扩展" />

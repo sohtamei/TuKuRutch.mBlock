@@ -179,10 +179,11 @@ public class Server {
 	
 	static private function getLangObj():Object
 	{
-		var file:File = File.applicationStorageDirectory.resolvePath("mBlock/locale/locale.xlsx");
-		if(!file.exists){
-			file = File.applicationDirectory.resolvePath("locale/locale.xlsx");
-		}
+		var file:File = File.applicationDirectory.resolvePath("locale/locale.xlsx");
+	//	var file:File = File.applicationStorageDirectory.resolvePath("mBlock/locale/locale.xlsx");
+	//	if(!file.exists){
+	//		file = File.applicationDirectory.resolvePath("locale/locale.xlsx");
+	//	}
 		var bytes:ByteArray = FileUtil.ReadBytes(file);
 		var list:Array = Excel.Parse(bytes);
 		return CsvReader.ReadDict(list[0]);

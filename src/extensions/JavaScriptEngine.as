@@ -135,6 +135,7 @@ package extensions
 			_htmlLoader.window.string2array = string2array;
 			_htmlLoader.window.array2string = array2string;
 			_htmlLoader.window.responseValue = responseValue;
+			_htmlLoader.window.responseValue2 = responseValue2;
 			_htmlLoader.window.trace = trace;
 			_htmlLoader.window.interruptThread = interruptThread;
 			_htmlLoader.window.air = {"trace":trace};
@@ -149,6 +150,13 @@ package extensions
 				MBlock.app.runtime.mbotButtonPressed.notify(Boolean(args[1]));
 			}else{
 				RemoteCallMgr.Instance.onPacketRecv(args[1]);
+			}
+		}
+		private function responseValue2(...args):void{
+			if(args.length < 2){
+				RemoteCallMgr.Instance.onPacketRecv2();
+			}else{
+				RemoteCallMgr.Instance.onPacketRecv2(args[1]);
 			}
 		}
 		
