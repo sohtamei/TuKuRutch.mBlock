@@ -47,9 +47,7 @@
   <buildTargets>
     <buildTarget buildTargetName="default" platformId="default">
       <airSettings airCertificatePath="C:/Users/n-tom/Desktop/event/SohtaMei.tomita.p12" airTimestamp="false" anePathSet="true" version="1">
-        <airExcludes>
-          <pathEntry path="META-INF"/>
-        </airExcludes>
+        <airExcludes/>
         <anePaths>
           <anePathEntry path="libs/AIRSerial_win.ane"/>
         </anePaths>
