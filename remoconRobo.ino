@@ -32,7 +32,7 @@ void loop()
 {
 	while (1) {
 		int updated = remoconRobo_checkRemoteUpdated();
-		union remoconData rData = remoconRobo_getRemoteData();
+		struct remoconData rData = remoconRobo_getRemoteData();
 
 		switch(rData.keys) {
 		case BUTTON_POWER:	if(!remoconRobo_incCalib(-1)) {remoconRobo_tone(T_C4+remoconRobo_getCalib(),150);} break;
