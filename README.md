@@ -8,5 +8,6 @@ This version (3.4.5) is considered a "stable" version and will not be actively u
 If you want to work with translation, or find errors in the translations, [please read this document on how to translate mBlock](http://www.mblock.cc/posts/note-for-translators). This Git repo does not accept pull requests on translating the texts.
 
 # sohtamei
-branch V3.4.5 - リモコンロボ 
+branch V3.4.5 - リモコンロボ
+
 branch QuadCrawler
