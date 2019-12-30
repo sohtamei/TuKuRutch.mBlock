@@ -1,0 +1,38 @@
+{
+	"objName": "mei1",
+	"sounds": [{
+			"soundName": "meow",
+			"soundID": -1,
+			"md5": "83c36d806dc92327b9e7049a565c6bff.wav",
+			"sampleCount": 18688,
+			"rate": 22050,
+			"format": ""
+		}],
+	"costumes": [{
+			"costumeName": "mei1-a",
+			"baseLayerID": -1,
+			"baseLayerMD5": "mei1-a.svg",
+			"bitmapResolution": 1,
+			"rotationCenterX": 46,
+			"rotationCenterY": 61
+		},
+		{
+			"costumeName": "mei1-b",
+			"baseLayerID": -1,
+			"baseLayerMD5": "mei1-b.svg",
+			"bitmapResolution": 1,
+			"rotationCenterX": 47,
+			"rotationCenterY": 61
+		}],
+	"currentCostumeIndex": 0,
+	"scratchX": 0,
+	"scratchY": 0,
+	"scale": 1,
+	"direction": 90,
+	"rotationStyle": "normal",
+	"isDraggable": false,
+	"indexInLibrary": 100000,
+	"visible": true,
+	"spriteInfo": {
+	}
+}
