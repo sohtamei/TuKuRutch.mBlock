@@ -45,7 +45,7 @@ package ui.parts {
 	import uiwidgets.CursorTool;
 	import uiwidgets.IconButton;
 //	import uiwidgets.Menu;
-//	import uiwidgets.SimpleTooltips;
+	import uiwidgets.SimpleTooltips;
 	
 //	import util.ApplicationManager;
 //	import util.Clicker;
@@ -309,7 +309,7 @@ package ui.parts {
 				if (b == cutTool) newTool = 'cut';
 				if (b == growTool) newTool = 'grow';
 				if (b == shrinkTool) newTool = 'shrink';
-				if (b == helpTool) newTool = 'help';
+			//	if (b == helpTool) newTool = 'help';
 				if (newTool == toolOnMouseDown) {
 					clearToolButtons();
 					CursorTool.setTool(null);
