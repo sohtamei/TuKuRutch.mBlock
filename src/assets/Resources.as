@@ -96,6 +96,8 @@ package assets {
 		[Embed(source='UI/topbar/shrinkTool.png')] private static const shrinkTool:Class;
 		
 		// Buttons
+		[Embed(source='UI/buttons/connectOff.png')] private static const connectOff:Class;
+		[Embed(source='UI/buttons/connectOn.png')] private static const connectOn:Class;
 		[Embed(source='UI/buttons/addItemOff.gif')] private static const addItemOff:Class;
 		[Embed(source='UI/buttons/addItemOn.gif')] private static const addItemOn:Class;
 		[Embed(source='UI/buttons/backarrowOff.png')] private static const backarrowOff:Class;

@@ -33,7 +33,7 @@ package cc.makeblock.mbot.util
 		
 		public function setConnectInfo(info:String):void
 		{
-			strList[1] = info;
+			strList[1] = info;	// "Connect" / null
 			updateTitle();
 		}
 		
@@ -54,7 +54,7 @@ package cc.makeblock.mbot.util
 		private function getTitleStr():String
 		{
 			var result:String = strList[0];
-			
+			/*
 			var str:String = strList[1];
 			if(Boolean(str)){
 				if(str == Uploading){
@@ -66,6 +66,7 @@ package cc.makeblock.mbot.util
 				str = Translator.map("Disconnected");
 			}
 			result += " - " + str;
+			*/
 		//	result += " - " + Translator.map(strList[2]==null ||strList[2] ? "Not saved" :  "Saved");
 			
 			return result;

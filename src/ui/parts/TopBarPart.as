@@ -28,26 +28,28 @@ package ui.parts {
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	import flash.text.TextField;
-	import flash.text.TextFormat;
-	import flash.utils.setTimeout;
+//	import flash.text.TextFormat;
+//	import flash.utils.setTimeout;
 	
 	import assets.Resources;
 	
 	import cc.makeblock.mbot.util.AppTitleMgr;
 	
-	import extensions.DeviceManager;
-	import extensions.ParseManager;
+//	import extensions.DeviceManager;
+//	import extensions.ParseManager;
+	import extensions.ConnectionManager;
+	import extensions.SerialManager;
 	
 	import translation.Translator;
 	
 	import uiwidgets.CursorTool;
 	import uiwidgets.IconButton;
-	import uiwidgets.Menu;
-	import uiwidgets.SimpleTooltips;
+//	import uiwidgets.Menu;
+//	import uiwidgets.SimpleTooltips;
 	
-	import util.ApplicationManager;
-	import util.Clicker;
-	import util.ClickerManager;
+//	import util.ApplicationManager;
+//	import util.Clicker;
+//	import util.ClickerManager;
 
 	public class TopBarPart extends UIPart {
 		/*
@@ -72,7 +74,7 @@ package ui.parts {
 		private var cutTool:IconButton;
 		private var growTool:IconButton;
 		private var shrinkTool:IconButton;
-		private var helpTool:IconButton;
+		private var connectTool:IconButton;
 		private var toolOnMouseDown:String;
 	
 //		private var offlineNotice:TextField = new TextField;
@@ -92,7 +94,7 @@ package ui.parts {
 			languageButton.x = 9;
 			languageButton.isMomentary = true;
 			*/
-			addTextButtons();
+//			addTextButtons();
 			addToolButtons();
 		}
 	
@@ -132,8 +134,8 @@ package ui.parts {
 		}
 	
 		public function updateTranslation():void {
-			removeTextButtons();
-			addTextButtons();
+//			removeTextButtons();
+//			addTextButtons();
 //			updateVersion();
 			refresh();
 		}
@@ -248,8 +250,8 @@ package ui.parts {
 			cutTool.x = copyTool.right() + space;
 			growTool.x = cutTool.right() + space;
 			shrinkTool.x = growTool.right() + space;
-			//helpTool.x = shrinkTool.right() + space;
-			copyTool.y = cutTool.y = shrinkTool.y = growTool.y = 4;//buttonY - 3;
+			connectTool.x = shrinkTool.right() + space;
+			copyTool.y = cutTool.y = shrinkTool.y = growTool.y = connectTool.y = 4;//buttonY - 3;
 	
 //			if(mcNotice) {
 //				mcNotice.x = w - offlineNotice.width - 5;
@@ -316,17 +318,26 @@ package ui.parts {
 					CursorTool.setTool(newTool);
 				}
 			}
+
+			function selectTool2():void {
+				connectTool.turnOff();
+				var arr:Array = SerialManager.sharedManager().list;
+				if(arr.length>0) {
+					ConnectionManager.sharedManager().onConnect("serial_"+arr[0]);
+				}
+			}
+
 			addChild(copyTool = makeToolButton('copyTool', selectTool));
 			addChild(cutTool = makeToolButton('cutTool', selectTool));
 			addChild(growTool = makeToolButton('growTool', selectTool));
 			addChild(shrinkTool = makeToolButton('shrinkTool', selectTool));
-			//addChild(helpTool = makeToolButton('helpTool', selectTool));
+			addChild(connectTool = new IconButton(selectTool2, 'connect'));
 	
 			SimpleTooltips.add(copyTool, {text: 'Duplicate', direction: 'bottom'});
 			SimpleTooltips.add(cutTool, {text: 'Delete', direction: 'bottom'});
 			SimpleTooltips.add(growTool, {text: 'Grow', direction: 'bottom'});
 			SimpleTooltips.add(shrinkTool, {text: 'Shrink', direction: 'bottom'});
-			//SimpleTooltips.add(helpTool, {text: 'Block help', direction: 'bottom'});
+			SimpleTooltips.add(connectTool, {text: 'Connect', direction: 'bottom'});
 		}
 	
 		public function clearToolButtons():void { clearToolButtonsExcept(null) }
@@ -383,6 +394,10 @@ package ui.parts {
 		}
 		public function setConnectedTitle(title:String):void{
 			AppTitleMgr.Instance.setConnectInfo(title);
+			if(title == "Connect")
+				connectTool.turnOn();
+			else
+				connectTool.turnOff();
 			/*
 			removeChild(connectMenu);
 			addChild(connectMenu = makeMenuButton(title, app.showConnectMenu, true));
@@ -397,7 +412,7 @@ package ui.parts {
 			*/
 		}
 		public function setDisconnectedTitle():void{
-			AppTitleMgr.Instance.setConnectInfo(null);
+			setConnectedTitle(null);
 			/*
 			removeChild(connectMenu);
 			addChild(connectMenu = makeMenuButton('Connect', app.showConnectMenu, true));

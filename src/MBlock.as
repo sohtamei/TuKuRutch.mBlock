@@ -35,7 +35,7 @@ package {
 	import cc.makeblock.mbot.util.AppTitleMgr;
 	import cc.makeblock.mbot.util.PopupUtil;
 	import cc.makeblock.menu.MenuBuilder;
-	import cc.makeblock.updater.AppUpdater;
+//	import cc.makeblock.updater.AppUpdater;
 	import cc.makeblock.util.FileUtil;
 	import cc.makeblock.util.FlashSprite;
 	import cc.makeblock.util.InvokeMgr;
@@ -143,7 +143,7 @@ package {
 		public var imagesPart:ImagesPart;
 		protected var soundsPart:SoundsPart;
 		protected var stagePart:StagePart;
-		private var ga:GATracker;
+//		private var ga:GATracker;
 		private var tabsPart:TabsPart;
 		private var _welcomeView:Loader;
 		private var _currentVer:String = "05.05.001";
@@ -156,7 +156,7 @@ package {
 //			trace(DESParser.encryptDES("123456",'212ea29742574cae8add9ad79abcfe4a'));//speech
 //			trace(DESParser.encryptDES("123456",'2a71aa9ef2fc478e8e35b13ca65d9e3f'));//emotion
 //			trace(DESParser.encryptDES("123456",'d30bb3fa0e40461eaf1d0b11b609a75a'));//text
-			SharedObjectManager.sharedManager().loadRemoteConfig();
+//			SharedObjectManager.sharedManager().loadRemoteConfig();
 		}
 		static private var errorFlag:Boolean;
 		private function __onError(evt:UncaughtErrorEvent):void
@@ -186,7 +186,7 @@ package {
 			UIManager.setLookAndFeel(new MyLookAndFeel());
 			AppTitleMgr.Instance.init(stage.nativeWindow);
 //			ApplicationManager.sharedManager().isCatVersion = NativeApplication.nativeApplication.applicationDescriptor.toString().indexOf("猫友")>-1;
-			ga = new GATracker(this,"UA-54268669-1","AS3",false);
+		//	ga = new GATracker(this,"UA-54268669-1","AS3",false);
 			track("/app/launch");
 			new InvokeMgr();
 			stage.nativeWindow.addEventListener(Event.CLOSING,onExiting);
@@ -211,7 +211,7 @@ package {
 			initRuntime();
 //			try{
 				extensionManager = new ExtensionManager(this);
-				var extensionsPath:File = ApplicationManager.sharedManager().documents.resolvePath("RemoconRobo");
+				var extensionsPath:File = ApplicationManager.sharedManager().documents.resolvePath("mBlock");
 				if(!extensionsPath.exists){
 					SharedObjectManager.sharedManager().clear();
 					SharedObjectManager.sharedManager().setObject(versionString+".0."+_currentVer,true);
@@ -243,7 +243,7 @@ package {
 			if(!SharedObjectManager.sharedManager().getObject("mblock-first-launch",false))
 			{
 				SharedObjectManager.sharedManager().setObject("mblock-first-launch",true);
-				ga.trackPageview(ApplicationManager.sharedManager().isCatVersion?"/myh/":"/") + "/mblock-first-launch";
+			//	ga.trackPageview(ApplicationManager.sharedManager().isCatVersion?"/myh/":"/") + "/mblock-first-launch";
 			}
 			if(!SharedObjectManager.sharedManager().getObject(versionString+".0."+_currentVer,false)){
 				//SharedObjectManager.sharedManager().clear();
@@ -257,7 +257,7 @@ package {
 			//VersionManager.sharedManager().start(); //在线更新资源文件
 			if(SharedObjectManager.sharedManager().getObject("first-launch",true)){
 				SharedObjectManager.sharedManager().setObject("first-launch",false);
-				//openWelcome();
+				openWelcome();
 			}
 			initExtension();
 			MenuBuilder.BuildMenuList(XMLList(FileUtil.LoadFile("assets/context_menus.xml")));
@@ -327,9 +327,10 @@ package {
 		}
 		
 		public function track(msg:String):void{
-			ga.trackPageview(
-				(ApplicationManager.sharedManager().isCatVersion?"/myh/":"/") + MBlock.versionString + msg
-			);
+			LogManager.sharedManager().log(msg);
+		//	ga.trackPageview(
+		//		(ApplicationManager.sharedManager().isCatVersion?"/myh/":"/") + MBlock.versionString + msg
+		//	);
 		}
 		
 		protected function initTopBarPart():void {
@@ -387,12 +388,13 @@ package {
 		}
 		
 		public function log(s:String):void {
-			LogManager.sharedManager().log(s+"\r\n");
+			LogManager.sharedManager().log(s);
 		}
-	
+		/*
 		public function logMessage(msg:String, extra_data:Object=null):void {
 			trace(msg);
 		}
+		*/
 		public function loadProjectFailed():void {}
 		
 		public function clearCachedBitmaps():void {
@@ -1019,11 +1021,11 @@ package {
 				var file:File = new File(File.applicationDirectory.nativePath);
 				if(ApplicationManager.sharedManager().system==ApplicationManager.WINDOWS)
 				{
-					file = file.resolvePath("RemoconRobo.exe");
+					file = file.resolvePath(vxml.xmlns::filename + ".exe");
 				}
 				else
 				{
-					file = file.resolvePath("../MacOS/RemoconRobo");
+					file = file.resolvePath("../MacOS/" + vxml.xmlns::filename);
 				}
 				
 				if(!file.exists)

@@ -22,7 +22,7 @@ package extensions
 	
 	import util.ApplicationManager;
 	import util.LogManager;
-	import util.SharedObjectManager;
+//	import util.SharedObjectManager;
 
 	public class SerialManager extends EventDispatcher
 	{
@@ -32,9 +32,9 @@ package extensions
 		public var currentPort:String = "";
 		private var _selectPort:String = "";
 		public var _mBlock:MBlock;
-		private var _board:String = "uno";
-		private var _device:String = "uno";
-		private var _upgradeBytesLoaded:Number = 0;
+//		private var _board:String = "uno";
+//		private var _device:String = "uno";
+//		private var _upgradeBytesLoaded:Number = 0;
 		private var _upgradeBytesTotal:Number = 0;
 		private var _isInitUpgrade:Boolean = false;
 		private var _dialog:DialogBox = new DialogBox();
@@ -57,8 +57,8 @@ package extensions
 //			_avrdude = _isMacOs?"avrdude":"avrdude.exe";
 //			_avrdudeConfig = _isMacOs?"avrdude_mac.conf":"avrdude.conf";
 			
-			_board = SharedObjectManager.sharedManager().getObject("board","uno");
-			_device = SharedObjectManager.sharedManager().getObject("device","uno");
+//			_board = SharedObjectManager.sharedManager().getObject("board","uno");
+//			_device = SharedObjectManager.sharedManager().getObject("device","uno");
 			var timer:Timer = new Timer(4000);
 			timer.addEventListener(TimerEvent.TIMER,onTimerCheck);
 			timer.start();
@@ -143,18 +143,6 @@ package extensions
 			}
 			return new ByteArray;
 		}
-		public function get board():String{
-			return _board;
-		}
-		public function set board(s:String):void{
-			_board = s;
-		}
-		public function set device(s:String):void{
-			_device = s;
-		}
-		public function get device():String{
-			return _device;
-		}
 		public function open(port:String,baud:uint=115200):Boolean{
 			if(_serial.isConnected){
 				_serial.close();
@@ -197,41 +185,10 @@ package extensions
 			_hexToDownload = hexFile;
 			MBlock.app.topBarPart.setConnectedTitle(AppTitleMgr.Uploading);
 			ArduinoManager.sharedManager().isUploading = false;
-			if(DeviceManager.sharedManager().currentDevice.indexOf("leonardo")>-1){
-				_serial.close();
-				setTimeout(function():void{
-					_serial.open(SerialDevice.sharedDevice().port,1200);
-					setTimeout(function():void{
-						_serial.close();
-						if(ApplicationManager.sharedManager().system==ApplicationManager.WINDOWS){
-							var timer:Timer = new Timer(500,20);
-							timer.addEventListener(TimerEvent.TIMER,checkAvailablePort);
-							function onCLoseDialog(e:TimerEvent):void{
-								_dialog.cancel();
-							}
-							timer.addEventListener(TimerEvent.TIMER_COMPLETE,onCLoseDialog);
-							timer.start();
-						}
-					},500);
-				},100);
-				if(ApplicationManager.sharedManager().system==ApplicationManager.MAC_OS){
-					setTimeout(upgradeFirmware,2000);
-				}
-			}else{
-				_serial.close();
-				upgradeFirmware();
-				currentPort = "";
-			}
+			_serial.close();
+			upgradeFirmware();
+			currentPort = "";
 		}
-	/*
-		public function openSource():void{
-			MBlock.app.track("/OpenSerial/ViewSource");
-			var file:File = ApplicationManager.sharedManager().documents.resolvePath("mBlock/firmware/mbot_firmware");
-			if(file.exists && file.isDirectory){
-				file.openWithDefaultApplication();
-			}
-		}
-	*/
 		public function disconnect():void{
 			currentPort = "";
 			MBlock.app.topBarPart.setDisconnectedTitle();
@@ -240,6 +197,7 @@ package extensions
 			_serial.close();
 			_serial.removeEventListener(Event.CHANGE,onChanged);
 		}
+/*
 		public function reconnectSerial():void{
 			if(_serial.isConnected){
 				_serial.close();
@@ -247,26 +205,8 @@ package extensions
 				//setTimeout(function():void{_serial.close();},1000);
 			}
 		}
-		
+*/
 		private var process:NativeProcess;
-		private function checkAvailablePort(evt:TimerEvent):void{
-			
-			var lastList:Array = _serial.list().split(",");
-			for(var i:* in _currentList){
-				var index:int = lastList.indexOf(_currentList[i]);
-				if(index>-1){
-					lastList.splice(index,1);
-				}
-			}
-			if(lastList.length>0&&lastList[0].indexOf("COM")>-1){
-				Timer(evt.target).stop();
-				var temp:String = SerialDevice.sharedDevice().port;
-				SerialDevice.sharedDevice().port = lastList[0];
-				upgradeFirmware();
-				SerialDevice.sharedDevice().port = temp;
-			}
-		}
-		
 		static private function getAvrDude():File
 		{
 			if(ApplicationManager.sharedManager().system == ApplicationManager.MAC_OS){
@@ -302,25 +242,15 @@ package extensions
 			v.push("-v");
 			v.push("-v");
 			v.push("-v");
-		//	if(currentDevice=="uno"){
-				v.push("-patmega328p");
-				v.push("-carduino"); 
-				v.push("-P"+currentPort);
-				v.push("-b115200");
-				v.push("-D");
-				v.push("-V");
-				v.push("-U");
-			/*
-				if(_hexToDownload.length==0){
-					var hexFile_uno:String = getHexFilePath();
-					v.push("flash:w:"+hexFile_uno+":i");
-					tf = new File(hexFile_uno);
-				}else{
-			*/
-					v.push("flash:w:"+_hexToDownload+":i");
-					tf = new File(_hexToDownload);
-		//		}
-		//	}
+			v.push("-patmega328p");
+			v.push("-carduino"); 
+			v.push("-P"+currentPort);
+			v.push("-b115200");
+			v.push("-D");
+			v.push("-V");
+			v.push("-U");
+			v.push("flash:w:"+_hexToDownload+":i");
+			tf = new File(_hexToDownload);
 			if(tf!=null && tf.exists){
 				_upgradeBytesTotal = tf.size;
 //				trace("total:",_upgradeBytesTotal);
@@ -342,23 +272,6 @@ package extensions
 			
 		}
 		
-	/*
-		private function getHexFilePath():String
-		{
-			var board:String = DeviceManager.sharedManager().currentBoard;
-			var fileName:String;
-			if(board.indexOf("_uno") > 0){
-				if(board.indexOf("mbot") >= 0){
-					fileName = "mbot";
-				}else{
-					fileName = "uno";
-				}
-			}else{
-				throw new Error(board);
-			}
-			return ApplicationManager.sharedManager().documents.nativePath + "/mBlock/tools/hex/" + fileName + ".hex";
-		}
-	*/
 		private var errorText:String;
 		private var sizeInfo:UploadSizeInfo = new UploadSizeInfo();
 		private function onStandardOutputData(event:ProgressEvent):void
@@ -403,7 +316,7 @@ package extensions
 				_dialog.setTitle(('Start Uploading'));
 				_dialog.setButton(('Close'));
 			}
-			_upgradeBytesLoaded = 0;
+		//	_upgradeBytesLoaded = 0;
 			_dialog.setText(Translator.map('Executing'));
 			_dialog.showOnStage(_mBlock.stage);
 		}

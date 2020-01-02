@@ -60,18 +60,9 @@ package extensions
 */
 				default:{
 					BlockInterpreter.Instance.stopAllThreads();
-					var isConnectCmd:Boolean = false;
-					
 					if(name.indexOf("serial_")>-1){
 						MBlock.app.track("/Connect/Serial");
-						isConnectCmd = true;
 						SerialManager.sharedManager().connect(name.split("serial_").join(""));
-					}
-					
-					if(isConnectCmd) {	// collect data on what type of board it connected to
-						var boardName:String = DeviceManager.sharedManager().currentBoard;
-						MBlock.app.track("/ConnectBoard/"+boardName);
-						
 					}
 				}
 			}

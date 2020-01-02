@@ -1,6 +1,5 @@
 package extensions
 {
-	import util.LogManager;
 	import util.SharedObjectManager;
 
 	public class DeviceManager
@@ -11,7 +10,7 @@ package extensions
 		private var _name:String = "";
 		public function DeviceManager()
 		{
-			onSelectBoard(SharedObjectManager.sharedManager().getObject("board","remoconRobo"));
+			onSelectBoard("remoconRobo");
 		}
 		public static function sharedManager():DeviceManager{
 			if(_instance==null){
@@ -30,9 +29,9 @@ package extensions
 				return;
 			}
 			this.board = value;
+		/*
 			var oldBoard:String = SharedObjectManager.sharedManager().getObject("board");
 			SharedObjectManager.sharedManager().setObject("board",_board);
-		/*
 			if(_board=="mbot_uno"){
 				MBlock.app.extensionManager.singleSelectExtension("FamilyDay");//"mBot");
 			}else if(_board.indexOf("arduino")>-1){

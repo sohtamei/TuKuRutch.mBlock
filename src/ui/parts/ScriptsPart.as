@@ -63,7 +63,6 @@ package ui.parts {
 	import uiwidgets.ZoomWidget;
 	
 	import util.JSON;
-	import cc.makeblock.mbot.util.AppTitleMgr;
 
 public class ScriptsPart extends UIPart {
 	private var htmlLoader:HTMLLoader;
@@ -289,7 +288,7 @@ public class ScriptsPart extends UIPart {
 				if(showArduinoCode()){
 					htmlLoader.window.appendInfo(ArduinoManager.sharedManager().buildAll(arduinoCodeText));
 					ConnectionManager.sharedManager().onClose(SerialDevice.sharedDevice().port);
-					AppTitleMgr.Instance.setConnectInfo("Uploading");
+					MBlock.app.topBarPart.setConnectedTitle("Uploading");
 				}
 			}
 		}else{

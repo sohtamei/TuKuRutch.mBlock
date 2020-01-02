@@ -6,8 +6,6 @@ package extensions
 	import flash.events.ProgressEvent;
 	import flash.filesystem.File;
 	
-	import cc.makeblock.mbot.util.AppTitleMgr;
-	
 	import translation.Translator;
 	
 	import uiwidgets.DialogBox;
@@ -76,7 +74,7 @@ package extensions
 			}else{
 				_dialog.setText(Translator.map('Upload Failed'));
 			}
-			AppTitleMgr.Instance.setConnectInfo(null);
+			MBlock.app.topBarPart.setConnectedTitle(null);
 			//SerialManager.sharedManager().reopen();
 		}
 		

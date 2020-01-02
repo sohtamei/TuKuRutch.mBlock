@@ -141,12 +141,16 @@ public class IconButton extends Sprite {
 
 	private function redraw():void {
 		var img:DisplayObject = buttonIsOn ? onImage : offImage;
-		if (mouseIsOver && !buttonIsOn) img = onImage;
+	//	if (mouseIsOver && !buttonIsOn) img = onImage;
 		while (numChildren > 0) removeChildAt(0);
 		addChild(img);
 		// Make the entire button rectangle be mouse-sensitive:
 		graphics.clear();
-		graphics.beginFill(0xA0, 0); // invisible but mouse-sensitive; min size 10x10
+		if(mouseIsOver) {
+			graphics.beginFill(0xE5F3FF, 1);
+		} else {
+			graphics.beginFill(0x0000A0, 0); // invisible but mouse-sensitive; min size 10x10
+		}
 		graphics.drawRect(0, 0, Math.max(10, img.width), Math.max(10, img.height));
 		graphics.endFill();
 	}
