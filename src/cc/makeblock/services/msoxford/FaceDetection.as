@@ -113,16 +113,16 @@ package cc.makeblock.services.msoxford
 			}
 			try{
 				ret = util.JSON.parse(evt.target.data);
-				var len:uint = ret.length;
-				var result:Array = [];
+				len = ret.length;
+				result = [];
 				
-				for(var i:uint=0;i<len;i++){
+				for(i=0;i<len;i++){
 					var faceAttributes_obj:Object = ret[i].faceAttributes;
-					var faceId:String = ret[i].faceId;
+					faceId = ret[i].faceId;
 					var faceRectangle_obj:Object = ret[i].faceRectangle;
 					var faceLandmarks_obj:Object = ret[i].faceLandmarks;
 					
-					var obj:Object = {};
+					obj = {};
 					obj.x = faceRectangle_obj.left;
 					obj.y = faceRectangle_obj.top;
 					obj.width = faceRectangle_obj.width;

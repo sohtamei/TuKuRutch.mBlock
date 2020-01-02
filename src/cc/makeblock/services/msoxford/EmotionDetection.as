@@ -115,14 +115,14 @@ package cc.makeblock.services.msoxford
 				return;
 			}
 			ret = util.JSON.parse(evt.target.data);
-			var len:uint = ret.length;
-			var result:Array = [];
-			for(var i:uint=0;i<len;i++){
-				var h:uint = ret[i].faceRectangle.height;
-				var w:uint = ret[i].faceRectangle.width;
-				var l:uint = ret[i].faceRectangle.left;
-				var t:uint = ret[i].faceRectangle.top;
-				var obj:Object = {};
+			len = ret.length;
+			result = [];
+			for(i=0;i<len;i++){
+				h = ret[i].faceRectangle.height;
+				w = ret[i].faceRectangle.width;
+				l = ret[i].faceRectangle.left;
+				t = ret[i].faceRectangle.top;
+				obj = {};
 				obj.x = l;
 				obj.y = t;
 				obj.width = w;

@@ -10,7 +10,6 @@ package extensions
 	import cc.makeblock.interpreter.BlockInterpreter;
 	
 	import util.ApplicationManager;
-	import util.LogManager;
 
 	public class ConnectionManager extends EventDispatcher
 	{
@@ -68,7 +67,7 @@ package extensions
 			}
 		}
 		public function open(port:String,baud:uint=115200):Boolean{
-			LogManager.sharedManager().log("connection:"+port);
+			MBlock.app.track("connection:"+port);
 			if(port){
 				return SerialManager.sharedManager().open(port,baud);
 			}

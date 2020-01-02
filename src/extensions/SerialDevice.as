@@ -121,5 +121,9 @@ package extensions
 		public function close():void{
 //			ConnectionManager.sharedManager().close();
 		}
+		public function track(msg:String):void
+		{
+			MBlock.app.track(msg);
+		}
 	}
 }

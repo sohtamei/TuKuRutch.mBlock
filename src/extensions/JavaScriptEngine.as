@@ -11,8 +11,6 @@ package extensions
 	
 	import org.aswing.JOptionPane;
 	
-	import util.LogManager;
-	
 	public class JavaScriptEngine
 	{
 		private const _htmlLoader:HTMLLoader = new HTMLLoader();
@@ -31,7 +29,7 @@ package extensions
 				//尝试连接
 				onConnected(null);
 			}
-			LogManager.sharedManager().log("registed:"+_ext._getStatus().msg);
+			MBlock.app.track("registed:"+_ext._getStatus().msg);
 			//trace(SerialManager.sharedManager().list());
 			//_timer.start();
 		}
@@ -93,14 +91,14 @@ package extensions
 			if(_ext){
 				var dev:SerialDevice = SerialDevice.sharedDevice();
 				_ext._deviceConnected(dev);
-				LogManager.sharedManager().log("register:"+_name);
+				MBlock.app.track("register:"+_name);
 			}
 		}
 		private function onClosed(evt:Event):void{
 			if(_ext){
 				var dev:SerialDevice = SerialDevice.sharedDevice();
 				_ext._deviceRemoved(dev);
-				LogManager.sharedManager().log("unregister:"+_name);
+				MBlock.app.track("unregister:"+_name);
 			}
 		}
 		private function onRemoved(evt:Event):void{

@@ -56,7 +56,7 @@ package extensions
 		}
 	*/
 		public function get currentBoard():String{
-//			LogManager.sharedManager().log("currentBoard:"+_board);
+//			MBlock.app.track("currentBoard:"+_board);
 			return _board;
 		}
 		public function get currentDevice():String{

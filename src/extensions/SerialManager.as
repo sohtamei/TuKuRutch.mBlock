@@ -21,7 +21,6 @@ package extensions
 	import uiwidgets.DialogBox;
 	
 	import util.ApplicationManager;
-	import util.LogManager;
 //	import util.SharedObjectManager;
 
 	public class SerialManager extends EventDispatcher
@@ -80,6 +79,7 @@ package extensions
 				ConnectionManager.sharedManager().onReceived(_serial.readBytes());
 			}
 			return;
+/*
 			if(len>0){
 				var bytes:ByteArray = _serial.readBytes();
 				bytes.position = 0;
@@ -97,6 +97,7 @@ package extensions
 				bytes.position = 0;
 				ParseManager.sharedManager().parseBuffer(bytes);
 			}
+*/
 		}
 		public function get isConnected():Boolean{
 			return _serial.isConnected;
@@ -226,7 +227,7 @@ package extensions
 		public function upgradeFirmware(hexfile:String=""):void{
 			var file:File = getAvrDude();//外部程序名
 			if(!file.exists){
-				trace("upgrade fail!");
+				MBlock.app.track("upgrade fail!");
 				return;
 			}
 			MBlock.app.topBarPart.setConnectedTitle(AppTitleMgr.Uploading);
@@ -253,7 +254,7 @@ package extensions
 			tf = new File(_hexToDownload);
 			if(tf!=null && tf.exists){
 				_upgradeBytesTotal = tf.size;
-//				trace("total:",_upgradeBytesTotal);
+//				MBlock.app.track("total:",_upgradeBytesTotal);
 			}else{
 				_upgradeBytesTotal = 0;
 			}
@@ -294,10 +295,10 @@ package extensions
 		private function onExit(event:NativeProcessExitEvent):void
 		{
 			ArduinoManager.sharedManager().isUploading = false;
-			LogManager.sharedManager().log("Process exited with "+event.exitCode);
+			MBlock.app.track("Process exited with "+event.exitCode);
 			if(event.exitCode > 0){
 				_dialog.setText(Translator.map('Upload Failed'));
-				LogManager.sharedManager().log(errorText);
+				MBlock.app.track(errorText);
 				MBlock.app.scriptsPart.appendMsgWithTimestamp(errorText, true);
 			}else{
 				_dialog.setText(Translator.map('Upload Finish'));
