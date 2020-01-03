@@ -44,6 +44,7 @@ enum {
 	CMD_CHECKREMOTEKEY	= 18,
 	CMD_ANALOG		= 31,
 	CMD_GETCALIB	= 37,
+	CMD_ANALOGAVE	= 40,
 
 	// run
 	CMD_ROBOT		= 5,
@@ -319,7 +320,12 @@ static void readSensor(int idx, int cmd)
 	case CMD_ANALOG:
 		buf6 = A0+buf6;
 		pinMode(buf6, INPUT);
-		sendFloat(analogRead(buf6));
+		sendShort(remoconRobo_getAnalog(buf6, 1));
+		break;
+	case CMD_ANALOGAVE:
+		buf6 = A0+buf6;
+		pinMode(buf6, INPUT);
+		sendShort(remoconRobo_getAnalog(buf6, readShort(7)));
 		break;
 	case CMD_GETCALIB:
 		sendShort(remoconRobo_getCalib());

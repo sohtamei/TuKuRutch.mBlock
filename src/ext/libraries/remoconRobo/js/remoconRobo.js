@@ -2,7 +2,6 @@
 
 (function(ext) {
 	var device = null;
-	var _rxBuf = [];
 
 	var levels = {"HIGH":1,"LOW":0};
 	var onoff = {"On":1,"Off":0};
@@ -29,50 +28,80 @@
 	var remoteKey = 0;
 	var remoteX = 0;
 	var remoteY = 0;
+	
+	var stype = {
+		GET		: 1,
+		RUN		: 2,
+		RESET	: 4,
+		START	: 5,
+	};
+
+	var cmd = {
+		// get, run
+		DIGITAL		: 30,
+
+		// get
+		VERSION		: 0,
+		CHECKREMOTEKEY	: 18,
+		ANALOG		: 31,
+		GETCALIB	: 37,
+		ANALOGAVE	: 40,
+
+		// run
+		ROBOT		: 5,
+		MOTOR		: 10,
+	//	PWM			: 32,
+		SERVO		: 33,
+		TONE		: 34,
+		PLAYMP3		: 35,
+		STOPMP3		: 36,
+		SETCALIB	: 38,
+		INCCALIB	: 39,
+	};
+
 	ext.resetAll = function(){
-		device.send([0xff, 0x55, 2, 0, 4]);
+		device.send([0xff, 0x55, 2, 0, stype.RESET]);
 	};
 	ext.runArduino = function(){
 		responseValue();
 	};
-	
 	ext.runRobot = function(direction,speed) {
 		if(typeof direction == "string"){
 			direction = directions[direction];
 		}
-		runPackage(5,direction,speed);
+		sendPackage(stype.RUN, cmd.ROBOT, direction, speed);
 	};
 	ext.stopRobot= function() {
-		runPackage(5,0,0);
+		sendPackage(stype.RUN, cmd.ROBOT, 0,0);
 	}
 	ext.runMotor = function(port,speed) {
-		runPackage(10,port,short2array(speed));
+		sendPackage(stype.RUN, cmd.MOTOR, port, short2array(speed));
 	};
 
 	ext.runCalibRight = function(inc) {
-		runPackage(39,short2array(inc));
+		sendPackage(stype.RUN, cmd.INCCALIB, short2array(inc));
 	};
 	ext.runCalibLeft = function(inc) {
-		runPackage(39,short2array(-inc));
+		sendPackage(stype.RUN, cmd.INCCALIB, short2array(-inc));
 	};
 	ext.getCalib = function() {
-		getPackage(37);
+		sendPackage(stype.GET, cmd.GETCALIB);
 	};
 	ext.runSetCalib = function(calib) {
-		runPackage(38,short2array(calib));
+		sendPackage(stype.RUN, cmd.SETCALIB, short2array(calib));
 	};
 
 	ext.runDigital = function(pin,level) {
-		runPackage(30,pin,typeof level == "string"?levels[level]:new Number(level));
+		sendPackage(stype.RUN, cmd.DIGITAL, pin, typeof level == "string"?levels[level]:new Number(level));
 	};
 	ext.runDigitalA = function(pin,level) {
-		runPackage(30,14+pin,typeof level == "string"?levels[level]:new Number(level));
+		sendPackage(stype.RUN, cmd.DIGITAL, 14+pin, typeof level == "string"?levels[level]:new Number(level));
 	};
 	ext.runServoArduino = function(pin, angle){
-		runPackage(33,pin,angle);
+		sendPackage(stype.RUN, cmd.SERVO, pin, angle);
 	};
 	ext.runLED = function(level) {
-		runPackage(30,13,typeof level == "string"?onoff[level]:new Number(level));
+		sendPackage(stype.RUN, cmd.DIGITAL, 13, typeof level == "string"?onoff[level]:new Number(level));
 	};
 	ext.runBuzzer = function(tone, beat){
 		if(typeof tone == "string"){
@@ -81,7 +110,7 @@
 		if(typeof beat == "string"){
 			beat = parseInt(beat) || beats[beat];
 		}
-		runPackage(34,short2array(tone), short2array(beat));
+		sendPackage(stype.RUN, cmd.TONE, short2array(tone), short2array(beat));
 	};
 	ext.runBuzzerJ1 = function(tone, beat){
 		ext.runBuzzer(tone, beat);
@@ -93,25 +122,26 @@
 		ext.runBuzzer(tone, beat);
 	};
 	ext.runMP3 = function(track, loop) {
-		runPackage(35,track,typeof loop=="string" ? onoff[loop]: new Number(loop));
+		sendPackage(stype.RUN, cmd.PLAYMP3, track, typeof loop=="string" ? onoff[loop]: new Number(loop));
 	};
 	ext.stopMP3 = function() {
-		runPackage(36);
+		sendPackage(stype.RUN, cmd.STOPMP3);
 	};
 	
 	ext.getDigital = function(pin) {
-		getPackage(30,pin);
+		sendPackage(stype.GET, cmd.DIGITAL, pin);
 	};
 	ext.getDigitalA = function(pin) {
-		getPackage(30,14+pin);
+		sendPackage(stype.GET, cmd.DIGITAL, 14+pin);
 	};
 	ext.getAnalog = function(pin) {
-		getPackage(31,pin);
+		sendPackage(stype.GET, cmd.ANALOG, pin);
+	};
+	ext.getAnalogAve = function(pin, count) {
+		sendPackage(stype.GET, cmd.ANALOGAVE, pin, short2array(count));
 	};
 	ext.checkRemoteKey = function() {
-		getPackage(18);
-	//	var startMsec = new Date();
-	//	while (new Date() - startMsec < 100);
+		sendPackage(stype.GET, cmd.CHECKREMOTEKEY);
 	}
 	ext.isRemoteKey = function(code){
 		if(typeof code=="string") {
@@ -129,26 +159,19 @@
 		responseValue2(0,remoteY);
 	}
 
-	var lastCode = 0;
-	function runPackage(){
-		lastCode = 0;
-		sendPackage(arguments, 2);
-	}
-	function getPackage(){
-		lastCode = arguments[0];
-		sendPackage(arguments, 1);
-	}
+	//************************************************
+	// common
 
 	var comBusy = false;
-	function sendPackage(argList, type){
+	function sendPackage(){
 		if(comBusy) {
 	//		responseValue();
 	//		return;
 		}
 
-		var bytes = [0xff, 0x55, 0, 0, type];
-		for(var i=0;i<argList.length;++i){
-			var val = argList[i];
+		var bytes = [0xff, 0x55, 0, 0];
+		for(var i=0;i<arguments.length;++i){
+			var val = arguments[i];
 			if(val.constructor == "[class Array]"){
 				bytes = bytes.concat(val);
 			}else{
@@ -160,69 +183,79 @@
 		comBusy = true;
 	}
 
-	var _isParseStart = false;
-	var _isParseStartIndex = 0;
+	var rtype = {
+		BYTE	: 1,	// len=1
+		FLOAT	: 2,	// len=4
+		SHORT	: 3,	// len=2
+		STRING	: 4,	// len=n (n, string[n])
+		DOUBLE	: 5,	// len=8
+		LONG	: 6,	// len=4
+		REMOTE	: 7		// len=5 (key, x[2], y[2])
+	};
+
+	var _rxBuf = [];
+	var _packetLen = 4;
 	function processData(bytes) {
-		var len = bytes.length;
-		if(_rxBuf.length > 30){
-			_rxBuf = [];
-			_isParseStart = false;
-		}
 		for(var index = 0; index < bytes.length; index++){
 			var c = bytes[index];
 			_rxBuf.push(c);
-			if(_rxBuf.length >= 2){
-				if(!_isParseStart && _rxBuf[_rxBuf.length-1] == 0x55 && _rxBuf[_rxBuf.length-2] == 0xff){
-					_isParseStart = true;
-					_isParseStartIndex = _rxBuf.length-2;
-
-				} else if(_isParseStart && _rxBuf[_rxBuf.length-1] == 0xa && _rxBuf[_rxBuf.length-2] == 0xd){
-					
-					if(_rxBuf.length < _isParseStartIndex+(2+1+1+1+2)) {
-						responseValue();
-					} else {
-						var extId = _rxBuf[_isParseStartIndex+2];
-						var type = _rxBuf[_isParseStartIndex+3];
-						var value;
-						switch(type){
-						case 1:		// byte
-							value = _rxBuf[_isParseStartIndex+4];
-							if(lastCode == 18) {	// remote(old)
-								remoteKey = value;
-							}
-							break;
-						case 2:		// float
-							value = readFloat(_rxBuf, _isParseStartIndex+4);
-							break;
-						case 3:		// short
-							value = readInt(_rxBuf, _isParseStartIndex+4, 2);
-							break;
-						case 4:		// string
-							value = readString(_rxBuf, _isParseStartIndex+5, _rxBuf[_isParseStartIndex+4]);
-							break;
-						case 5:		// double
-							value = readDouble(_rxBuf, _isParseStartIndex+4);
-							break;
-						case 6:		// long
-							value = readInt(_rxBuf, _isParseStartIndex+4, 4);
-							break;
-						case 7:		// remote
-							value = _rxBuf[_isParseStartIndex+4];
-							remoteKey = value;
-							remoteX = readInt(_rxBuf, _isParseStartIndex+5, 2);
-							remoteY = readInt(_rxBuf, _isParseStartIndex+7, 2);
-						}
-						responseValue(extId,value);
-					}
+			switch(_rxBuf.length) {
+			case 1:
+				_packetLen = 4;
+				if(c != 0xff) 
 					_rxBuf = [];
-					_isParseStart = false;
-					comBusy = false;
+				break;
+			case 2:
+				if(c != 0x55) 
+					_rxBuf = [];
+				break;
+			case 4:
+				switch(_rxBuf[3]) {
+				case rtype.BYTE:	_packetLen = 4+1+2;	break;
+				case rtype.FLOAT:	_packetLen = 4+4+2;	break;
+				case rtype.SHORT:	_packetLen = 4+2+2;	break;
+				case rtype.STRING:	_packetLen = 4+1+2;	break;	// tentative
+				case rtype.DOUBLE:	_packetLen = 4+8+2;	break;
+				case rtype.LONG:	_packetLen = 4+4+2;	break;
+				case rtype.REMOTE:	_packetLen = 4+5+2;	break;
+			//	case 0x0a:	break;
+				default:	break;
 				}
-			} 
+				break;
+			case 5:
+				if(_rxBuf[3] == rtype.STRING)
+					_packetLen = 4+1+_rxBuf[4]+2;
+				break;
+			}
+
+			if(_rxBuf.length >= _packetLen) {
+				if(_rxBuf[_rxBuf.length-1] == 0xa && _rxBuf[_rxBuf.length-2] == 0xd && _packetLen > 4) { 
+					var value = 0;
+					switch(_rxBuf[3]) {
+					case rtype.BYTE:	value = _rxBuf[4];	break;
+					case rtype.FLOAT:	value = readFloat(_rxBuf, 4);				break;
+					case rtype.SHORT:	value = readInt(_rxBuf, 4, 2);				break;
+					case rtype.STRING:	value = readString(_rxBuf, 5, _rxBuf[4]);	break;
+					case rtype.DOUBLE:	value = readDouble(_rxBuf, 4);				break;
+					case rtype.LONG:	value = readInt(_rxBuf, 4, 4);				break;
+					case rtype.REMOTE:
+						value = _rxBuf[4];
+						remoteKey = value;
+						remoteX = readInt(_rxBuf, 5, 2);
+						remoteY = readInt(_rxBuf, 7, 2);
+						break;
+					}
+					responseValue(_rxBuf[2],value);
+				} else {
+					responseValue();
+				}
+				_rxBuf = [];
+				comBusy = false;
+			}
 		}
 	}
 	function readFloat(arr,position){
-		var f= [arr[position],arr[position+1],arr[position+2],arr[position+3]];
+		var f= [arr[position+0],arr[position+1],arr[position+2],arr[position+3]];
 		return parseFloat(f);
 	}
 	function readInt(arr,position,count){
@@ -236,17 +269,14 @@
 		return result;
 	}
 	function readDouble(arr,position){
-		return readFloat(arr,position);
+		return readFloat(arr,position);		// ?
 	}
 	function readString(arr,position,len){
 		var value = "";
 		for(var ii=0;ii<len;ii++){
-			value += String.fromCharCode(_rxBuf[ii+position]);
+			value += String.fromCharCode(arr[ii+position]);
 		}
 		return value;
-	}
-	function appendBuffer( buffer1, buffer2 ) {
-		return buffer1.concat( buffer2 );
 	}
 
 	// Extension API interactions
@@ -263,6 +293,7 @@
 		// That will get us back here next time a device is connected.
 		device = potentialDevices.shift();
 		if (device) {
+		//	trace("111");
 			device.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0 }, deviceOpened);
 		}
 	}
@@ -274,7 +305,7 @@
 			tryNextDevice();
 			return;
 		}
-		device.set_receive_handler('makeblock',processData);
+		device.set_receive_handler('RemoconRobo',processData);
 	};
 
 	ext._deviceRemoved = function(dev) {

@@ -99,7 +99,10 @@
 		{"encode":"{d0}","setup":"pinMode(A0+{0},INPUT);\n","inc":"","def":"","work":"digitalRead(A0+{0})","loop":""}],
 		
 		["R", "read analog pin A%n","getAnalog",0,
-		{"encode":"{d0}","setup":"pinMode(A0+{0},INPUT);\n","inc":"","def":"","work":"analogRead(A0+{0})","loop":""}],
+		{"encode":"{d0}","setup":"pinMode(A0+{0},INPUT);\n","inc":"","def":"","work":"remoconRobo_getAnalog(A0+{0},1)","loop":""}],
+
+		["R", "read analog pin A%n average %n times","getAnalogAve",0, 10,
+		{"encode":"{d0}{d1}","setup":"pinMode(A0+{0},INPUT);\n","inc":"","def":"","work":"remoconRobo_getAnalog(A0+{0},{1})","loop":""}],
 
 		["-"],
 

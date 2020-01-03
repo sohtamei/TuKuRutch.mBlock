@@ -29,7 +29,7 @@ package extensions
 				//尝试连接
 				onConnected(null);
 			}
-			MBlock.app.track("registed:"+_ext._getStatus().msg);
+			trace("registed:"+_ext._getStatus().msg);
 			//trace(SerialManager.sharedManager().list());
 			//_timer.start();
 		}
@@ -91,14 +91,14 @@ package extensions
 			if(_ext){
 				var dev:SerialDevice = SerialDevice.sharedDevice();
 				_ext._deviceConnected(dev);
-				MBlock.app.track("register:"+_name);
+				trace("register:"+_name);
 			}
 		}
 		private function onClosed(evt:Event):void{
 			if(_ext){
 				var dev:SerialDevice = SerialDevice.sharedDevice();
 				_ext._deviceRemoved(dev);
-				MBlock.app.track("unregister:"+_name);
+				trace("unregister:"+_name);
 			}
 		}
 		private function onRemoved(evt:Event):void{
@@ -217,6 +217,10 @@ package extensions
 			}
 			tempBytes.position = 0;
 			return tempBytes.readUTFBytes(bytes.length);
+		}
+		static private function trace(msg:String):void
+		{
+			MBlock.app.track(msg);
 		}
 		static private const tempBytes:ByteArray = new ByteArray();
 		tempBytes.endian = Endian.LITTLE_ENDIAN;
