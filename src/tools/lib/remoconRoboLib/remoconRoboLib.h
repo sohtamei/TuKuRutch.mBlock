@@ -113,6 +113,4 @@ void remoconRobo_initMP3(int volume);			// 0~30
 void remoconRobo_playMP3(int track, int loop);
 void remoconRobo_stopMP3(void);
 
-uint16_t remoconRobo_getAnalog(uint8_t ch, uint16_t count);
-
 #endif

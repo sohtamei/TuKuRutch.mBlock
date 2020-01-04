@@ -500,14 +500,3 @@ void remoconRobo_stopMP3(void)
 		SendMP3(pause);
 	}
 }
-
-uint16_t remoconRobo_getAnalog(uint8_t ch, uint16_t count)
-{
-	if(count == 0) count = 1;
-	uint32_t sum = 0;
-	uint16_t i;
-	for(i = 0; i < count; i++)
-		sum += analogRead(ch);
-	sum = ((sum / count) * 625UL) / 128;	// 1024->5000
-	return sum;
-}
