@@ -195,11 +195,11 @@ package extensions
 				this.dispatchEvent(new Event(Event.CLOSE));
 			}
 		}
-
+/*
 		public function __close():void{
-//			ConnectionManager.sharedManager().close();
+			ConnectionManager.sharedManager().close();
 		}
-
+*/
 		// recv
 
 		// 0.								- Event.CHANGE (_serial)

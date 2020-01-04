@@ -194,6 +194,7 @@
 			"set servo %d.servoSlot angle %d.servovalue"	:"サーボ %d.servoSlot の角度を %d.servovalue にする",
 			"Play MP3 track %n with loop %d.onoff"			:"MP3の%n 曲目をループ%d.onoff で再生",
 			"Stop MP3"										:"MP3を止める",
+			"remoconRobo"									:"ロボット",
 		}
 	}
 }

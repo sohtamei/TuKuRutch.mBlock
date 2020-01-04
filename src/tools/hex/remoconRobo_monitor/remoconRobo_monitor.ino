@@ -25,7 +25,7 @@ union {
 	short shortVal;
 } valShort;
 
-String mVersion = "06.01.106";
+String mVersion = "RemoconRobo1.0";
 
 enum {
 	TYPE_GET		= 1,
@@ -81,7 +81,7 @@ void setup()
 	digitalWrite(13, LOW);
 
 	remoconRobo_tone(500, 50); 
-	Serial.print("Version: ");
+	Serial.print("PC mode: ");
 	Serial.println(mVersion);
 }
 

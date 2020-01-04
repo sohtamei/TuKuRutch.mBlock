@@ -1,1 +1,1 @@
-%CD%\..\..\..\..\Arduino\arduino.exe %CD%\remoconRobo_monitor.ino
+%CD%\..\..\..\Arduino\arduino.exe %CD%\remoconRobo_monitor.ino
