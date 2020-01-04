@@ -47,7 +47,7 @@ package extensions
 			var argList:Vector.<String> = new Vector.<String>();
 			argList.push("--upload");
 			argList.push("--board", getBoardInfo());
-			argList.push("--port", SerialDevice.sharedDevice().currPort);
+			argList.push("--port", ConnectionManager.sharedManager().selectPort);
 			argList.push("--verbose", "--preserve-temp-files");
 			argList.push(filePath);
 			
@@ -75,7 +75,7 @@ package extensions
 				_dialog.setText(Translator.map('Upload Failed'));
 			}
 			MBlock.app.topBarPart.setConnectedTitle(null);
-			//SerialManager.sharedManager().reopen();
+			//ConnectionManager.sharedManager().reopen();
 		}
 		
 		private function __onData(event:ProgressEvent):void

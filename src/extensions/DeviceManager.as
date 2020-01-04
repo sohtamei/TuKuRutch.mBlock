@@ -1,13 +1,10 @@
 package extensions
 {
-	import util.SharedObjectManager;
-
 	public class DeviceManager
 	{
 		private static var _instance:DeviceManager;
 		private var _device:String = "";
 		private var _board:String = "";
-		private var _name:String = "";
 		public function DeviceManager()
 		{
 			onSelectBoard("remoconRobo");
@@ -29,34 +26,12 @@ package extensions
 				return;
 			}
 			this.board = value;
-		/*
-			var oldBoard:String = SharedObjectManager.sharedManager().getObject("board");
-			SharedObjectManager.sharedManager().setObject("board",_board);
-			if(_board=="mbot_uno"){
-				MBlock.app.extensionManager.singleSelectExtension("FamilyDay");//"mBot");
-			}else if(_board.indexOf("arduino")>-1){
-				MBlock.app.extensionManager.singleSelectExtension("Arduino");
-			}
-		*/
 			MBlock.app.extensionManager.singleSelectExtension("remoconRobo");
-			MBlock.app.topBarPart.setBoardTitle();
 		}
 		public function checkCurrentBoard(board:String):Boolean{
 			return _board==board;
 		}
-	/*
-		public function get currentName():String{
-			_name = "";
-			if(_board.indexOf("mbot")>-1){
-				_name = "mBot";
-			}else if(_board.indexOf("arduino")>-1){
-				_name = "Arduino "+_device.substr(0,1).toLocaleUpperCase()+_device.substr(1,_device.length);
-			}
-			return _name;
-		}
-	*/
 		public function get currentBoard():String{
-//			MBlock.app.track("currentBoard:"+_board);
 			return _board;
 		}
 		public function get currentDevice():String{

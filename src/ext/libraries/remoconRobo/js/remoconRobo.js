@@ -2,6 +2,8 @@
 
 (function(ext) {
 	var device = null;
+	var checkDevName = false;
+	var devName = "";
 
 	var levels = {"HIGH":1,"LOW":0};
 	var onoff = {"On":1,"Off":0};
@@ -164,6 +166,8 @@
 
 	var comBusy = false;
 	function sendPackage(){
+		checkDevName = false;
+
 		if(comBusy) {
 	//		responseValue();
 	//		return;
@@ -196,6 +200,19 @@
 	var _rxBuf = [];
 	var _packetLen = 4;
 	function processData(bytes) {
+		if(checkDevName) {
+			for(var index = 0; index < bytes.length; index++) {
+				var c = bytes[index];
+				if(c == 0x0d) {
+					updateDevName(devName);
+					checkDevName = false;
+				} else {
+					devName += String.fromCharCode(c);
+				}
+			}
+			return;
+		}
+
 		for(var index = 0; index < bytes.length; index++){
 			var c = bytes[index];
 			_rxBuf.push(c);
@@ -280,47 +297,33 @@
 	}
 
 	// Extension API interactions
-	var potentialDevices = [];
 	ext._deviceConnected = function(dev) {
-		potentialDevices.push(dev);
-		if (!device) {
-			tryNextDevice();
-		}
-	}
-
-	function tryNextDevice() {
-		// If potentialDevices is empty, device will be undefined.
-		// That will get us back here next time a device is connected.
-		device = potentialDevices.shift();
+		device = dev;
 		if (device) {
-		//	trace("111");
-			device.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0 }, deviceOpened);
+			checkDevName = true;
+			devName = "";
+			device.open(115200, deviceOpened);
 		}
 	}
 
-	var watchdog = null;
 	function deviceOpened(dev) {
-		if (!dev) {
-			// Opening the port failed.
-			tryNextDevice();
-			return;
-		}
-		device.set_receive_handler('RemoconRobo',processData);
+		device.set_receive_handler(processData);
 	};
 
 	ext._deviceRemoved = function(dev) {
 		if(device != dev) return;
 		device = null;
 	};
-
+/*
 	ext._shutdown = function() {
-		if(device) device.close();
+		if(device) device.__close();
 		device = null;
 	};
-
+*/
+//	var watchdog = null;
 	ext._getStatus = function() {
 		if(!device) return {status: 1, msg: 'RemoconRobo disconnected'};
-		if(watchdog) return {status: 1, msg: 'Probing for RemoconRobo'};
+	//	if(watchdog) return {status: 1, msg: 'Probing for RemoconRobo'};
 		return {status: 2, msg: 'RemoconRobo connected'};
 	}
 	var descriptor = {};

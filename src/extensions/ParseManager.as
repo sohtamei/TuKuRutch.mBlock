@@ -37,7 +37,7 @@ package extensions
 			return _instance;
 		}
 		public function get connected():Boolean{
-			if(SerialManager.sharedManager().isConnected){
+			if(ConnectionManager.sharedManager().isConnected){
 				return true;
 			}
 			return false;
@@ -64,7 +64,7 @@ package extensions
 //			MBlock.app.topBarPart.updateVersion();
 		}
 		public function parseEncode(url:String,encode:String,nextID:int,args:*,ext:ScratchExtension):void{
-			SerialManager.sharedManager().update();
+			ConnectionManager.sharedManager().update();
 			encode = substitute(encode,args,ext);
 			var bytes:ByteArray = new ByteArray;
 			bytes.endian = Endian.LITTLE_ENDIAN;
@@ -135,7 +135,7 @@ package extensions
 			return str;
 		}
 		public function parse(url:String):void{
-			//SerialManager.sharedManager().update();
+			//ConnectionManager.sharedManager().update();
 			if(url.indexOf("serial")>-1){
 				var c:Array = url.split("/");
 				var buf:ByteArray = new ByteArray();
@@ -173,8 +173,8 @@ package extensions
 			sendBytes(bytes);
 		}
 		public function sendBytes(bytes:ByteArray):void{
-			if(SerialManager.sharedManager().isConnected){
-				SerialManager.sharedManager().sendBytes(bytes);
+			if(ConnectionManager.sharedManager().isConnected){
+				ConnectionManager.sharedManager().sendBytes(bytes);
 			}
 		}
 		

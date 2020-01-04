@@ -20,8 +20,6 @@ package cc.makeblock.mbot.ui.parts
 	import extensions.ConnectionManager;
 	import extensions.DeviceManager;
 	import extensions.ExtensionManager;
-	import extensions.SerialDevice;
-	import extensions.SerialManager;
 	
 	import org.aswing.AsWingUtils;
 	
@@ -61,7 +59,7 @@ package cc.makeblock.mbot.ui.parts
 			var filePath:String = "mBlock/tools/hex/remoconRobo.hex";
 			var file:File = ApplicationManager.sharedManager().documents.resolvePath(filePath);
 			if(file.exists){
-				SerialManager.sharedManager().upgrade(file.nativePath);
+				ConnectionManager.sharedManager().upgrade(file.nativePath);
 			}else{
 				MBlock.app.scriptsPart.appendMessage("File not exist: " + file.nativePath);
 			}
@@ -261,7 +259,7 @@ package cc.makeblock.mbot.ui.parts
 			}
 
 			var enabled:Boolean = MBlock.app.extensionManager.checkExtensionEnabled();
-			var arr:Array = SerialManager.sharedManager().list;
+			var arr:Array = ConnectionManager.sharedManager().portlist;
 			if(arr.length==0)
 			{
 				var nullItem:NativeMenuItem = new NativeMenuItem(Translator.map("no serial port"));
@@ -276,13 +274,13 @@ package cc.makeblock.mbot.ui.parts
 					item.name = "serial_"+arr[i];
 					
 					item.enabled = enabled;
-					item.checked = SerialDevice.sharedDevice().ports.indexOf(arr[i]) > -1 && SerialManager.sharedManager().isConnected;
+					item.checked = ConnectionManager.sharedManager().selectPort==arr[i] && ConnectionManager.sharedManager().isConnected;
 				}
 			}
 			
 //			menu.getItemByName("Serial Port").submenu = subMenu;
 			
-			var canReset:Boolean = SerialManager.sharedManager().isConnected;
+			var canReset:Boolean = ConnectionManager.sharedManager().isConnected;
 			MenuUtil.FindItem(getNativeMenu(), "Reset Default Program").enabled = canReset;
 			MenuUtil.FindItem(getNativeMenu(), "Upgrade Firmware").enabled = canReset;
 		}

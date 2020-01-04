@@ -6,7 +6,6 @@ package cc.makeblock.interpreter
 	import blockly.runtime.Thread;
 	
 	import extensions.ScratchExtension;
-	import extensions.SerialDevice;
 
 	public class RemoteCallMgr
 	{

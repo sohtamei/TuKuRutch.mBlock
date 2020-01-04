@@ -16,7 +16,6 @@ package extensions
 		private const _htmlLoader:HTMLLoader = new HTMLLoader();
 		private var _ext:Object;
 		private var _name:String = "";
-//		public var port:String = "";
 		public function JavaScriptEngine(name:String="")
 		{
 			_name = name;
@@ -24,13 +23,13 @@ package extensions
 		}
 		private function register(name:String,descriptor:Object,ext:Object,param:Object):void{
 			_ext = ext;
-			if(_ext._getStatus().msg.indexOf("disconnected")>-1 && SerialManager.sharedManager().isConnected)
+			if(_ext._getStatus().msg.indexOf("disconnected")>-1 && ConnectionManager.sharedManager().isConnected)
 			{
 				//尝试连接
 				onConnected(null);
 			}
 			trace("registed:"+_ext._getStatus().msg);
-			//trace(SerialManager.sharedManager().list());
+			//trace(ConnectionManager.sharedManager().list());
 			//_timer.start();
 		}
 		public function get connected():Boolean{
@@ -66,7 +65,7 @@ package extensions
 			}
 		}
 		/*
-		public function requestValue(method:String,param:Array,ext:ScratchExtension, nextID:int):void
+		public function requestValue(method:String, param:Array, ext:ScratchExtension, nextID:int):void
 		{
 			if(connected){
 				getValue(method,[nextID].concat(param),ext);
@@ -81,32 +80,32 @@ package extensions
 			}
 			return _ext[method].apply(null, param);
 		}
-		*/
 		public function closeDevice():void{
 			if(_ext){
 				_ext._shutdown();
 			}
 		}
+		*/
 		private function onConnected(evt:Event):void{
 			if(_ext){
-				var dev:SerialDevice = SerialDevice.sharedDevice();
+				var dev:ConnectionManager = ConnectionManager.sharedManager();
 				_ext._deviceConnected(dev);
 				trace("register:"+_name);
 			}
 		}
 		private function onClosed(evt:Event):void{
 			if(_ext){
-				var dev:SerialDevice = SerialDevice.sharedDevice();
+				var dev:ConnectionManager = ConnectionManager.sharedManager();
 				_ext._deviceRemoved(dev);
 				trace("unregister:"+_name);
 			}
 		}
 		private function onRemoved(evt:Event):void{
-			if(_ext&&ConnectionManager.sharedManager().extensionName==_name){
+			if(_ext/*&&ConnectionManager.sharedManager().extensionName==_name*/){
 				ConnectionManager.sharedManager().removeEventListener(Event.CONNECT,onConnected);
 				ConnectionManager.sharedManager().removeEventListener(Event.REMOVED,onRemoved);
 				ConnectionManager.sharedManager().removeEventListener(Event.CLOSE,onClosed);
-				var dev:SerialDevice = SerialDevice.sharedDevice();
+				var dev:ConnectionManager = ConnectionManager.sharedManager();
 				_ext._deviceRemoved(dev);
 				_ext = null;
 			}
@@ -123,20 +122,21 @@ package extensions
 //			html += FileUtil.ReadString(File.applicationDirectory.resolvePath("js/AIRAliases.js"));
 			html += FileUtil.ReadString(new File(path));
 			_htmlLoader.window.eval(html);
-			_htmlLoader.window.callRegister = register;
-			_htmlLoader.window.parseFloat = readFloat;
-			_htmlLoader.window.parseShort = readShort;
-			_htmlLoader.window.parseDouble = readDouble;
-			_htmlLoader.window.float2array = float2array;
-			_htmlLoader.window.short2array = short2array;
-			_htmlLoader.window.int2array = int2array;
-			_htmlLoader.window.string2array = string2array;
-			_htmlLoader.window.array2string = array2string;
-			_htmlLoader.window.responseValue = responseValue;
-			_htmlLoader.window.responseValue2 = responseValue2;
-			_htmlLoader.window.trace = trace;
-			_htmlLoader.window.interruptThread = interruptThread;
-			_htmlLoader.window.air = {"trace":trace};
+			_htmlLoader.window.callRegister		= register;
+			_htmlLoader.window.parseFloat		= readFloat;
+			_htmlLoader.window.parseShort		= readShort;
+			_htmlLoader.window.parseDouble		= readDouble;
+			_htmlLoader.window.float2array		= float2array;
+			_htmlLoader.window.short2array		= short2array;
+			_htmlLoader.window.int2array		= int2array;
+			_htmlLoader.window.string2array 	= string2array;
+			_htmlLoader.window.array2string		= array2string;
+			_htmlLoader.window.responseValue	= responseValue;
+			_htmlLoader.window.responseValue2	= responseValue2;
+			_htmlLoader.window.trace			= trace;
+			_htmlLoader.window.interruptThread	= interruptThread;
+			_htmlLoader.window.air				= {"trace":trace};
+			_htmlLoader.window.updateDevName	= updateDevName;
 			ConnectionManager.sharedManager().addEventListener(Event.CONNECT,onConnected);
 			ConnectionManager.sharedManager().addEventListener(Event.REMOVED,onRemoved);
 			ConnectionManager.sharedManager().addEventListener(Event.CLOSE,onClosed);
@@ -221,6 +221,9 @@ package extensions
 		static private function trace(msg:String):void
 		{
 			MBlock.app.track(msg);
+		}
+		static private function updateDevName(name:String):void{
+			MBlock.app.topBarPart.offlineNotice.text = name;
 		}
 		static private const tempBytes:ByteArray = new ByteArray();
 		tempBytes.endian = Endian.LITTLE_ENDIAN;

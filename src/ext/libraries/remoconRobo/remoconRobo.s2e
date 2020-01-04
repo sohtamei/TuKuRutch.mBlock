@@ -165,5 +165,35 @@
 		"A CENTER":0x61,"A↑":0x62,"A→":0x63,"A←":0x64,"A↓":0x65,
 	},
 	"translators":{
+		"ja":{
+			"run forward":"前", "turn left":"左", "turn right":"右", "run backward":"後", "rotate left":"左旋回", "rotate right":"右旋回",
+			"Half":"2分音符", "Quarter":"4分音符", "Eighth":"8分音符", "Whole":"全音符", "Double":"倍全音符",
+
+			"set LED %d.onoff"								:"LEDを %d.onoff",
+			"play tone on note %d.noteJ1 beat %d.beats"		:"%d.noteJ1 を %d.beats 鳴らす",
+			"play tone on note %d.noteJ2 beat %d.beats"		:"%d.noteJ2 を %d.beats 鳴らす",
+			"play tone on note %d.noteJ3 beat %d.beats"		:"%d.noteJ3 を %d.beats 鳴らす",
+			"play tone on note %d.note beat %d.beats"		:"%d.note を %d.beats 鳴らす",
+			"%d.direction at speed %d.speedvalue"			:"%d.direction 向きに %d.speedvalue の速さで動かす",
+			"set motor%d.motorPort speed %d.motorvalue"		:"モーター %d.motorPort の速さを %d.motorvalue にする",
+			"calibration right %n"							:"右に%n 補正",
+			"calibration left %n"							:"左に%n 補正",
+			"read calibration"								:"補正データ",
+			"set calibration %n"							:"補正データを%n に設定",
+			"remote pressed"								:"リモコンボタンが押された",
+			"ir remote %d.ircode pressed"					:"押されたのが %d.ircode のボタン",
+			"analog remote %d.ircodeA pressed"				:"押されたのがアナログ %d.ircodeA のボタン",
+			"get remote X"									:"アナログXの値",
+			"get remote Y"									:"アナログYの値",
+			"set digital pin %n output as %d.digital"		:"デジタルピン %n の出力を %d.digital にする",
+			"set digital pin A%n output as %d.digital"		:"デジタルピン A%n の出力を %d.digital にする",
+			"read digital pin %n"							:"デジタルピン %n",
+			"read digital pin A%n"							:"デジタルピン A%n",
+			"read analog pin A%n"							:"アナログピン A%n",
+			"read analog pin A%n average %n times"			:"アナログピン A%n の %n 回平均",
+			"set servo %d.servoSlot angle %d.servovalue"	:"サーボ %d.servoSlot の角度を %d.servovalue にする",
+			"Play MP3 track %n with loop %d.onoff"			:"MP3の%n 曲目をループ%d.onoff で再生",
+			"Stop MP3"										:"MP3を止める",
+		}
 	}
 }

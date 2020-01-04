@@ -42,7 +42,7 @@ package {
 	
 	import extensions.DeviceManager;
 	import extensions.ExtensionManager;
-	import extensions.SerialManager;
+	import extensions.ConnectionManager;
 	
 	import interpreter.Interpreter;
 	
@@ -298,7 +298,7 @@ package {
 		}
 		private function initExtension():void{
 //			ClickerManager.sharedManager().update();
-			SerialManager.sharedManager().setMBlock(this);
+			ConnectionManager.sharedManager().setMBlock(this);
 		}
 		private function openWelcome():void{
 			openSwf("welcome.swf");
@@ -372,7 +372,7 @@ package {
 			}
 			else
 			{
-				SerialManager.sharedManager().disconnect();
+				ConnectionManager.sharedManager().onClose();
 			}
 			MBlock.app.gh.mouseUp(new MouseEvent(MouseEvent.MOUSE_UP));
 			
@@ -381,7 +381,7 @@ package {
 		
 		public function quitApp():void
 		{
-			SerialManager.sharedManager().disconnect();
+			ConnectionManager.sharedManager().onClose();
 			NativeApplication.nativeApplication.exit();
 			track("/app/exit");
 			LogManager.sharedManager().save();

@@ -1354,7 +1354,7 @@ void move(int direction, int speed)
 				outStream.close()
 				ccode = ccode.replace("void setup(){",serialParserInoFile+"\nvoid setup(){"); // too tricky here?
 			}
-			SerialManager.sharedManager().disconnect();
+			ConnectionManager.sharedManager().onClose();
 			UploaderEx.Instance.upload(projCpp.nativePath);
 			isUploading = true;
 			return "";

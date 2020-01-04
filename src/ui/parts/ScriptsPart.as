@@ -43,8 +43,6 @@ package ui.parts {
 	
 	import extensions.ArduinoManager;
 	import extensions.ConnectionManager;
-	import extensions.SerialDevice;
-	import extensions.SerialManager;
 	
 	import scratch.ScratchObj;
 	import scratch.ScratchSprite;
@@ -257,7 +255,7 @@ public class ScriptsPart extends UIPart {
 		*/
 	}
 	private function onSendSerial(str:String):void{
-		if(!SerialDevice.sharedDevice().connected){
+		if(!ConnectionManager.sharedManager().isConnected){
 			return;
 		}
 		if(str.length <= 0){
@@ -282,12 +280,12 @@ public class ScriptsPart extends UIPart {
 	}
 	private function onCompileArduino(evt:MouseEvent):void{
 		//if(SerialManager.sharedManager().isConnected){
-		if(SerialDevice.sharedDevice().currPort!=""){
+		if(ConnectionManager.sharedManager().selectPort!=""){
 			if(ArduinoManager.sharedManager().isUploading==false){
 				htmlLoader.window.clearInfo();
 				if(showArduinoCode()){
 					htmlLoader.window.appendInfo(ArduinoManager.sharedManager().buildAll(arduinoCodeText));
-					ConnectionManager.sharedManager().onClose(SerialDevice.sharedDevice().port);
+					ConnectionManager.sharedManager().onClose();
 					MBlock.app.topBarPart.setConnectedTitle("Uploading");
 				}
 			}

@@ -13,7 +13,7 @@ package cc.makeblock.interpreter
 	import cc.makeblock.services.msoxford.SpeechToText;
 	
 	import extensions.ScratchExtension;
-	import extensions.SerialDevice;
+	import extensions.ConnectionManager;
 	
 	internal class ArduinoFunctionProvider extends FunctionProvider
 	{
@@ -110,7 +110,7 @@ package cc.makeblock.interpreter
 			}
 			if(!ext.useSerial){
 				thread.push(ext.getStateVar(opName));
-			}else if(SerialDevice.sharedDevice().connected){
+			}else if(ConnectionManager.sharedManager().isConnected){
 				thread.suspend();
 				RemoteCallMgr.Instance.call(thread, opName, argList, ext, retCount);
 			}else if(retCount > 0){
