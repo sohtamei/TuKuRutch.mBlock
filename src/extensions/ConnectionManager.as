@@ -107,11 +107,11 @@ package extensions
 		public function onConnect(name:String):void{
 			switch(name){
 				case "upgrade_firmware":{
-					upgrade(File.applicationDirectory.nativePath + "/tools/hex/remoconRobo_monitor/remoconRobo_monitor.cpp.standard.hex");
+					upgrade(File.applicationDirectory.nativePath + "/tools/hex/robot_pcmode/robot_pcmode.cpp.standard.hex");
 					break;
 				}
 				case "reset_program":{
-					upgrade(File.applicationDirectory.nativePath + "/tools/hex/remoconRobo/remoconRobo.cpp.standard.hex");
+					upgrade(File.applicationDirectory.nativePath + "/tools/hex/robot_normal/robot_normal.cpp.standard.hex");
 					break;
 				}
 				default:{

@@ -22,8 +22,8 @@
 {	"extensionName": "remoconRobo",
 	"extensionPort": 0,
 	"sort":3,
-	"firmware":"1.2.103",
-	"javascriptURL":"js/remoconRobo.js",
+	"firmware":"1.0",
+	"javascriptURL":"robot.js",
 	"isMakeBlockBoard":true,
 	"blockSpecs": [
 		["h","Program Start","runArduino",
@@ -194,7 +194,8 @@
 			"set servo %d.servoSlot angle %d.servovalue"	:"サーボ %d.servoSlot の角度を %d.servovalue にする",
 			"Play MP3 track %n with loop %d.onoff"			:"MP3の%n 曲目をループ%d.onoff で再生",
 			"Stop MP3"										:"MP3を止める",
-			"remoconRobo"									:"ロボット",
+
+			"remoconRobo"									:"リモコンロボ",
 		}
 	}
 }
