@@ -27,7 +27,11 @@
 	"isMakeBlockBoard":true,
 	"blockSpecs": [
 		["h","Program Start","runArduino",
-		{"src":"remoconRobo","inc":"#include <EEPROM.h>\n#include <remoconRoboLib.h>\n","def":"","setup":"remoconRobo_init();\n","loop":""}],
+		{"src":"remoconRobo",
+		 "inc":"#include <EEPROM.h>\n#include <remoconRoboLib.h>",
+		 "def":"",
+		 "setup":"remoconRobo_init();",
+		 "loop":""}],
 
 		// ["On","Off"]
 		["w", "set LED %d.onoff","runLED", "On",
