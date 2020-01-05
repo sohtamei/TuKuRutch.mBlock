@@ -48,23 +48,11 @@ package cc.makeblock.mbot.ui.parts
 			register("Connect", __onConnect);
 		//	register("Boards", __onSelectBoard);
 			register("Help", __onHelp);
+
 			register("Manage Extensions", ExtensionUtil.OnManagerExtension);
 			register("Restore Extensions", ExtensionUtil.OnLoadExtension);
 			register("Clear Cache", ArduinoManager.sharedManager().clearTempFiles);
-		//	register("Reset Default Program", __onResetDefaultProgram);
 		}
-		/*
-		private function __onResetDefaultProgram(item:NativeMenuItem):void
-		{
-			var filePath:String = "mBlock/tools/hex/remoconRobo.hex";
-			var file:File = ApplicationManager.sharedManager().documents.resolvePath(filePath);
-			if(file.exists){
-				ConnectionManager.sharedManager().upgrade(file.nativePath);
-			}else{
-				MBlock.app.scriptsPart.appendMessage("File not exist: " + file.nativePath);
-			}
-		}
-		*/
 		public function changeLang():void
 		{
 			MenuUtil.ForEach(getNativeMenu(), changeLangImpl);
@@ -285,38 +273,6 @@ package cc.makeblock.mbot.ui.parts
 			MenuUtil.FindItem(getNativeMenu(), "Upgrade Firmware").enabled = canReset;
 		}
 
-
-
-/*
-		private function __onInitExtMenu(evt:Event):void
-		{
-			var menu:NativeMenu = evt.target as NativeMenu;
-			var list:Array = MBlock.app.extensionManager.extensionList;
-			if(list.length==0){
-				MBlock.app.extensionManager.copyLocalFiles();
-				SharedObjectManager.sharedManager().setObject("first-launch",false);
-			}
-			if(initExtMenuItemCount < 0){
-				initExtMenuItemCount = menu.numItems;
-			}
-			while(menu.numItems > initExtMenuItemCount){
-				menu.removeItemAt(menu.numItems-1);
-			}
-			list = MBlock.app.extensionManager.extensionList;
-			for(var i:int=0;i<list.length;i++){
-				var extName:String = list[i].extensionName;
-				var subMenuItem:NativeMenuItem = menu.addItem(new NativeMenuItem(Translator.map(extName)));
-				subMenuItem.name = extName;
-				subMenuItem.label = extName;
-				subMenuItem.checked = MBlock.app.extensionManager.checkExtensionSelected(extName);
-				register(extName, __onExtensions);
-			}
-		}
-*/
-
-
-
-		
 		private function __onSelectBoard(menuItem:NativeMenuItem):void
 		{
 			DeviceManager.sharedManager().onSelectBoard(menuItem.name);
@@ -354,7 +310,7 @@ package cc.makeblock.mbot.ui.parts
 				var extName:String = list[i].extensionName;
 				var subMenuItem:NativeMenuItem = menuItem.addItem(new NativeMenuItem(Translator.map(extName)));
 				subMenuItem.name = extName;
-				subMenuItem.label = extName;
+				subMenuItem.label = Translator.map(extName);
 				subMenuItem.checked = MBlock.app.extensionManager.checkExtensionSelected(extName);
 				register(extName, __onExtensions);
 			}

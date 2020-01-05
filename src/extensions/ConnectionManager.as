@@ -96,13 +96,13 @@ package extensions
 
 		// open
 
-		// 0. 										- addEventListener(Event.CONNECT, onConnected)
-		// 1. onConnect("serial_COM3")				- setTimeout(onOpen, 100, "COM3")
-		// 2. onOpen("COM3)							- Event.CONNECT
+		// 0. 									- addEventListener(Event.CONNECT, onConnected)
+		// 1. onConnect("serial_COM3")			- setTimeout(onOpen, 100, "COM3")
+		// 2. onOpen("COM3)						- Event.CONNECT
 		// 3. onConnected (JavaScriptEngine.as)
-		// 4. _deviceConnected (remoconRobo.js)
+		// 4. _deviceConnected (robot.js)
 		// 5. open(115200, deviceOpened)
-		// 6. deviceOpened (remoconRobo.js)			- set_receive_handler(processData)
+		// 6. deviceOpened (robot.js)			- set_receive_handler(processData)
 
 		public function onConnect(name:String):void{
 			switch(name){
@@ -182,7 +182,7 @@ package extensions
 		// 1. onConnect("serial_COM3")
 		// 2. onClose								- Event.CLOSE
 		// 4. onClosed (JavaScriptEngine.as)
-		// 5. _deviceRemoved (remoconRobo.js)
+		// 5. _deviceRemoved (robot.js)
 
 		public function onClose():void{
 			if(_serial.isConnected){
@@ -205,7 +205,7 @@ package extensions
 		// 0.								- Event.CHANGE (_serial)
 		// 1. onChanged						- Event.CHANGE
 		// 2. _onReceived					- _receiveHandler(_receivedBytes)
-		// 3. processData (remoconRobo.js)	
+		// 3. processData (robot.js)	
 
 		private var _bytes:ByteArray;
 		private function onChanged(evt:Event):void{
