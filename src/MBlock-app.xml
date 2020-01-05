@@ -23,8 +23,8 @@
 	<!-- The name that is displayed in the AIR application installer. 
 	May have multiple values for each language. See samples or xsd schema file. Optional. -->
 	<name>
-        <text xml:lang="zh-CN">TukuRutch</text>
-		<text xml:lang="EN">TukuRutch1.0 - Based On Scratch2.0(MIT Media Lab) and mBlock3(Makeblock)</text>
+        <text xml:lang="zh-CN">TuKuRutch</text>
+		<text xml:lang="EN">TuKuRutch1.0 - Based On Scratch2.0(MIT Media Lab) and mBlock3(Makeblock)</text>
 		<text xml:lang="JA">ツクルっち1.0 (スクラッチ2.0とmBlock3から)</text>
 	</name>
 	
@@ -38,8 +38,8 @@
 	<!-- Description, displayed in the AIR application installer.
 	May have multiple values for each language. See samples or xsd schema file. Optional. -->
 	<description>
-		<text xml:lang="zh-CN"><![CDATA[TukuRutch是基于MIT媒体实验室的开源Scratch代码开发的程序, 为Arduino生态系统里的电子模块开启全新交互特性 .]]></text>
-		<text xml:lang="EN"><![CDATA[TukuRutch is a modified version of Scratch 2.0 developped by the MIT Media Lab, with new features interacting with electronic modules in Arduino Eco-system. Scratch is a project of the Lifelong Kindergarten group at the MIT Media Lab. It is available for free at http://scratch.mit.edu]]></text>
+		<text xml:lang="zh-CN"><![CDATA[TuKuRutch是基于MIT媒体实验室的开源Scratch代码开发的程序, 为Arduino生态系统里的电子模块开启全新交互特性 .]]></text>
+		<text xml:lang="EN"><![CDATA[TuKuRutch is a modified version of Scratch 2.0 developped by the MIT Media Lab, with new features interacting with electronic modules in Arduino Eco-system. Scratch is a project of the Lifelong Kindergarten group at the MIT Media Lab. It is available for free at http://scratch.mit.edu]]></text>
 	</description>
 
 	<!-- Copyright information. Optional -->
@@ -160,16 +160,16 @@
 	<fileType> 
 
 			<!-- The name that the system displays for the registered file type. Required. -->
-			 <name>TukuRutch.ProjectFile</name> 
+			 <name>TuKuRutch.ProjectFile</name> 
 
 			<!-- The extension to register. Required. -->
 			 <extension>sb2</extension> 
 			
 			<!-- The description of the file type. Optional. -->
-			 <description>TukuRutch Project File</description> 
+			 <description>TuKuRutch Project File</description> 
 			
 			<!-- The MIME content type. -->
-			 <contentType>application/TukuRutch.project-file</contentType> 
+			 <contentType>application/TuKuRutch.project-file</contentType> 
 			
 			<!-- The icon to display for the file type. Optional. -->
 			<icon>
