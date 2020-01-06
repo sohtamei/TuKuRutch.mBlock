@@ -207,8 +207,8 @@ public class ScratchComment extends Sprite {
 
 	public function deleteComment():void {
 		if (parent) parent.removeChild(this);
-		MBlock.app.runtime.recordForUndelete(this, x, y, 0, MBlock.app.viewedObj());
-		MBlock.app.scriptsPane.saveScripts();
+		Main.app.runtime.recordForUndelete(this, x, y, 0, Main.app.viewedObj());
+		Main.app.scriptsPane.saveScripts();
 	}
 
 	public function duplicateComment(deltaX:Number, deltaY:Number):void {
@@ -217,7 +217,7 @@ public class ScratchComment extends Sprite {
 		dup.x = x + deltaX;
 		dup.y = y + deltaY;
 		parent.addChild(dup);
-		MBlock.app.gh.grabOnMouseUp(dup);
+		Main.app.gh.grabOnMouseUp(dup);
 	}
 
 	private function mouseDown(evt:MouseEvent):void {
@@ -263,7 +263,7 @@ public class ScratchComment extends Sprite {
 	
 	private function __onTextChange(evt:Event):void
 	{
-		MBlock.app.setSaveNeeded();
+		Main.app.setSaveNeeded();
 	}
 	
 	private function addExpandButton():void {

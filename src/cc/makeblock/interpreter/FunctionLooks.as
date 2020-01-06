@@ -160,22 +160,22 @@ package cc.makeblock.interpreter {
 	}
 
 	private function primSceneIndex(thread:Thread, argList:Array):void {
-		thread.push( MBlock.app.stagePane.costumeNumber());
+		thread.push( Main.app.stagePane.costumeNumber());
 	}
 
 	private function primSceneName(thread:Thread, argList:Array):void {
-		thread.push( MBlock.app.stagePane.currentCostume().costumeName);
+		thread.push( Main.app.stagePane.currentCostume().costumeName);
 	}
 
 	private function startScene(s:String):Array {
-		if ('next backdrop' == s) s = backdropNameAt(MBlock.app.stagePane.currentCostumeIndex + 1);
-		else if ('previous backdrop' == s) s = backdropNameAt(MBlock.app.stagePane.currentCostumeIndex - 1);
+		if ('next backdrop' == s) s = backdropNameAt(Main.app.stagePane.currentCostumeIndex + 1);
+		else if ('previous backdrop' == s) s = backdropNameAt(Main.app.stagePane.currentCostumeIndex - 1);
 		else {
 			var n:Number = Interpreter.asNumber(s);
 			if (!isNaN(n)) {
-				n = (Math.round(n) - 1) % MBlock.app.stagePane.costumes.length;
-				if (n < 0) n += MBlock.app.stagePane.costumes.length;
-				s = MBlock.app.stagePane.costumes[n].costumeName;
+				n = (Math.round(n) - 1) % Main.app.stagePane.costumes.length;
+				if (n < 0) n += Main.app.stagePane.costumes.length;
+				s = Main.app.stagePane.costumes[n].costumeName;
 			}
 		}
 		function findSceneHats(stack:Block, target:ScratchObj):void {
@@ -184,17 +184,17 @@ package cc.makeblock.interpreter {
 			}
 		}
 		var receivers:Array = [];
-		MBlock.app.stagePane.showCostumeNamed(s);
-		MBlock.app.runtime.allStacksAndOwnersDo(findSceneHats);
+		Main.app.stagePane.showCostumeNamed(s);
+		Main.app.runtime.allStacksAndOwnersDo(findSceneHats);
 		var threadList:Array = [];
 		for each(var item:Array in receivers){
-			threadList.push(MBlock.app.interp.toggleThread(item[0], item[1]));
+			threadList.push(Main.app.interp.toggleThread(item[0], item[1]));
 		}
 		return threadList;
 	}
 
 	private function backdropNameAt(i:int):String {
-		var costumes:Array = MBlock.app.stagePane.costumes;
+		var costumes:Array = Main.app.stagePane.costumes;
 		return costumes[(i + costumes.length) % costumes.length].costumeName;
 	}
 
@@ -226,7 +226,7 @@ package cc.makeblock.interpreter {
 		var newValue:Number = s.filterPack.getFilterSetting(filterName) + delta;
 		s.filterPack.setFilter(filterName, newValue);
 		s.applyFilters();
-		if (s.visible || s == MBlock.app.stagePane) thread.requestRedraw();
+		if (s.visible || s == Main.app.stagePane) thread.requestRedraw();
 	}
 
 	private function primSetEffect(thread:Thread, argList:Array):void {
@@ -236,14 +236,14 @@ package cc.makeblock.interpreter {
 		var newValue:Number = argList[1]
 		if(s.filterPack.setFilter(filterName, newValue))
 			s.applyFilters();
-		if (s.visible || s == MBlock.app.stagePane) thread.requestRedraw();
+		if (s.visible || s == Main.app.stagePane) thread.requestRedraw();
 	}
 
 	private function primClearEffects(thread:Thread, argList:Array):void {
 		var s:ScratchObj = ThreadUserData.getScratchObj(thread);
 		s.clearFilters();
 		s.applyFilters();
-		if (s.visible || s == MBlock.app.stagePane) thread.requestRedraw();
+		if (s.visible || s == Main.app.stagePane) thread.requestRedraw();
 	}
 
 	private function primChangeSize(thread:Thread, argList:Array):void {
@@ -313,17 +313,17 @@ package cc.makeblock.interpreter {
 
 	private function minSpriteLayer():int {
 		// Return the lowest sprite layer.
-		var stg:ScratchStage = MBlock.app.stagePane;
+		var stg:ScratchStage = Main.app.stagePane;
 		return stg.getChildIndex(stg.videoImage ? stg.videoImage : stg.penLayer) + 1;
 	}
 
 	private function primSetVideoState(thread:Thread, argList:Array):void {
-		MBlock.app.stagePane.setVideoState(argList[0]);
+		Main.app.stagePane.setVideoState(argList[0]);
 	}
 
 	private function primSetVideoTransparency(thread:Thread, argList:Array):void {
-		MBlock.app.stagePane.setVideoTransparency(Number(argList[0]));
-		MBlock.app.stagePane.setVideoState('on');
+		Main.app.stagePane.setVideoTransparency(Number(argList[0]));
+		Main.app.stagePane.setVideoState('on');
 	}
 
 }}

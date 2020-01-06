@@ -36,7 +36,7 @@ public class MP3Loader {
 		}
 		var mp3Info:Object = new MP3FileReader(sndData).getInfo();
 		if (mp3Info.sampleCount == 0) { // bad MP3 data
-			if (MBlock.app.lp) MBlock.app.removeLoadProgressBox();
+			if (Main.app.lp) Main.app.removeLoadProgressBox();
 			whenDone(null);
 			return;
 		}
@@ -58,7 +58,7 @@ public class MP3Loader {
 			buf.position = 0;
 			var count:int = mp3Snd.extract(buf, 4000);
 			if (count == 0) { // finished!
-				if (MBlock.app.lp) MBlock.app.lp.setTitle('Compressing...');
+				if (Main.app.lp) Main.app.lp.setTitle('Compressing...');
 				setTimeout(compressSamples, 50);
 				return;
 			}
@@ -71,7 +71,7 @@ public class MP3Loader {
 				extractedSamples.push(16383 * s); // s range is -2 to 2; output range is -32766 to 32766
 				buf.position += 8; // skip one stereo sample (downsampling)
 			}
-			if (MBlock.app.lp) MBlock.app.lp.setProgress(Math.min(convertedSamples / mp3SampleCount, 1));
+			if (Main.app.lp) Main.app.lp.setProgress(Math.min(convertedSamples / mp3SampleCount, 1));
 			setTimeout(convertNextChunk, 1);
 		}
 		function compressSamples():void {

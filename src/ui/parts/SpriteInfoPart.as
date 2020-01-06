@@ -79,7 +79,7 @@ public class SpriteInfoPart extends UIPart implements DragClient {
 	private var lastX:Number, lastY:Number, lastDirection:Number, lastRotationStyle:String;
 	private var lastSrcImg:DisplayObject;
 
-	public function SpriteInfoPart(app:MBlock) {
+	public function SpriteInfoPart(app:Main) {
 		this.app = app;
 		shape = new Shape();
 		addChild(shape);
@@ -359,7 +359,7 @@ public class SpriteInfoPart extends UIPart implements DragClient {
 		for each (var lw:ListWatcher in app.viewedObj().lists) {
 			lw.updateTitle();
 		}
-		for each (var obj:ScratchObj in MBlock.app.stagePane.allObjects()) {
+		for each (var obj:ScratchObj in Main.app.stagePane.allObjects()) {
 			obj.onSpriteNameChanged(oldName, newName);
 		}
 		app.setSaveNeeded();

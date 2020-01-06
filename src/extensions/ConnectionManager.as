@@ -32,7 +32,7 @@ package extensions
 		public var selectPort:String = "";		// 選択中の "COMx"
 		private var _receiveHandler:Function=null;
 
-		private var _mBlock:MBlock;
+		private var _mBlock:Main;
 		private var _upgradeBytesTotal:Number = 0;
 		private var _dialog:DialogBox = new DialogBox();
 		private var _hexToDownload:String = ""
@@ -65,7 +65,7 @@ package extensions
 				}
 			}
 		}
-		public function setMBlock(mBlock:MBlock):void{
+		public function setMain(mBlock:Main):void{
 			_mBlock = mBlock;
 		}
 
@@ -107,11 +107,11 @@ package extensions
 		public function onConnect(name:String):void{
 			switch(name){
 				case "upgrade_firmware":{
-					upgrade(File.applicationDirectory.nativePath + "/tools/hex/robot_pcmode/robot_pcmode.cpp.standard.hex");
+					upgrade(File.applicationDirectory.nativePath + "/ext/firmware/hex/robot_pcmode/robot_pcmode.cpp.standard.hex");
 					break;
 				}
 				case "reset_program":{
-					upgrade(File.applicationDirectory.nativePath + "/tools/hex/robot_normal/robot_normal.cpp.standard.hex");
+					upgrade(File.applicationDirectory.nativePath + "/ext/firmware/hex/robot_normal/robot_normal.cpp.standard.hex");
 					break;
 				}
 				default:{
@@ -138,14 +138,14 @@ package extensions
 		}
 
 		public function open(baud:uint, openedHandle:Function):void{
-			MBlock.app.track("connection:"+selectPort);
+			Main.app.track("connection:"+selectPort);
 			if(_serial.isConnected)
 				_serial.close();
 			_serial.addEventListener(Event.CHANGE, onChanged);
 			var r:uint = _serial.open(selectPort,baud);
 			ArduinoManager.sharedManager().isUploading = false;
 			if(r==0){
-				MBlock.app.topBarPart.setConnectedTitle("Connect");
+				Main.app.topBarPart.setConnectedTitle("Connect");
 				openedHandle(this);
 				removeEventListener(Event.CHANGE,_onReceived);
 				addEventListener(Event.CHANGE,_onReceived);
@@ -170,10 +170,10 @@ package extensions
 
 		public function update():void{
 			if(!_serial.isConnected){
-				MBlock.app.topBarPart.setDisconnectedTitle();
+				Main.app.topBarPart.setDisconnectedTitle();
 				return;
 			}else{
-				MBlock.app.topBarPart.setConnectedTitle("Connect");
+				Main.app.topBarPart.setConnectedTitle("Connect");
 			}
 		}
 
@@ -191,7 +191,7 @@ package extensions
 				_serial.removeEventListener(Event.CHANGE, onChanged);
 				_serial.close();
 				_receiveHandler = null;
-				MBlock.app.topBarPart.setDisconnectedTitle();
+				Main.app.topBarPart.setDisconnectedTitle();
 				this.dispatchEvent(new Event(Event.CLOSE));
 			}
 		}
@@ -212,7 +212,7 @@ package extensions
 			var len:uint = _serial.getAvailable();
 			if(len>0){
 				_bytes = _serial.readBytes();
-				MBlock.app.scriptsPart.onSerialDataReceived(_bytes);	// debug
+				Main.app.scriptsPart.onSerialDataReceived(_bytes);	// debug
 				this.dispatchEvent(new Event(Event.CHANGE));
 			}
 			return;
@@ -248,7 +248,7 @@ package extensions
 			for(var i:int=0;i<bytes.length;i++){
 				buffer[i] = bytes[i];
 			}
-			MBlock.app.scriptsPart.onSerialSend(buffer);	// debug
+			Main.app.scriptsPart.onSerialSend(buffer);	// debug
 			sendBytes(buffer);
 		}
 		public function sendBytes(bytes:ByteArray):void{
@@ -280,7 +280,7 @@ package extensions
 			if(!isConnected){
 				return;
 			}
-			MBlock.app.track("/OpenSerial/Upgrade");
+			Main.app.track("/OpenSerial/Upgrade");
 
 			if(!_isInitUpgrade){
 				_isInitUpgrade = true;
@@ -295,7 +295,7 @@ package extensions
 			_dialog.showOnStage(_mBlock.stage);
 
 			_hexToDownload = hexFile;
-			MBlock.app.topBarPart.setConnectedTitle(AppTitleMgr.Uploading);
+			Main.app.topBarPart.setConnectedTitle(AppTitleMgr.Uploading);
 			ArduinoManager.sharedManager().isUploading = false;
 			_serial.close();
 			upgradeFirmware();
@@ -329,10 +329,10 @@ package extensions
 		private function upgradeFirmware(hexfile:String=""):void{
 			var file:File = getAvrDude();//外部程序名
 			if(!file.exists){
-				MBlock.app.track("upgrade fail!");
+				Main.app.track("upgrade fail!");
 				return;
 			}
-			MBlock.app.topBarPart.setConnectedTitle(AppTitleMgr.Uploading);
+			Main.app.topBarPart.setConnectedTitle(AppTitleMgr.Uploading);
 			var tf:File;
 			var currentDevice:String = DeviceManager.sharedManager().currentDevice;
 			var nativeProcessStartupInfo:NativeProcessStartupInfo =new NativeProcessStartupInfo();
@@ -355,7 +355,7 @@ package extensions
 			tf = new File(_hexToDownload);
 			if(tf!=null && tf.exists){
 				_upgradeBytesTotal = tf.size;
-//				MBlock.app.track("total:",_upgradeBytesTotal);
+//				Main.app.track("total:",_upgradeBytesTotal);
 			}else{
 				_upgradeBytesTotal = 0;
 			}
@@ -368,8 +368,8 @@ package extensions
 //			process.addEventListener(IOErrorEvent.STANDARD_ERROR_IO_ERROR, onIOError);
 			process.start(nativeProcessStartupInfo);
 			sizeInfo.reset();
-			MBlock.app.scriptsPart.clearInfo();
-			MBlock.app.scriptsPart.appendMessage(nativeProcessStartupInfo.executable.nativePath + " " + v.join(" "));
+			Main.app.scriptsPart.clearInfo();
+			Main.app.scriptsPart.appendMessage(nativeProcessStartupInfo.executable.nativePath + " " + v.join(" "));
 			ArduinoManager.sharedManager().isUploading = true;
 			
 		}
@@ -379,7 +379,7 @@ package extensions
 		private function onStandardOutputData(event:ProgressEvent):void
 		{
 			var msg:String = process.standardError.readUTFBytes(process.standardError.bytesAvailable);
-			MBlock.app.scriptsPart.appendRawMessage(msg);
+			Main.app.scriptsPart.appendRawMessage(msg);
 		}
 		private function onErrorData(event:ProgressEvent):void
 		{
@@ -389,18 +389,18 @@ package extensions
 			}else{
 				errorText += msg;
 			}
-			MBlock.app.scriptsPart.appendRawMessage(msg);
+			Main.app.scriptsPart.appendRawMessage(msg);
 			_dialog.setText(Translator.map('Uploading') + " ... " + sizeInfo.update(msg) + "%");
 		}
 		
 		private function onExit(event:NativeProcessExitEvent):void
 		{
 			ArduinoManager.sharedManager().isUploading = false;
-			MBlock.app.track("Process exited with "+event.exitCode);
+			Main.app.track("Process exited with "+event.exitCode);
 			if(event.exitCode > 0){
 				_dialog.setText(Translator.map('Upload Failed'));
-				MBlock.app.track(errorText);
-				MBlock.app.scriptsPart.appendMsgWithTimestamp(errorText, true);
+				Main.app.track(errorText);
+				Main.app.scriptsPart.appendMsgWithTimestamp(errorText, true);
 			}else{
 				_dialog.setText(Translator.map('Upload Finish'));
 			}

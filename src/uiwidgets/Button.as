@@ -102,7 +102,7 @@ public class Button extends Sprite {
 	}
 
 	public function handleTool(tool:String, evt:MouseEvent):void {
-		if (tool == 'help' && tipName) MBlock.app.showTip(tipName);
+		if (tool == 'help' && tipName) Main.app.showTip(tipName);
 	}
 
 	private function setColor(c:*):void {

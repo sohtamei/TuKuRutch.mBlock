@@ -100,22 +100,22 @@ package cc.makeblock.mbot.ui.parts
 			switch(item.name)
 			{
 				case "New":
-					MBlock.app.createNewProject();
+					Main.app.createNewProject();
 					break;
 				case "Load Project":
-					MBlock.app.runtime.selectProjectFile();
+					Main.app.runtime.selectProjectFile();
 					break;
 				case "Save Project":
-					MBlock.app.saveFile();
+					Main.app.saveFile();
 					break;
 				case "Save Project As":
-					MBlock.app.exportProjectToFile();
+					Main.app.exportProjectToFile();
 					break;
 				case "Undo Revert":
-					MBlock.app.undoRevert();
+					Main.app.undoRevert();
 					break;
 				case "Revert":
-					MBlock.app.revertToOriginalProject();
+					Main.app.revertToOriginalProject();
 					break;
 				case "Import Image":
 					MediaManager.getInstance().importImage();
@@ -130,24 +130,24 @@ package cc.makeblock.mbot.ui.parts
 		{
 			switch(item.name){
 				case "Undelete":
-					MBlock.app.runtime.undelete();
+					Main.app.runtime.undelete();
 					break;
 				case "Hide stage layout":
-					MBlock.app.toggleHideStage();
+					Main.app.toggleHideStage();
 					break;
 /*
 				case "Small stage layout":
-					MBlock.app.toggleSmallStage();
+					Main.app.toggleSmallStage();
 					break;
 				case "Turbo mode":
-					MBlock.app.toggleTurboMode();
+					Main.app.toggleTurboMode();
 					break;
 */
 				case "Arduino mode":
-					MBlock.app.changeToArduinoMode();
+					Main.app.changeToArduinoMode();
 					break;
 			}
-			MBlock.app.track("/OpenEdit");
+			Main.app.track("/OpenEdit");
 		}
 		
 		private function __onConnect(menuItem:NativeMenuItem):void
@@ -199,7 +199,7 @@ package cc.makeblock.mbot.ui.parts
 		
 		private function __onMicrosoftSettingSelect(item:NativeMenuItem):void
 		{
-			MBlock.app.openMicrosoftCognitiveSetting(Translator.map("Microsoft Cognitive Services"));
+			Main.app.openMicrosoftCognitiveSetting(Translator.map("Microsoft Cognitive Services"));
 		}
 		private function __onLanguageSelect(evt:Event):void
 		{
@@ -215,21 +215,21 @@ package cc.makeblock.mbot.ui.parts
 		{
 			var menu:NativeMenu = evt.target as NativeMenu;
 			
-		//	MenuUtil.setEnable(menu.getItemByName("Undo Revert"), MBlock.app.canUndoRevert());
-		//	MenuUtil.setEnable(menu.getItemByName("Revert"), MBlock.app.canRevert());
+		//	MenuUtil.setEnable(menu.getItemByName("Undo Revert"), Main.app.canUndoRevert());
+		//	MenuUtil.setEnable(menu.getItemByName("Revert"), Main.app.canRevert());
 			
-			MBlock.app.track("/OpenFile");
+			Main.app.track("/OpenFile");
 		}
 		
 		private function __onInitEditMenu(evt:Event):void
 		{
 			var menu:NativeMenu = evt.target as NativeMenu;
-			MenuUtil.setEnable(menu.getItemByName("Undelete"),				MBlock.app.runtime.canUndelete());
-			MenuUtil.setChecked(menu.getItemByName("Hide stage layout"),	MBlock.app.stageIsHided);
-//			MenuUtil.setChecked(menu.getItemByName("Small stage layout"),	!MBlock.app.stageIsHided && MBlock.app.stageIsContracted);
-//			MenuUtil.setChecked(menu.getItemByName("Turbo mode"),			MBlock.app.interp.turboMode);
-			MenuUtil.setChecked(menu.getItemByName("Arduino mode"),			MBlock.app.stageIsArduino);
-			MBlock.app.track("/OpenEdit");
+			MenuUtil.setEnable(menu.getItemByName("Undelete"),				Main.app.runtime.canUndelete());
+			MenuUtil.setChecked(menu.getItemByName("Hide stage layout"),	Main.app.stageIsHided);
+//			MenuUtil.setChecked(menu.getItemByName("Small stage layout"),	!Main.app.stageIsHided && Main.app.stageIsContracted);
+//			MenuUtil.setChecked(menu.getItemByName("Turbo mode"),			Main.app.interp.turboMode);
+			MenuUtil.setChecked(menu.getItemByName("Arduino mode"),			Main.app.stageIsArduino);
+			Main.app.track("/OpenEdit");
 		}
 		
 		private var initConnectMenuItemCount:int = -1;
@@ -246,7 +246,7 @@ package cc.makeblock.mbot.ui.parts
 				menu.removeItemAt(menu.numItems-1);
 			}
 
-			var enabled:Boolean = MBlock.app.extensionManager.checkExtensionEnabled();
+			var enabled:Boolean = Main.app.extensionManager.checkExtensionEnabled();
 			var arr:Array = ConnectionManager.sharedManager().portlist;
 			if(arr.length==0)
 			{
@@ -293,9 +293,9 @@ package cc.makeblock.mbot.ui.parts
 		private function __onInitExtMenu(evt:Event):void
 		{
 			var menuItem:NativeMenu = evt.target as NativeMenu;
-			var list:Array = MBlock.app.extensionManager.extensionList;
+			var list:Array = Main.app.extensionManager.extensionList;
 			if(list.length==0){
-				MBlock.app.extensionManager.copyLocalFiles();
+				Main.app.extensionManager.copyLocalFiles();
 				SharedObjectManager.sharedManager().setObject("first-launch",false);
 			}
 			if(initExtMenuItemCount < 0){
@@ -304,21 +304,21 @@ package cc.makeblock.mbot.ui.parts
 			while(menuItem.numItems > initExtMenuItemCount){
 				menuItem.removeItemAt(menuItem.numItems-1);
 			}
-			list = MBlock.app.extensionManager.extensionList;
+			list = Main.app.extensionManager.extensionList;
 //			var subMenu:NativeMenu = menuItem;
 			for(var i:int=0;i<list.length;i++){
 				var extName:String = list[i].extensionName;
 				var subMenuItem:NativeMenuItem = menuItem.addItem(new NativeMenuItem(Translator.map(extName)));
 				subMenuItem.name = extName;
 				subMenuItem.label = Translator.map(extName);
-				subMenuItem.checked = MBlock.app.extensionManager.checkExtensionSelected(extName);
+				subMenuItem.checked = Main.app.extensionManager.checkExtensionSelected(extName);
 				register(extName, __onExtensions);
 			}
 		}
 		
 		private function __onExtensions(menuItem:NativeMenuItem):void
 		{
-			MBlock.app.extensionManager.onSelectExtension(menuItem.name);
+			Main.app.extensionManager.onSelectExtension(menuItem.name);
 		}
 		
 		private function __onHelp(menuItem:NativeMenuItem):void
@@ -339,13 +339,13 @@ package cc.makeblock.mbot.ui.parts
 			switch(menuItem.name)
 			{
 				case "Share Your Project":
-					MBlock.app.track("/OpenShare/");
+					Main.app.track("/OpenShare/");
 					break;
 				case "FAQ":
-					MBlock.app.track("/OpenFaq/");
+					Main.app.track("/OpenFaq/");
 					break;
 				default:
-					MBlock.app.track("/OpenHelp/"+menuItem.data.@key);
+					Main.app.track("/OpenHelp/"+menuItem.data.@key);
 			}
 			
 			switch(menuItem.data.@key.toString()){

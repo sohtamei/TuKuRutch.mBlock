@@ -120,7 +120,7 @@ public class ScratchStage extends ScratchObj {
 		for each (var spr:ScratchSprite in sprites()) {
 			if ((spr.objName == spriteName) && !spr.isClone) return spr;
 		}
-		var app:MBlock = MBlock.app;
+		var app:Main = Main.app;
 		if ((app != null) && (app.gh.carriedObj is ScratchSprite)) {
 			spr = ScratchSprite(app.gh.carriedObj);
 			if ((spr.objName == spriteName) && !spr.isClone) return spr;
@@ -135,7 +135,7 @@ public class ScratchStage extends ScratchObj {
 			var c:* = getChildAt(i);
 			if ((c is ScratchSprite) && (c.objName == spriteName)) result.push(c);
 		}
-		var app:MBlock = parent as MBlock;
+		var app:Main = parent as Main;
 		if (app != null) {
 			var spr:ScratchSprite = app.gh.carriedObj as ScratchSprite;
 			if (spr && (spr.objName == spriteName)) result.push(spr);
@@ -304,14 +304,14 @@ public class ScratchStage extends ScratchObj {
 	public function scrollUp(n:Number):void { yScroll += n; updateImage() }
 
 	public function getUILayer():Sprite {
-//		if(MBlock.app.isIn3D) return MBlock.app.render3D.getUIContainer();
+//		if(Main.app.isIn3D) return Main.app.render3D.getUIContainer();
 		return this;
 	}
 
 	override protected function updateImage():void {
 		super.updateImage();
-//		if(MBlock.app.isIn3D)
-//			MBlock.app.render3D.getUIContainer().transform.matrix = transform.matrix.clone();
+//		if(Main.app.isIn3D)
+//			Main.app.render3D.getUIContainer().transform.matrix = transform.matrix.clone();
 
 		return; // scrolling backround support is disabled; see note below
 
@@ -384,7 +384,7 @@ public class ScratchStage extends ScratchObj {
 			} else {
 				videoImage.bitmapData.draw(video);
 			}
-//			if(MBlock.app.isIn3D) MBlock.app.render3D.updateRender(videoImage);
+//			if(Main.app.isIn3D) Main.app.render3D.updateRender(videoImage);
 		}
 		cachedBitmapIsCurrent = false;
 
@@ -413,7 +413,7 @@ public class ScratchStage extends ScratchObj {
 
 		var penBM:BitmapData = penLayer.bitmapData;
 		var m:Matrix = new Matrix();
-//		if(MBlock.app.isIn3D) {
+//		if(Main.app.isIn3D) {
 //			var bmd:BitmapData = getBitmapOfSprite(s, stampBounds);
 //			if(!bmd) return;
 //
@@ -424,7 +424,7 @@ public class ScratchStage extends ScratchObj {
 //			m.rotate((Math.PI * s.rotation) / 180);
 //			m.translate(s.x, s.y);
 //			penBM.draw(bmd, m, new ColorTransform(1, 1, 1, stampAlpha), null, null, (s.rotation % 90 != 0));
-//			MBlock.app.render3D.updateRender(penLayer);
+//			Main.app.render3D.updateRender(penLayer);
 //			testBM.bitmapData = bmd;
 //		}
 //		else {
@@ -447,14 +447,14 @@ public class ScratchStage extends ScratchObj {
 	public function getBitmapOfSprite(s:ScratchSprite, bounds:Rectangle, for_carry:Boolean = false):BitmapData {
 		var b:Rectangle = s.currentCostume().bitmap ? s.img.getChildAt(0).getBounds(s) : s.getVisibleBounds(s);
 		bounds.width = b.width; bounds.height = b.height; bounds.x = b.x; bounds.y = b.y;
-//		if(!MBlock.app.render3D || s.width < 1 || s.height < 1) return null;
+//		if(!Main.app.render3D || s.width < 1 || s.height < 1) return null;
 		return null;
 /*
 		var ghost:Number = s.filterPack.getFilterSetting('ghost');
 		var oldBright:Number = s.filterPack.getFilterSetting('brightness');
 		s.filterPack.setFilter('ghost', 0);
 		s.filterPack.setFilter('brightness', 0);
-		var bmd:BitmapData = MBlock.app.render3D.getRenderedChild(s, b.width*s.scaleX, b.height*s.scaleY, for_carry);
+		var bmd:BitmapData = Main.app.render3D.getRenderedChild(s, b.width*s.scaleX, b.height*s.scaleY, for_carry);
 		s.filterPack.setFilter('ghost', ghost);
 		s.filterPack.setFilter('brightness', oldBright);
 
@@ -470,7 +470,7 @@ public class ScratchStage extends ScratchObj {
 			videoImage = null;
 			return;
 		}
-		MBlock.app.libraryPart.showVideoButton();
+		Main.app.libraryPart.showVideoButton();
 		flipVideo = ('on' == newState); // 'on' means mirrored; 'on-flip' means unmirrored
 		if (camera == null) {
 			// Set up the camera only the first time it is used.
@@ -504,7 +504,7 @@ public class ScratchStage extends ScratchObj {
 		bm.fillRect(bm.rect, 0);
 		newPenStrokes.graphics.clear();
 		penActivity = false;
-//		if(MBlock.app.isIn3D) MBlock.app.render3D.updateRender(penLayer);
+//		if(Main.app.isIn3D) Main.app.render3D.updateRender(penLayer);
 	}
 
 	public function commitPenStrokes():void {
@@ -512,7 +512,7 @@ public class ScratchStage extends ScratchObj {
 		penLayer.bitmapData.draw(newPenStrokes);
 		newPenStrokes.graphics.clear();
 		penActivity = false;
-//		if(MBlock.app.isIn3D) MBlock.app.render3D.updateRender(penLayer);
+//		if(Main.app.isIn3D) Main.app.render3D.updateRender(penLayer);
 	}
 
 	private var cachedBM:BitmapData;
@@ -560,7 +560,7 @@ public class ScratchStage extends ScratchObj {
 	}
 
 	public function updateSpriteEffects(spr:DisplayObject, effects:Object):void {
-//		if(MBlock.app.isIn3D) MBlock.app.render3D.updateFilters(spr, effects);
+//		if(Main.app.isIn3D) Main.app.render3D.updateFilters(spr, effects);
 	}
 
 	public function getBitmapWithoutSpriteFilteredByColor(s:ScratchSprite, c:int):BitmapData {
@@ -569,9 +569,9 @@ public class ScratchStage extends ScratchObj {
 		var bm1:BitmapData;
 		var mask:uint = 0x00F8F8F0; //0xF0F8F8F0;
 		/*
-		if(MBlock.app.isIn3D) {
+		if(Main.app.isIn3D) {
 			var b:Rectangle = s.currentCostume().bitmap ? s.img.getChildAt(0).getBounds(s) : s.getVisibleBounds(s);
-			bm1 = MBlock.app.render3D.getOtherRenderedChildren(s, 1);
+			bm1 = Main.app.render3D.getOtherRenderedChildren(s, 1);
 			//mask = 0x80F8F8F0;
 		}
 		else {*/
@@ -617,7 +617,7 @@ public class ScratchStage extends ScratchObj {
 	}
 
 	public function updateRender(dispObj:DisplayObject, renderID:String = null, renderOpts:Object = null):void {
-//		if(MBlock.app.isIn3D) MBlock.app.render3D.updateRender(dispObj, renderID, renderOpts);
+//		if(Main.app.isIn3D) Main.app.render3D.updateRender(dispObj, renderID, renderOpts);
 	}
 
 	public function projectThumbnailPNG():ByteArray {
@@ -627,7 +627,7 @@ public class ScratchStage extends ScratchObj {
 		if (videoImage) videoImage.visible = false;
 
 		// Get a screenshot of the stage
-//		if(MBlock.app.isIn3D) MBlock.app.render3D.getRender(bm);
+//		if(Main.app.isIn3D) Main.app.render3D.getRender(bm);
 //		else
 		bm.draw(this);
 
@@ -690,16 +690,16 @@ public class ScratchStage extends ScratchObj {
 		info.spriteCount = spriteCount();
 		info.flashVersion = Capabilities.version;
 		info.boardVersion = DeviceManager.sharedManager().currentBoard;
-		if (MBlock.app.projectID != '') info.projectID = MBlock.app.projectID;
+		if (Main.app.projectID != '') info.projectID = Main.app.projectID;
 		info.videoOn = isVideoOn();
-		info.swfVersion = MBlock.versionString;
+		info.swfVersion = Main.versionString;
 
 		delete info.loadInProgress;
-		if (MBlock.app.loadInProgress) info.loadInProgress = true; // log flag for debugging
+		if (Main.app.loadInProgress) info.loadInProgress = true; // log flag for debugging
 
-		if (this == MBlock.app.stagePane) {
+		if (this == Main.app.stagePane) {
 			// If this is the active stage pane, record the current extensions.
-			var extensionsToSave:Array = MBlock.app.extensionManager.extensionsToSave();
+			var extensionsToSave:Array = Main.app.extensionManager.extensionsToSave();
 			if (extensionsToSave.length == 0) delete info.savedExtensions;
 			else info.savedExtensions = extensionsToSave;
 		}
@@ -732,21 +732,21 @@ public class ScratchStage extends ScratchObj {
 			if (obj is ScratchSprite) {
 				obj.setScratchXY(p.x - 240, 180 - p.y);
 				(obj as ScratchSprite).updateCostume();
-				MBlock.app.selectSprite(obj);
+				Main.app.selectSprite(obj);
 				obj.setScratchXY(p.x - 240, 180 - p.y); // needed because selectSprite() moves sprite back if costumes tab is open
 				(obj as ScratchObj).applyFilters();
 			}
-			if (!(obj is ScratchSprite) || MBlock.app.editMode) MBlock.app.setSaveNeeded();
+			if (!(obj is ScratchSprite) || Main.app.editMode) Main.app.setSaveNeeded();
 			return true;
 		}
-		MBlock.app.setSaveNeeded();
+		Main.app.setSaveNeeded();
 		if ((obj is MediaInfo) && obj.fromBackpack) {
 			function addSpriteForCostume(c:ScratchCostume):void {
 				var s:ScratchSprite = new ScratchSprite(c.costumeName);
 				s.setInitialCostume(c.duplicate());
 				app.addNewSprite(s, false, true);
 			}
-			var app:MBlock = root as MBlock;
+			var app:Main = root as Main;
 			// Add sprites
 			if (obj.mysprite) {
 				app.addNewSprite(obj.mysprite.duplicate(), false, true);

@@ -92,13 +92,13 @@ package {
 	import watchers.ListWatcher;
 
 	[SWF(frameRate="30")]
-	public class MBlock extends Sprite {
+	public class Main extends Sprite {
 		// Version
 		private static var vxml:XML = NativeApplication.nativeApplication.applicationDescriptor; 
 		private static var xmlns:Namespace = new Namespace(vxml.namespace());
 	
 		public static const versionString:String = 'v'+vxml.xmlns::versionNumber;
-		public static var app:MBlock; // static reference to the app, used for debugging
+		public static var app:Main; // static reference to the app, used for debugging
 	
 		// Display modes
 		public var editMode:Boolean; // true when project editor showing, false when only the player is showing
@@ -147,7 +147,7 @@ package {
 		private var tabsPart:TabsPart;
 		private var _welcomeView:Loader;
 		private var _currentVer:String = "05.05.001";
-		public function MBlock(){
+		public function Main(){
 			app = this;
 			addEventListener(Event.ADDED_TO_STAGE,initStage);
 			loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, __onError);
@@ -276,7 +276,7 @@ package {
 				{
 					if(value==JOptionPane.YES)
 					{
-						MBlock.app.runtime.selectedProjectFile(autoProjectFile,deleteAutoProjectFile);
+						Main.app.runtime.selectedProjectFile(autoProjectFile,deleteAutoProjectFile);
 					}
 					else
 					{
@@ -298,7 +298,7 @@ package {
 		}
 		private function initExtension():void{
 //			ClickerManager.sharedManager().update();
-			ConnectionManager.sharedManager().setMBlock(this);
+			ConnectionManager.sharedManager().setMain(this);
 		}
 		private function openWelcome():void{
 			openSwf("welcome.swf");
@@ -329,7 +329,7 @@ package {
 		public function track(msg:String):void{
 			LogManager.sharedManager().log(msg);
 		//	ga.trackPageview(
-		//		(ApplicationManager.sharedManager().isCatVersion?"/myh/":"/") + MBlock.versionString + msg
+		//		(ApplicationManager.sharedManager().isCatVersion?"/myh/":"/") + Main.versionString + msg
 		//	);
 		}
 		
@@ -349,11 +349,11 @@ package {
 		public function closeTips():void {}
 		public function reopenTips():void {}
 	
-		public function getMediaLibrary(app:MBlock, type:String, whenDone:Function):MediaLibrary {
+		public function getMediaLibrary(app:Main, type:String, whenDone:Function):MediaLibrary {
 			return new MediaLibrary(app, type, whenDone);
 		}
 	
-		public function getMediaPane(app:MBlock, type:String):MediaPane {
+		public function getMediaPane(app:Main, type:String):MediaPane {
 			return new MediaPane(app, type);
 		}
 	
@@ -374,7 +374,7 @@ package {
 			{
 				ConnectionManager.sharedManager().onClose();
 			}
-			MBlock.app.gh.mouseUp(new MouseEvent(MouseEvent.MOUSE_UP));
+			Main.app.gh.mouseUp(new MouseEvent(MouseEvent.MOUSE_UP));
 			
 			
 		}
@@ -1098,7 +1098,7 @@ package {
 				SharedObjectManager.sharedManager().setObject("keyOCR-user",keyOCR);
 				SharedObjectManager.sharedManager().setObject("keySpeaker-user",keySpeaker);
 				SharedObjectManager.sharedManager().setObject("keySpeech-user",keySpeech); 
-				MBlock.app.track("/OxfordAi/setting/save");
+				Main.app.track("/OxfordAi/setting/save");
 			}); 
 			dialogBox.setTitle(msg+" "+Translator.map("API Key"));
 			dialogBox.addField(Translator.toHeadUpperCase(Translator.map("face")),300,SharedObjectManager.sharedManager().getObject("keyFace-user",""),true);
@@ -1110,7 +1110,7 @@ package {
 			dialogBox.addText(Translator.map("For More Information"));
 			dialogBox.addAcceptCancelButtons('OK');
 			dialogBox.showOnStage(stage);
-			MBlock.app.track("/OxfordAi/setting/open");
+			Main.app.track("/OxfordAi/setting/open");
 		}
 		// -----------------------------
 		// Project Reverting
@@ -1130,7 +1130,7 @@ package {
 		}
 		
 		private function preDoRevert():void {
-			revertUndo = new ProjectIO(MBlock.app).encodeProjectAsZipFile(stagePane);
+			revertUndo = new ProjectIO(Main.app).encodeProjectAsZipFile(stagePane);
 			doRevert();
 		}
 	

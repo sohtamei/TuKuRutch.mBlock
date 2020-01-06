@@ -57,9 +57,9 @@ public class PaletteSelector extends Sprite {
 		'Events', 'Control', 'Sensing', 'Operators', 'Robots']; // column 2
 
 	public var selectedCategory:int = 0;
-	private var app:MBlock;
+	private var app:Main;
 
-	public function PaletteSelector(app:MBlock) {
+	public function PaletteSelector(app:Main) {
 		this.app = app;
 		initCategories();
 	}

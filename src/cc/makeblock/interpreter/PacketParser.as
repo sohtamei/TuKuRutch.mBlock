@@ -109,7 +109,7 @@ package cc.makeblock.interpreter
 						buffer.splice(0, 4);
 				}
 				if(index == 0x80){//button pressed
-					MBlock.app.runtime.mbotButtonPressed.notify(Boolean(value));
+					Main.app.runtime.mbotButtonPressed.notify(Boolean(value));
 				}else{
 					if(callback!=RemoteCallMgr.Instance.onPacketRecv)
 					{

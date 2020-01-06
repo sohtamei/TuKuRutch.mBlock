@@ -173,21 +173,21 @@ package cc.makeblock.interpreter {
 		
 		private function primCreateCloneOf(thread:Thread, argList:Array):void {
 			var objName:String = argList[0];
-			var proto:ScratchSprite = MBlock.app.stagePane.spriteNamed(objName);
+			var proto:ScratchSprite = Main.app.stagePane.spriteNamed(objName);
 			if ('_myself_' == objName) proto = ThreadUserData.getScratchSprite(thread);
 			if (!proto) return;
-			if (MBlock.app.runtime.cloneCount > MaxCloneCount) return;
+			if (Main.app.runtime.cloneCount > MaxCloneCount) return;
 			var clone:ScratchSprite = new ScratchSprite();
-			MBlock.app.stagePane.addChildAt(clone, MBlock.app.stagePane.getChildIndex(proto));
+			Main.app.stagePane.addChildAt(clone, Main.app.stagePane.getChildIndex(proto));
 			clone.initFrom(proto, true);
 			clone.objName = proto.objName;
 			clone.isClone = true;
 			for each (var stack:Block in clone.scripts) {
 				if (stack.op == "whenCloned") {
-					MBlock.app.interp.toggleThread(stack, clone);
+					Main.app.interp.toggleThread(stack, clone);
 				}
 			}
-			MBlock.app.runtime.cloneCount++;
+			Main.app.runtime.cloneCount++;
 		}
 		
 		private function primDeleteClone(thread:Thread, argList:Array):void {
@@ -195,8 +195,8 @@ package cc.makeblock.interpreter {
 			if ((clone == null) || (!clone.isClone) || (clone.parent == null)) return;
 			if (clone.bubble && clone.bubble.parent) clone.bubble.parent.removeChild(clone.bubble);
 			clone.parent.removeChild(clone);
-			MBlock.app.interp.stopThreadsFor(clone);
-			MBlock.app.runtime.cloneCount--;
+			Main.app.interp.stopThreadsFor(clone);
+			Main.app.runtime.cloneCount--;
 		}
 		
 	}}

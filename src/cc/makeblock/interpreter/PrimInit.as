@@ -37,7 +37,7 @@ package cc.makeblock.interpreter
 		
 		static private function onSuspendUntilNextFrame(thread:Thread, argList:Array):void
 		{
-			if(!MBlock.app.interp.turboMode){
+			if(!Main.app.interp.turboMode){
 				thread.suspendUntilNextFrame();
 			}
 		}
@@ -61,10 +61,10 @@ package cc.makeblock.interpreter
 				}
 				
 			}
-			MBlock.app.runtime.allStacksAndOwnersDo(findReceivers);
+			Main.app.runtime.allStacksAndOwnersDo(findReceivers);
 			var threadList:Array = [];
 			for each(var item:Array in receivers){
-				var newThread:Thread = MBlock.app.interp.toggleThread(item[0], item[1]);
+				var newThread:Thread = Main.app.interp.toggleThread(item[0], item[1]);
 				threadList.push(newThread);
 			}
 //			target.startAllReceivers(receivers, waitFlag);
@@ -185,7 +185,7 @@ package cc.makeblock.interpreter
 			switch(argList[0])
 			{
 				case "all":
-					MBlock.app.runtime.stopAll();
+					Main.app.runtime.stopAll();
 					break;
 				case "this script":
 					thread.interrupt();
@@ -303,7 +303,7 @@ package cc.makeblock.interpreter
 		
 		static private function stopAll(thread:Thread, argList:Array):void
 		{
-			MBlock.app.runtime.stopAll();
+			Main.app.runtime.stopAll();
 		}
 	}
 }

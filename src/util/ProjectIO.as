@@ -57,11 +57,11 @@ import uiwidgets.DialogBox;
 
 public class ProjectIO {
 
-	protected var app:MBlock;
+	protected var app:Main;
 	protected var images:Array = [];
 	protected var sounds:Array = [];
 
-	public function ProjectIO(app:MBlock):void {
+	public function ProjectIO(app:Main):void {
 		this.app = app;
 	}
 
@@ -166,16 +166,16 @@ public class ProjectIO {
 		if (jsonData == null) return null;
 		jsonData = fixForNewExtension(jsonData);
 		if(jsonData.indexOf("Makeblock")>-1){
-			if(!MBlock.app.extensionManager.checkExtensionSelected("Makeblock")){
-				MBlock.app.extensionManager.onSelectExtension("Makeblock");
+			if(!Main.app.extensionManager.checkExtensionSelected("Makeblock")){
+				Main.app.extensionManager.onSelectExtension("Makeblock");
 			}
 		}else if(jsonData.indexOf("FamilyDay")>-1){
-			if(!MBlock.app.extensionManager.checkExtensionSelected("FamilyDay")){
-				MBlock.app.extensionManager.onSelectExtension("FamilyDay");
+			if(!Main.app.extensionManager.checkExtensionSelected("FamilyDay")){
+				Main.app.extensionManager.onSelectExtension("FamilyDay");
 			}
 		}else if(jsonData.indexOf("Arduino.")>-1){
-			if(!MBlock.app.extensionManager.checkExtensionSelected("Arduino")){
-				MBlock.app.extensionManager.onSelectExtension("Arduino");
+			if(!Main.app.extensionManager.checkExtensionSelected("Arduino")){
+				Main.app.extensionManager.onSelectExtension("Arduino");
 			}
 		}
 		var jsonObj:Object = util.JSON.parse(jsonData);

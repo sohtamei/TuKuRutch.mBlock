@@ -24,8 +24,8 @@ package cc.makeblock.util
 		{
 			NativeApplication.nativeApplication.addEventListener(InvokeEvent.INVOKE, __onInvoked);
 			
-			MBlock.app.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, __onDragEnter);
-			MBlock.app.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_DROP, __onDragDrop);
+			Main.app.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, __onDragEnter);
+			Main.app.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_DROP, __onDragDrop);
 		}
 		
 		private function __onDragEnter(evt:NativeDragEvent):void
@@ -44,7 +44,7 @@ package cc.makeblock.util
 			if(file.extension != "sb2"){
 				return;
 			}
-			MBlock.app.runtime.selectedProjectFile(file);
+			Main.app.runtime.selectedProjectFile(file);
 		}
 		private function __onInvoked(evt:InvokeEvent):void
 		{
@@ -54,7 +54,7 @@ package cc.makeblock.util
 			var arg:String = evt.arguments.join(" ");
 			var file:File = new File(arg);
 			evt.arguments.forEach(function(element:String,index:int,arr:Array):void{
-				MBlock.app.showMessage("fileName="+element);
+				Main.app.showMessage("fileName="+element);
 			});
 			
 			if(!file.exists)
@@ -72,19 +72,19 @@ package cc.makeblock.util
 				d.addButton('Close', function():void{
 					d.cancel();
 				});
-				d.showOnStage(MBlock.app.stage);
+				d.showOnStage(Main.app.stage);
 				return;
 			}
 			
-			if(MBlock.app.stage.nativeWindow.displayState==NativeWindowDisplayState.MINIMIZED)
+			if(Main.app.stage.nativeWindow.displayState==NativeWindowDisplayState.MINIMIZED)
 			{
-				MBlock.app.stage.nativeWindow.restore();
+				Main.app.stage.nativeWindow.restore();
 			}
-			MBlock.app.stage.nativeWindow.notifyUser(NotificationType.INFORMATIONAL);
-			MBlock.app.stage.nativeWindow.alwaysInFront = true;
-			var result:Boolean = MBlock.app.stage.nativeWindow.orderToFront();
-			MBlock.app.runtime.selectedProjectFile(new File(arg));
-			MBlock.app.stage.nativeWindow.alwaysInFront = false;
+			Main.app.stage.nativeWindow.notifyUser(NotificationType.INFORMATIONAL);
+			Main.app.stage.nativeWindow.alwaysInFront = true;
+			var result:Boolean = Main.app.stage.nativeWindow.orderToFront();
+			Main.app.runtime.selectedProjectFile(new File(arg));
+			Main.app.stage.nativeWindow.alwaysInFront = false;
 		}
 	}
 }

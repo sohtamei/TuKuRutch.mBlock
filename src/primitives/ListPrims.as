@@ -35,10 +35,10 @@ package primitives {
 
 internal class ListPrims {
 
-	private var app:MBlock;
+	private var app:Main;
 	protected var interp:Interpreter;
 
-	public function ListPrims(app:MBlock, interpreter:Interpreter) {
+	public function ListPrims(app:Main, interpreter:Interpreter) {
 		this.app = app;
 		this.interp = interpreter;
 	}

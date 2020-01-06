@@ -28,12 +28,12 @@ package ui.media {
 
 public class MediaPane extends ScrollFrameContents {
 
-	public var app:MBlock;
+	public var app:Main;
 
 	private var isSound:Boolean;
 	private var lastCostume:ScratchCostume;
 
-	public function MediaPane(app:MBlock, type:String):void {
+	public function MediaPane(app:Main, type:String):void {
 		this.app = app;
 		isSound = (type == 'sounds');
 		refresh();
@@ -78,7 +78,7 @@ public class MediaPane extends ScrollFrameContents {
 		var result:Array = [];
 		var viewedObj:ScratchObj = app.viewedObj();
 		for each (var c:ScratchCostume in viewedObj.costumes) {
-			result.push(MBlock.app.createMediaInfo(c, viewedObj));
+			result.push(Main.app.createMediaInfo(c, viewedObj));
 		}
 		return result;
 	}
@@ -87,7 +87,7 @@ public class MediaPane extends ScrollFrameContents {
 		var result:Array = [];
 		var viewedObj:ScratchObj = app.viewedObj();
 		for each (var snd:ScratchSound in viewedObj.sounds) {
-			result.push(MBlock.app.createMediaInfo(snd, viewedObj));
+			result.push(Main.app.createMediaInfo(snd, viewedObj));
 		}
 		return result;
 	}

@@ -48,7 +48,7 @@ public class SoundEditor extends Sprite {
 	private const bgColor:int = 0xF0F0F0;
 	private const cornerRadius:int = 20;
 
-	public var app:MBlock;
+	public var app:Main;
 
 	private static var microphone:Microphone = Microphone.getMicrophone();
 
@@ -70,7 +70,7 @@ public class SoundEditor extends Sprite {
 	private var micVolumeLabel:TextField;
 	private var micVolumeSlider:Slider;
 
-	public function SoundEditor(app:MBlock, soundsPart:SoundsPart) {
+	public function SoundEditor(app:Main, soundsPart:SoundsPart) {
 		this.app = app;
 		addChild(levelMeter = new SoundLevelMeter(12, waveHeight));
 		addChild(waveform = new WaveformView(this, soundsPart));

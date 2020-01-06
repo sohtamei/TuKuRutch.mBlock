@@ -36,24 +36,24 @@ package cc.makeblock.services.msoxford
 			trace("start");
 			initUI();
 			initDetector();
-			MBlock.app.track("/OxfordAi/realtime-face/launch");
+			Main.app.track("/OxfordAi/realtime-face/launch");
 		}
 		public function stop():void{
 			trace("stop");
-			MBlock.app.stageObj().removeEventListener(Event.RENDER,cameraReadyHandler);
-			MBlock.app.track("/OxfordAi/realtime-face/close");
+			Main.app.stageObj().removeEventListener(Event.RENDER,cameraReadyHandler);
+			Main.app.track("/OxfordAi/realtime-face/close");
 		}
 		private function initUI():void{
-			MBlock.app.stageObj().removeEventListener(Event.RENDER,cameraReadyHandler);
-			MBlock.app.stageObj().addEventListener(Event.RENDER,cameraReadyHandler);
+			Main.app.stageObj().removeEventListener(Event.RENDER,cameraReadyHandler);
+			Main.app.stageObj().addEventListener(Event.RENDER,cameraReadyHandler);
 			detectionMap = new BitmapData( w / scaleFactor, h / scaleFactor, false, 0 );
 			drawMatrix = new Matrix( 1/ scaleFactor, 0, 0, 1 / scaleFactor );
 		}
 		
 		private function cameraReadyHandler( event:Event ):void
 		{
-			if(MBlock.app.stageObj().videoImage){
-				detectionMap.draw(MBlock.app.stageObj().videoImage.bitmapData,drawMatrix,null,"normal",null,true);
+			if(Main.app.stageObj().videoImage){
+				detectionMap.draw(Main.app.stageObj().videoImage.bitmapData,drawMatrix,null,"normal",null,true);
 				detector.detect( detectionMap );
 			}
 		}
@@ -79,8 +79,8 @@ package cc.makeblock.services.msoxford
 					results.push(rect);
 				});
 				if(results.length>0){
-					MBlock.app.extensionManager.extensionByName("Microsoft Cognitive Services").stateVars["realFaceResultReceived"] = results;
-					MBlock.app.runtime.realFaceResultReceived.notify(true);
+					Main.app.extensionManager.extensionByName("Microsoft Cognitive Services").stateVars["realFaceResultReceived"] = results;
+					Main.app.runtime.realFaceResultReceived.notify(true);
 				}
 			}
 		}

@@ -31,10 +31,10 @@ package primitives {
 
 	internal class SoundPrims {
 
-	private var app:MBlock;
+	private var app:Main;
 	private var interp:Interpreter;
 
-	public function SoundPrims(app:MBlock, interpreter:Interpreter) {
+	public function SoundPrims(app:Main, interpreter:Interpreter) {
 		this.app = app;
 		this.interp = interpreter;
 	}

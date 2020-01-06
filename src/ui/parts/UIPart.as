@@ -42,7 +42,7 @@ public class UIPart extends Sprite {
 
 	protected static const cornerRadius:int = 8;
 
-	public var app:MBlock;
+	public var app:Main;
 	public var w:int, h:int;
 
 	public function right():int { return x + w }

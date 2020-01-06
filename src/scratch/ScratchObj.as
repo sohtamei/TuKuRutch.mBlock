@@ -92,14 +92,14 @@ public class ScratchObj extends Sprite {
 		if (i < 0) return;
 		costumes.splice(i, 1);
 		if (currentCostumeIndex >= i) showCostume(currentCostumeIndex - 1);
-		if (MBlock.app) MBlock.app.setSaveNeeded();
+		if (Main.app) Main.app.setSaveNeeded();
 	}
 
 	public function deleteSound(snd:ScratchSound):void {
 		var i:int = sounds.indexOf(snd);
 		if (i < 0) return;
 		sounds.splice(i, 1);
-		if (MBlock.app) MBlock.app.setSaveNeeded();
+		if (Main.app) Main.app.setSaveNeeded();
 	}
 
 	public function showCostumeNamed(n:String):void {
@@ -263,7 +263,7 @@ public class ScratchObj extends Sprite {
 	public function applyFilters(forDragging:Boolean = false):void {
 		img.filters = filterPack.buildFilters(forDragging);
 		clearCachedBitmap();
-//		if(!MBlock.app.isIn3D || forDragging) {
+//		if(!Main.app.isIn3D || forDragging) {
 			var n:Number = Math.max(0, Math.min(filterPack.getFilterSetting('ghost'), 100));
 			cTrans.alphaMultiplier = 1.0 - (n / 100.0);
 			n = 255 * Math.max(-100, Math.min(filterPack.getFilterSetting('brightness'), 100)) / 100;
@@ -320,7 +320,7 @@ public class ScratchObj extends Sprite {
 	public function defaultArgsFor(op:String, specDefaults:Array):Array {
 		// Return an array of default parameter values for the given operation (primitive name).
 		// For most ops, this will simply return the array of default arg values from the command spec.
-		var app:MBlock = root as MBlock;
+		var app:Main = root as Main;
 		var sprites:Array;
 
 		if ((['broadcast:', 'doBroadcastAndWait', 'whenIReceive'].indexOf(op)) > -1) {
@@ -372,12 +372,12 @@ public class ScratchObj extends Sprite {
 			}
 		}
 //		if (variables.length > 0) return variables[variables.length - 1].name; // local var
-		return isStage ? '' : MBlock.app.stagePane.defaultVarName(); // global var, if any
+		return isStage ? '' : Main.app.stagePane.defaultVarName(); // global var, if any
 	}
 
 	public function defaultListName():String {
 		if (lists.length > 0) return lists[lists.length - 1].listName; // local list
-		return isStage ? '' : MBlock.app.stagePane.defaultListName(); // global list, if any
+		return isStage ? '' : Main.app.stagePane.defaultListName(); // global list, if any
 	}
 
 	/* Scripts */
@@ -455,7 +455,7 @@ public class ScratchObj extends Sprite {
 	public function setVarTo(varName:String, value:*):void {
 		var v:Variable = lookupOrCreateVar(varName);
 		v.value = value;
-		MBlock.app.runtime.updateVariable(v);
+		Main.app.runtime.updateVariable(v);
 	}
 
 	public function ownsVar(varName:String):Boolean {
@@ -483,7 +483,7 @@ public class ScratchObj extends Sprite {
 		for each (v in variables) {
 			if (v.name == varName) return v;
 		}
-		for each (v in MBlock.app.stagePane.variables) {
+		for each (v in Main.app.stagePane.variables) {
 			if (v.name == varName) return v;
 		}
 		return null;
@@ -536,7 +536,7 @@ public class ScratchObj extends Sprite {
 		for each (list in lists) {
 			if (list.listName!=null && list.listName == listName) return list;
 		}
-		for each (list in MBlock.app.stagePane.lists) {
+		for each (list in Main.app.stagePane.lists) {
 			if (list.listName == listName) return list;
 		}
 		return null;
@@ -560,7 +560,7 @@ public class ScratchObj extends Sprite {
 	private var lastClickTime:uint;
 
 	public function click(evt:MouseEvent):void {
-		var app:MBlock = root as MBlock;
+		var app:Main = root as Main;
 		if (!app) return;
 		var now:uint = getTimer();
 		app.runtime.startClickedHats(this);
@@ -642,7 +642,7 @@ public class ScratchObj extends Sprite {
 		variables = (jsonObj.variables == undefined) ? [] : jsonObj.variables;
 		for (var i:int = 0; i < variables.length; i++) {
 			var varObj:Object = variables[i];
-			variables[i] = MBlock.app.runtime.makeVariable(varObj);
+			variables[i] = Main.app.runtime.makeVariable(varObj);
 		}
 		lists = (jsonObj.lists == undefined) ? [] : jsonObj.lists;
 		scripts = (jsonObj.scripts == undefined) ? [] : jsonObj.scripts;

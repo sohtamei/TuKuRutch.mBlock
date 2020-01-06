@@ -77,7 +77,7 @@ public class StagePart extends UIPart {
 	private var yLabel:TextField;
 	private var yReadout:TextField;
 
-	public function StagePart(app:MBlock) {
+	public function StagePart(app:Main) {
 		this.app = app;
 		outline = new Shape();
 		addChild(outline);
@@ -226,7 +226,7 @@ public class StagePart extends UIPart {
 		addChild(projectInfo = makeLabel('', CSS.projectInfoFormat));
 
 //		const versionFormat:TextFormat = new TextFormat(CSS.font, 9, 0x909090);
-//		versionInfo = makeLabel(MBlock.versionString, versionFormat);
+//		versionInfo = makeLabel(Main.versionString, versionFormat);
 //		addChild(versionInfo);
 	}
 

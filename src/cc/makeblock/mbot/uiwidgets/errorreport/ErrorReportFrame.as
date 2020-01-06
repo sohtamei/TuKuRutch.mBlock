@@ -15,7 +15,7 @@ package cc.makeblock.mbot.uiwidgets.errorreport
 			var data:URLVariables = new URLVariables();
 			data.m = msg;
 			data.os = Capabilities.os;
-			data.v = "mBlock " + MBlock.versionString;
+			data.v = "mBlock " + Main.versionString;
 			data.l = (Translator.currentLang.indexOf("zh_") == 0) ? "zh" : "en";
 			request.data = data;
 			navigateToURL(request);

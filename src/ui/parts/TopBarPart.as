@@ -54,7 +54,7 @@ package ui.parts {
 		private var mcNotice:Sprite = new Sprite;
 		public var offlineNotice:TextField = new TextField;
 	
-		public function TopBarPart(app:MBlock) {
+		public function TopBarPart(app:Main) {
 			this.app = app;
 			addButtons();
 			refresh();

@@ -38,7 +38,7 @@ public class TabsPart extends UIPart {
 	public var imagesTab:IconButton;
 	public var soundsTab:IconButton;
 
-	public function TabsPart(app:MBlock) {
+	public function TabsPart(app:Main) {
 		this.app = app;
 		scriptsTab = makeTab('Scripts', __onSelectScripts);
 		imagesTab = makeTab('Images', __onSelectImages); // changed to 'Costumes' or 'Scenes' by refresh()

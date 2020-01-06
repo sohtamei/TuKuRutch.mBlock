@@ -145,7 +145,7 @@ package extensions
 			if(args.length < 2){
 				RemoteCallMgr.Instance.onPacketRecv();
 			}else if(args[0] == 0x80){
-				MBlock.app.runtime.mbotButtonPressed.notify(Boolean(args[1]));
+				Main.app.runtime.mbotButtonPressed.notify(Boolean(args[1]));
 			}else{
 				RemoteCallMgr.Instance.onPacketRecv(args[1]);
 			}
@@ -220,10 +220,10 @@ package extensions
 		}
 		static private function trace(msg:String):void
 		{
-			MBlock.app.track(msg);
+			Main.app.track(msg);
 		}
 		static private function updateDevName(name:String):void{
-			MBlock.app.topBarPart.offlineNotice.text = name;
+			Main.app.topBarPart.offlineNotice.text = name;
 		}
 		static private const tempBytes:ByteArray = new ByteArray();
 		tempBytes.endian = Endian.LITTLE_ENDIAN;

@@ -41,7 +41,7 @@ public class BlockPalette extends ScrollFrameContents {
 
 	public function handleDrop(obj:*):Boolean {
 		// Delete blocks and stacks dropped onto the palette.
-		var app:MBlock = root as MBlock;
+		var app:Main = root as Main;
 		var c:ScratchComment = obj as ScratchComment;
 		if (c) {
 			c.x = c.y = 20; // postion for undelete
@@ -57,7 +57,7 @@ public class BlockPalette extends ScrollFrameContents {
 //			}
 //			if (b.parent) b.parent.removeChild(b);
 //			b.restoreOriginalPosition(); // restore position in case block is undeleted
-//			MBlock.app.runtime.recordForUndelete(b, b.x, b.y, 0, MBlock.app.viewedObj());
+//			Main.app.runtime.recordForUndelete(b, b.x, b.y, 0, Main.app.viewedObj());
 //			app.scriptsPane.saveScripts();
 //			app.updatePalette();
 //			return true;
@@ -65,7 +65,7 @@ public class BlockPalette extends ScrollFrameContents {
 		return false;
 	}
 
-	private function hasCallers(def:Block, app:MBlock):Boolean {
+	private function hasCallers(def:Block, app:Main):Boolean {
 		var callCount:int;
 		for each (var stack:Block in app.viewedObj().scripts) {
 			// for each block in stack

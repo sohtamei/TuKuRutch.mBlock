@@ -28,7 +28,7 @@ package extensions
 	{
 		
 		private static var _instance:ArduinoManager;
-		public var _scratch:MBlock;
+		public var _scratch:Main;
 		public var jsonObj:Object;
 		
 		public var hexCode:String;
@@ -187,10 +187,10 @@ void updateVar(char * varName,double * var)
 			if(File.applicationStorageDirectory.exists){
 				File.applicationStorageDirectory.deleteDirectory(true);
 			}
-			PopupUtil.showConfirm(Translator.map("Restart mBlock?"),MBlock.app.restart);
+			PopupUtil.showConfirm(Translator.map("Restart mBlock?"),Main.app.restart);
 		}
 		
-		public function setScratch(scratch:MBlock):void{
+		public function setScratch(scratch:Main):void{
 			_scratch = scratch;
 		}
 		/*
@@ -670,12 +670,12 @@ void updateVar(char * varName,double * var)
 				//				code = new CodeObj(getModule(blk)["code"]["work"]);
 				//			}
 			else{
-				var objs:Array = MBlock.app.extensionManager.specForCmd(blk[0]);
+				var objs:Array = Main.app.extensionManager.specForCmd(blk[0]);
 				if(objs!=null){
 					var obj:Object = objs[objs.length-1];
 					obj = obj[obj.length-1];
 					if(typeof obj == "object"){
-						var ext:ScratchExtension = MBlock.app.extensionManager.extensionByName(blk[0].split(".")[0]);
+						var ext:ScratchExtension = Main.app.extensionManager.extensionByName(blk[0].split(".")[0]);
 						var codeObj:Object = {code:{setup:substitute(obj.setup,blk as Array,ext),work:substitute(obj.work,blk as Array,ext),def:substitute(obj.def,blk as Array,ext),inc:substitute(obj.inc,blk as Array,ext),loop:substitute(obj.loop,blk as Array,ext)}};	
 						if(!availableBlock(codeObj)){
 							if(ext!=null){
@@ -793,7 +793,7 @@ void updateVar(char * varName,double * var)
 			var isArduinoCode:Boolean = false;
 			for(var i:int;i<blks.length;i++){
 				var b:Object = blks[i];
-				var objs:Array = MBlock.app.extensionManager.specForCmd(blks[0]);
+				var objs:Array = Main.app.extensionManager.specForCmd(blks[0]);
 				if(objs!=null){
 					var obj:Object = objs[objs.length-1];
 					obj = obj[obj.length-1];
@@ -813,8 +813,8 @@ void updateVar(char * varName,double * var)
 					ccode_pointer="setup";
 					isArduinoCode = true;
 					
-					var objs:Array = MBlock.app.extensionManager.specForCmd(op);
-					var ext:ScratchExtension = MBlock.app.extensionManager.extensionByName(op.split(".")[0]);
+					var objs:Array = Main.app.extensionManager.specForCmd(op);
+					var ext:ScratchExtension = Main.app.extensionManager.extensionByName(op.split(".")[0]);
 					if(ext!=null){
 						if(srcDocuments.indexOf(ext.srcPath)==-1){
 							srcDocuments.push(ext.srcPath);
@@ -1301,7 +1301,7 @@ void move(int direction, int speed)
 		//*/
 		private function get projectDocumentName():String{
 			var now:Date = new Date;
-			var pName:String = MBlock.app.projectName().split(" ").join("").split("(").join("").split(")").join("");
+			var pName:String = Main.app.projectName().split(" ").join("").split("(").join("").split(")").join("");
 			//用正则表达式来过滤非法字符
 			var reg:RegExp = /[^A-z0-9]|^_/g;
 			pName = pName.replace(reg,"_");
@@ -1419,10 +1419,10 @@ void move(int direction, int speed)
 			isUploading = false;
 			var date:Date = new Date;
 			
-			MBlock.app.scriptsPart.appendMessage(""+(date.month+1)+"-"+date.date+" "+date.hours+":"+date.minutes+": Process exited with "+event.exitCode);
+			Main.app.scriptsPart.appendMessage(""+(date.month+1)+"-"+date.date+" "+date.hours+":"+date.minutes+": Process exited with "+event.exitCode);
 			numOfSuccess++;
 			if(event.exitCode > 0){
-				MBlock.app.scriptsPart.appendMsgWithTimestamp(errorText, true);
+				Main.app.scriptsPart.appendMsgWithTimestamp(errorText, true);
 				errorText = null;
 			}
 			if(compileErr == false){

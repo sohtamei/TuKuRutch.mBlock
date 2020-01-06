@@ -56,7 +56,7 @@ public class ScriptsPane extends ScrollFrameContents {
 	private const INSERT_SUB2:int = 3;
 	private const INSERT_WRAP:int = 4;
 
-	public var app:MBlock;
+	public var app:Main;
 
 	private var viewedObj:ScratchObj;
 	private var commentLines:Shape;
@@ -65,7 +65,7 @@ public class ScriptsPane extends ScrollFrameContents {
 	private var nearestTarget:Array = [];
 	private var feedbackShape:BlockShape;
 
-	public function ScriptsPane(app:MBlock) {
+	public function ScriptsPane(app:Main) {
 		this.app = app;
 		addChild(commentLines = new Shape());
 		hExtra = vExtra = 40;

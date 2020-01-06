@@ -34,7 +34,7 @@ package cc.makeblock.interpreter
 			getAllBlocksOp(blockList,allBlockOp);
 			for(var i:int=0;i<allBlockOp.length;i++)
 			{
-				MBlock.app.track("/blocks/"+allBlockOp[i]);
+				Main.app.track("/blocks/"+allBlockOp[i]);
 			}
 //			trace("begin==================");
 //			trace(JSON.stringify(blockList));

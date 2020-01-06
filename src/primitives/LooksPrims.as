@@ -30,10 +30,10 @@ package primitives {
 
 	internal class LooksPrims {
 
-	private var app:MBlock;
+	private var app:Main;
 	private var interp:Interpreter;
 
-	public function LooksPrims(app:MBlock, interpreter:Interpreter) {
+	public function LooksPrims(app:Main, interpreter:Interpreter) {
 		this.app = app;
 		this.interp = interpreter;
 	}
@@ -194,7 +194,7 @@ package primitives {
 		var newValue:Number = s.filterPack.getFilterSetting(filterName) + delta;
 		s.filterPack.setFilter(filterName, newValue);
 		s.applyFilters();
-		if (s.visible || s == MBlock.app.stagePane) interp.redraw();
+		if (s.visible || s == Main.app.stagePane) interp.redraw();
 	}
 
 	private function primSetEffect(b:Block):void {
@@ -204,13 +204,13 @@ package primitives {
 		var newValue:Number = interp.numarg(b, 1);
 		if(s.filterPack.setFilter(filterName, newValue))
 			s.applyFilters();
-		if (s.visible || s == MBlock.app.stagePane) interp.redraw();
+		if (s.visible || s == Main.app.stagePane) interp.redraw();
 	}
 
 	private function primClearEffects(b:Block):void {
 		var s:ScratchObj = interp.targetObj();
 		s.clearFilters();
-		if (s.visible || s == MBlock.app.stagePane) interp.redraw();
+		if (s.visible || s == Main.app.stagePane) interp.redraw();
 	}
 
 	private function primChangeSize(b:Block):void {

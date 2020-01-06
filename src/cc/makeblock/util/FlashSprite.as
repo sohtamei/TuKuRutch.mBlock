@@ -20,7 +20,7 @@ package cc.makeblock.util
 			graphics.drawRoundRect(0, 0, r.width, r.height, 12, 12);
 			x = r.x;
 			y = r.y;
-			MBlock.app.addChild(this);
+			Main.app.addChild(this);
 			TweenLite.to(this, 0.5, {"alpha":0, "ease":Cubic.easeOut, "onComplete":removeSelf});
 		}
 		

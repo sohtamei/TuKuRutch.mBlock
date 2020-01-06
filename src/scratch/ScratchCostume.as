@@ -185,9 +185,9 @@ public class ScratchCostume {
 		bitmapResolution = 2;
 		rotationCenterX = centerX;
 		rotationCenterY = centerY;
-		if (MBlock.app && MBlock.app.viewedObj() && (MBlock.app.viewedObj().currentCostume() == this)) {
-			MBlock.app.viewedObj().updateCostume();
-			MBlock.app.refreshImageTab(true);
+		if (Main.app && Main.app.viewedObj() && (Main.app.viewedObj().currentCostume() == this)) {
+			Main.app.viewedObj().updateCostume();
+			Main.app.refreshImageTab(true);
 		}
 	}
 
@@ -195,9 +195,9 @@ public class ScratchCostume {
 		// Initialize an SVG costume.
 		function refreshAfterImagesLoaded():void {
 			svgSprite = new SVGDisplayRender().renderAsSprite(svgRoot);
-			if (MBlock.app && MBlock.app.viewedObj() && (MBlock.app.viewedObj().currentCostume() == thisC)) {
-				MBlock.app.viewedObj().updateCostume();
-				MBlock.app.refreshImageTab(fromEditor);
+			if (Main.app && Main.app.viewedObj() && (Main.app.viewedObj().currentCostume() == thisC)) {
+				Main.app.viewedObj().updateCostume();
+				Main.app.refreshImageTab(fromEditor);
 			}
 			svgLoading = false;
 		}
@@ -515,10 +515,10 @@ public class ScratchCostume {
 		if (!forStage) m.translate(-dispR.x, -dispR.y);
 		m.scale(scale, scale);
 
-		var oldQuality:String = MBlock.app.stage.quality;
-		MBlock.app.stage.quality = StageQuality.LOW;
+		var oldQuality:String = Main.app.stage.quality;
+		Main.app.stage.quality = StageQuality.LOW;
 		bm.draw(dispObj, m);
-		MBlock.app.stage.quality = oldQuality;
+		Main.app.stage.quality = oldQuality;
 
 		return bm;
 	}

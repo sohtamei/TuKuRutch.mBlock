@@ -71,7 +71,7 @@ public class FunctionVideoMotion {
 
 	private function primVideoMotion(thread:Thread, argList:Array):void {
 		var motionType:String = argList[0];
-		var obj:ScratchObj = MBlock.app.stagePane.objNamed(String(argList[1]));
+		var obj:ScratchObj = Main.app.stagePane.objNamed(String(argList[1]));
 		if ('this sprite' == argList[1]) obj = ThreadUserData.getScratchObj(thread);
 		thread.push( getMotionOn(motionType, obj));
 	}
@@ -93,13 +93,13 @@ public class FunctionVideoMotion {
 	}
 
 	// start/stop getting step() calls from runtime:
-	private function startMotionDetector():void { MBlock.app.runtime.motionDetector = this }
-	private function stopMotionDetector():void { MBlock.app.runtime.motionDetector = null }
+	private function startMotionDetector():void { Main.app.runtime.motionDetector = this }
+	private function stopMotionDetector():void { Main.app.runtime.motionDetector = null }
 
 	public function step():void {
 		frameNum++;
-		var sprites:Array = MBlock.app.stagePane.sprites();
-		if (!(MBlock.app.stagePane && MBlock.app.stagePane.videoImage)) {
+		var sprites:Array = Main.app.stagePane.sprites();
+		if (!(Main.app.stagePane && Main.app.stagePane.videoImage)) {
 			prev = curr = null;
 			motionAmount = motionDirection = 0;
 			for (var i:int = 0; i < sprites.length; i++) {
@@ -110,7 +110,7 @@ public class FunctionVideoMotion {
 			stopMotionDetector();
 			return;
 		}
-		var img:BitmapData = MBlock.app.stagePane.videoImage.bitmapData;
+		var img:BitmapData = Main.app.stagePane.videoImage.bitmapData;
 		var scale:Number = Math.min(WIDTH / img.width, HEIGHT / img.height);
 		var m:Matrix = new Matrix();
 		m.scale(scale, scale);

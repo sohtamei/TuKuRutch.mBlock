@@ -217,7 +217,7 @@ public class ListWatcher extends Sprite {
 		var columnCount:int = lines[0].split(delimiter).length;
 		DialogBox.ask(
 			Translator.map('Which column do you want to import') + '(1-' + columnCount + ')?',
-			'1', MBlock.app.stage, gotColumn);
+			'1', Main.app.stage, gotColumn);
 	}
 
 	private function guessDelimiter(lines:Array):String {
@@ -264,7 +264,7 @@ public class ListWatcher extends Sprite {
 		if ((i < 1) || (i > lastAccess.length)) return;
 		lastAccess[i - 1] = getTimer();
 		lastActiveIndex = i - 1;
-//		MBlock.app.interp.redraw();
+//		Main.app.interp.redraw();
 	}
 
 	public function prepareToShow():void {
@@ -340,7 +340,7 @@ public class ListWatcher extends Sprite {
 
 	private function addItem(b:IconButton = null):void {
 		// Called when addItemButton is clicked.
-		if ((root is MBlock) && !(root as MBlock).editMode) return;
+		if ((root is Main) && !(root as Main).editMode) return;
 		if (insertionIndex < 0) insertionIndex = contents.length;
 		contents.splice(insertionIndex, 0, '');
 		updateContents();
@@ -458,11 +458,11 @@ public class ListWatcher extends Sprite {
 	public function updateContents():void {
 //		var limitedCloudView:Boolean = isPersistent;
 //		if (limitedCloudView &&
-//			MBlock.app.isLoggedIn() && MBlock.app.editMode &&
-//			(MBlock.app.projectOwner == MBlock.app.userName)) {
+//			Main.app.isLoggedIn() && Main.app.editMode &&
+//			(Main.app.projectOwner == Main.app.userName)) {
 //				limitedCloudView = false; // only project owner can view cloud list contents
 //		}
-		var isEditable:Boolean = MBlock.app.editMode && !limitedView;
+		var isEditable:Boolean = Main.app.editMode && !limitedView;
 		updateElementCount();
 		removeAllCells();
 		visibleCells = [];

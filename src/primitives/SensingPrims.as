@@ -39,10 +39,10 @@ package primitives {
 
 	internal class SensingPrims {
 
-	private var app:MBlock;
+	private var app:Main;
 	private var interp:Interpreter;
 
-	public function SensingPrims(app:MBlock, interpreter:Interpreter) {
+	public function SensingPrims(app:Main, interpreter:Interpreter) {
 		this.app = app;
 		this.interp = interpreter;
 	}

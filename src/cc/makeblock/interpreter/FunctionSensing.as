@@ -50,24 +50,24 @@ package cc.makeblock.interpreter {
 		provider.register('color:sees:', primColorSees);
 
 		provider.register('doAsk', primAsk);
-		provider.register('answer', function(thread:Thread, argList:Array):void { thread.push( MBlock.app.runtime.lastAnswer) });
+		provider.register('answer', function(thread:Thread, argList:Array):void { thread.push( Main.app.runtime.lastAnswer) });
 
-		provider.register('mousePressed', function(thread:Thread, argList:Array):void { thread.push( MBlock.app.gh.mouseIsDown) });
-		provider.register('mouseX', function(thread:Thread, argList:Array):void { thread.push( MBlock.app.stagePane.scratchMouseX()) });
-		provider.register('mouseY', function(thread:Thread, argList:Array):void { thread.push( MBlock.app.stagePane.scratchMouseY()) });
-		provider.register('timer', function(thread:Thread, argList:Array):void { thread.push( MBlock.app.runtime.timer()) });
-		provider.register('timerReset', function(thread:Thread, argList:Array):void { MBlock.app.runtime.timerReset() });
+		provider.register('mousePressed', function(thread:Thread, argList:Array):void { thread.push( Main.app.gh.mouseIsDown) });
+		provider.register('mouseX', function(thread:Thread, argList:Array):void { thread.push( Main.app.stagePane.scratchMouseX()) });
+		provider.register('mouseY', function(thread:Thread, argList:Array):void { thread.push( Main.app.stagePane.scratchMouseY()) });
+		provider.register('timer', function(thread:Thread, argList:Array):void { thread.push( Main.app.runtime.timer()) });
+		provider.register('timerReset', function(thread:Thread, argList:Array):void { Main.app.runtime.timerReset() });
 		provider.register('keyPressed:', primKeyPressed);
 		provider.register('distanceTo:', primDistanceTo);
 		provider.register('getAttribute:of:', primGetAttribute);
-		provider.register('soundLevel', function(thread:Thread, argList:Array):void { thread.push( MBlock.app.runtime.soundLevel()) });
-		provider.register('isLoud', function(thread:Thread, argList:Array):void { thread.push( MBlock.app.runtime.isLoud() )});
+		provider.register('soundLevel', function(thread:Thread, argList:Array):void { thread.push( Main.app.runtime.soundLevel()) });
+		provider.register('isLoud', function(thread:Thread, argList:Array):void { thread.push( Main.app.runtime.isLoud() )});
 		provider.register('timestamp', primTimestamp);
-		provider.register('timeAndDate', function(thread:Thread, argList:Array):void { thread.push( MBlock.app.runtime.getTimeString(argList[0])) });
+		provider.register('timeAndDate', function(thread:Thread, argList:Array):void { thread.push( Main.app.runtime.getTimeString(argList[0])) });
 
 		// sensor
-		provider.register('sensor:', function(thread:Thread, argList:Array):void { thread.push( MBlock.app.runtime.getSensor(argList[0])) });
-		provider.register('sensorPressed:', function(thread:Thread, argList:Array):void { thread.push( MBlock.app.runtime.getBooleanSensor(argList[0])) });
+		provider.register('sensor:', function(thread:Thread, argList:Array):void { thread.push( Main.app.runtime.getSensor(argList[0])) });
+		provider.register('sensorPressed:', function(thread:Thread, argList:Array):void { thread.push( Main.app.runtime.getBooleanSensor(argList[0])) });
 
 		// variable and list watchers
 		provider.register('showVariable:', primShowWatcher);
@@ -126,7 +126,7 @@ package cc.makeblock.interpreter {
 		var s2:ScratchSprite;
 //		if(true || !app.isIn3D) {
 			var sBM:BitmapData = s.bitmap();
-			for each (s2 in MBlock.app.stagePane.spritesAndClonesNamed(arg))
+			for each (s2 in Main.app.stagePane.spritesAndClonesNamed(arg))
 				if (s2.visible && sBM.hitTest(s.bounds().topLeft, 1, s2.bitmap(), s2.bounds().topLeft, 1)){
 					thread.push(true);
 					return;
@@ -232,7 +232,7 @@ package cc.makeblock.interpreter {
 			debugView = new Bitmap();
 			debugView.x = 100;
 			debugView.y = 600;
-			MBlock.app.addChild(debugView);
+			Main.app.addChild(debugView);
 		}
 		debugView.bitmapData = bm;
 	}
@@ -250,14 +250,14 @@ package cc.makeblock.interpreter {
 	}
 
 	private function stageBitmapWithoutSpriteFilteredByColor(s:ScratchSprite, c:int):BitmapData {
-		return MBlock.app.stagePane.getBitmapWithoutSpriteFilteredByColor(s, c);
+		return Main.app.stagePane.getBitmapWithoutSpriteFilteredByColor(s, c);
 	}
 
 	private function primAsk(thread:Thread, argList:Array):void {
-		if (MBlock.app.runtime.askPromptShowing()) {
+		if (Main.app.runtime.askPromptShowing()) {
 			thread.suspend();
 			var timerId:uint = setInterval(function():void{
-				if (MBlock.app.runtime.askPromptShowing()) {
+				if (Main.app.runtime.askPromptShowing()) {
 					return;
 				}
 				clearInterval(timerId);
@@ -275,12 +275,12 @@ package cc.makeblock.interpreter {
 			var question:String = argList[0];
 			if ((obj is ScratchSprite) && (obj.visible)) {
 				ScratchSprite(obj).showBubble(question, 'talk', true);
-				MBlock.app.runtime.showAskPrompt('');
+				Main.app.runtime.showAskPrompt('');
 			} else {
-				MBlock.app.runtime.showAskPrompt(question);
+				Main.app.runtime.showAskPrompt(question);
 			}
 			thread.suspend();
-			MBlock.app.runtime.askPromptHideSignal.add(thread.resume, true);
+			Main.app.runtime.askPromptHideSignal.add(thread.resume, true);
 //			interp.activeThread.firstTime = false;
 //			interp.doYield();
 //		} else {
@@ -302,7 +302,7 @@ package cc.makeblock.interpreter {
 		if (key == 'up arrow') ch = 30;
 		if (key == 'down arrow') ch = 31;
 		if (key == 'space') ch = 32;
-		thread.push( MBlock.app.runtime.keyIsDown[ch]);
+		thread.push( Main.app.runtime.keyIsDown[ch]);
 	}
 
 	private function primDistanceTo(thread:Thread, argList:Array):void {
@@ -327,7 +327,7 @@ package cc.makeblock.interpreter {
 	private function primGetAttributeImpl(argList:Array):* {
 //		var s:ScratchSprite = thread.userData;
 		var attribute:String = argList[0];
-		var obj:ScratchObj = MBlock.app.stagePane.objNamed(argList[1]);
+		var obj:ScratchObj = Main.app.stagePane.objNamed(argList[1]);
 		if (!(obj is ScratchObj)) return 0;
 		if (obj is ScratchSprite) {
 			var s:ScratchSprite = ScratchSprite(obj);
@@ -350,10 +350,10 @@ package cc.makeblock.interpreter {
 
 	private function mouseOrSpritePosition(arg:String):Point {
 		if (arg == '_mouse_') {
-			var w:ScratchStage = MBlock.app.stagePane;
+			var w:ScratchStage = Main.app.stagePane;
 			return new Point(w.scratchMouseX(), w.scratchMouseY());
 		} else {
-			var s:ScratchSprite = MBlock.app.stagePane.spriteNamed(arg);
+			var s:ScratchSprite = Main.app.stagePane.spriteNamed(arg);
 			if (s == null) return null;
 			return new Point(s.scratchX, s.scratchY);
 		}
@@ -362,22 +362,22 @@ package cc.makeblock.interpreter {
 
 	private function primShowWatcher(thread:Thread, argList:Array):void {
 		var obj:ScratchObj = ThreadUserData.getScratchObj(thread);
-		if (obj) MBlock.app.runtime.showVarOrListFor(argList[0], false, obj);
+		if (obj) Main.app.runtime.showVarOrListFor(argList[0], false, obj);
 	}
 
 	private function primHideWatcher(thread:Thread, argList:Array):void {
 		var obj:ScratchObj = ThreadUserData.getScratchObj(thread);
-		if (obj) MBlock.app.runtime.hideVarOrListFor(argList[0], false, obj);
+		if (obj) Main.app.runtime.hideVarOrListFor(argList[0], false, obj);
 	}
 
 	private function primShowListWatcher(thread:Thread, argList:Array):void {
 		var obj:ScratchObj = ThreadUserData.getScratchObj(thread);
-		if (obj) MBlock.app.runtime.showVarOrListFor(argList[0], true, obj);
+		if (obj) Main.app.runtime.showVarOrListFor(argList[0], true, obj);
 	}
 
 	private function primHideListWatcher(thread:Thread, argList:Array):void {
 		var obj:ScratchObj = ThreadUserData.getScratchObj(thread);
-		if (obj) MBlock.app.runtime.hideVarOrListFor(argList[0], true, obj);
+		if (obj) Main.app.runtime.hideVarOrListFor(argList[0], true, obj);
 	}
 
 	private function primTimestamp(thread:Thread, argList:Array):void {

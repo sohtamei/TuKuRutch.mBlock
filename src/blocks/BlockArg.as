@@ -288,8 +288,8 @@ public class BlockArg extends Sprite {
 		base.redraw();
 		if (parent is Block) Block(parent).fixExpressionLayout();
 
-		if (evt && MBlock.app) MBlock.app.setSaveNeeded();
-		if(MBlock.app.stageIsArduino && !isShowingCode){
+		if (evt && Main.app) Main.app.setSaveNeeded();
+		if(Main.app.stageIsArduino && !isShowingCode){
 			isShowingCode = true;
 			setTimeout(onShowArduinoCode, 0);
 		}
@@ -297,7 +297,7 @@ public class BlockArg extends Sprite {
 	
 	private function onShowArduinoCode():void
 	{
-		MBlock.app.scriptsPart.showArduinoCode();
+		Main.app.scriptsPart.showArduinoCode();
 		isShowingCode = false;
 	}
 

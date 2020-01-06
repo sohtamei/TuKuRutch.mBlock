@@ -124,7 +124,7 @@ public class ScratchSound {
 		// Support for converting MP3 format sounds in Scratch projects was removed during alpha test.
 		// If this is on old, MP3 formatted sound, convert it to WAV format. Otherwise, do nothing.
 		function whenDone(snd:ScratchSound):void {
-MBlock.app.log('Converting MP3 to WAV: ' + soundName);
+Main.app.log('Converting MP3 to WAV: ' + soundName);
 			md5 = null;
 			soundData = snd.soundData;
 			format = snd.format;
@@ -172,7 +172,7 @@ MBlock.app.log('Converting MP3 to WAV: ' + soundName);
 		if (format == 'squeak') { // convert Squeak ADPCM to WAV ADPCM
 			var uncompressedData:ByteArray = new SqueakSoundDecoder(bitsPerSample).decode(soundData);
 			if (uncompressedData.length == 0) uncompressedData.writeShort(0); // a WAV file must have at least one sample
-MBlock.app.log('Converting squeak sound to WAV ADPCM; sampleCount old: ' + sampleCount + ' new: ' + (uncompressedData.length / 2));
+Main.app.log('Converting squeak sound to WAV ADPCM; sampleCount old: ' + sampleCount + ' new: ' + (uncompressedData.length / 2));
 			sampleCount = uncompressedData.length / 2;
 			soundData = WAVFile.encode(uncompressedData, sampleCount, rate, true);
 			format = 'adpcm';

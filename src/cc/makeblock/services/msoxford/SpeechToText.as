@@ -51,7 +51,7 @@ package cc.makeblock.services.msoxford
 			if(_recorder.microphone==null){
 				return;
 			}
-			MBlock.app.scriptsPart.appendMessage("voice start:"+_recorder.microphone.name);
+			Main.app.scriptsPart.appendMessage("voice start:"+_recorder.microphone.name);
 			_recorder.silenceLevel = 5;
 			_recorder.rate = 11;
 			_recorder.gain = 50;
@@ -73,18 +73,18 @@ package cc.makeblock.services.msoxford
 			}
 		}
 		private function startRecord():void{
-			MBlock.app.scriptsPart.appendMessage("recording...");
+			Main.app.scriptsPart.appendMessage("recording...");
 			setTimeout(function():void{
 				_recordStatus = 2;
 				stopRecord();
 			},2000);
 		}
 		private function stopRecord():void{
-			MBlock.app.scriptsPart.appendMessage("stop recording...");
+			Main.app.scriptsPart.appendMessage("stop recording...");
 			_recorder.stop();
 		}
 		private function onMicStatus(evt:StatusEvent):void{
-			MBlock.app.scriptsPart.appendMessage(evt.toString());
+			Main.app.scriptsPart.appendMessage(evt.toString());
 		}
 		private function onActivity(v:Number):void{
 			if(Math.abs(v*100)>30){
@@ -129,7 +129,7 @@ package cc.makeblock.services.msoxford
 			urlloader.load(req);
 		}
 		private function onRequestAuthComplete(evt:Event):void{
-			//MBlock.app.scriptsPart.appendMessage(evt.target.data);
+			//Main.app.scriptsPart.appendMessage(evt.target.data);
 			try{
 //				var obj:Object = JSON.parse(evt.target.data);
 				var authCode:String = evt.target.data
@@ -166,15 +166,15 @@ package cc.makeblock.services.msoxford
 			}catch(e:*){
 				
 			}
-			MBlock.app.track("/OxfordAi/speech/launch/"+_source);
+			Main.app.track("/OxfordAi/speech/launch/"+_source);
 		}
 		private function onHttpStatus(evt:HTTPStatusEvent):void{
-			//MBlock.app.scriptsPart.appendMessage(evt.toString());
+			//Main.app.scriptsPart.appendMessage(evt.toString());
 		}
 		private function onIOError(evt:IOErrorEvent):void{
-			//MBlock.app.scriptsPart.appendMessage(evt.toString());
+			//Main.app.scriptsPart.appendMessage(evt.toString());
 			_recordStatus = 0;
-			MBlock.app.track("/OxfordAi/speech/error/"+_source);
+			Main.app.track("/OxfordAi/speech/error/"+_source);
 		}
 		private function onSpeechRequestComplete(evt:Event):void{
 			
@@ -183,7 +183,7 @@ package cc.makeblock.services.msoxford
 			{ 
 				default xml namespace = ret.namespace(""); 
 			}
-			MBlock.app.track("/OxfordAi/speech/success/"+_source);
+			Main.app.track("/OxfordAi/speech/success/"+_source);
 			/*
 			<speechbox-root>
 			<version>3.0</version>
@@ -223,12 +223,12 @@ package cc.makeblock.services.msoxford
 			</speechbox-root>
 			*/
 			if(ret.header.status=="success"){
-				//MBlock.app.scriptsPart.appendMessage(ret.header.name);
+				//Main.app.scriptsPart.appendMessage(ret.header.name);
 				if(ret.header.name.profanity!=undefined&&ret.header.name.profanity.length>0){
 					ret.header.name = "敏感词";
 				}
-				MBlock.app.extensionManager.extensionByName("Microsoft Cognitive Services").stateVars["voiceCommandReceived"] = ret.header.name;
-				MBlock.app.runtime.voiceReceived.notify(true);
+				Main.app.extensionManager.extensionByName("Microsoft Cognitive Services").stateVars["voiceCommandReceived"] = ret.header.name;
+				Main.app.runtime.voiceReceived.notify(true);
 			}
 			_recordStatus = 0;
 		}

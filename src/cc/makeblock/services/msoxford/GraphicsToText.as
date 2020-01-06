@@ -29,7 +29,7 @@ package cc.makeblock.services.msoxford
 		}
 		public function capture():void{
 			if(_vid==null){
-				_vid = MBlock.app.stageObj().currentVideo;
+				_vid = Main.app.stageObj().currentVideo;
 			}
 			
 			if(new Date().time-_time>4000){
@@ -64,7 +64,7 @@ package cc.makeblock.services.msoxford
 			if(secret.length<10){
 				return;
 			}
-			MBlock.app.track("/OxfordAi/OCR/launch/"+_source);
+			Main.app.track("/OxfordAi/OCR/launch/"+_source);
 			req.requestHeaders.push(new URLRequestHeader("Content-Type","application/octet-stream"));
 			req.requestHeaders.push(new URLRequestHeader("Ocp-Apim-Subscription-Key",secret));
 			urlloader.addEventListener(Event.COMPLETE,onRequestComplete);
@@ -73,7 +73,7 @@ package cc.makeblock.services.msoxford
 			urlloader.load(req);
 		}
 		private function onRequestComplete(evt:Event):void{
-			MBlock.app.track("/OxfordAi/OCR/success/"+_source);
+			Main.app.track("/OxfordAi/OCR/success/"+_source);
 			var ret:Object = JSON.parse(evt.target.data);
 			var regions:Array = ret.regions;
 			if(regions){
@@ -91,8 +91,8 @@ package cc.makeblock.services.msoxford
 					}
 				}
 				
-				MBlock.app.extensionManager.extensionByName("Microsoft Cognitive Services").stateVars["textResultReceived"] = result;
-				MBlock.app.runtime.textResultReceived.notify(true);
+				Main.app.extensionManager.extensionByName("Microsoft Cognitive Services").stateVars["textResultReceived"] = result;
+				Main.app.runtime.textResultReceived.notify(true);
 			}
 			/*return;
 			var ret:XML = new XML(evt.target.data);
@@ -126,7 +126,7 @@ package cc.makeblock.services.msoxford
 			}*/
 		}
 		private function onIOError(evt:IOErrorEvent):void{
-			MBlock.app.track("/OxfordAi/OCR/error/"+_source);
+			Main.app.track("/OxfordAi/OCR/error/"+_source);
 			trace("error：",evt);
 		}
 		private function onHttpStatus(evt:HTTPStatusEvent):void{

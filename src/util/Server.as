@@ -59,7 +59,7 @@ public class Server {
 			loader.removeEventListener(Event.COMPLETE, completeHandler);
 			loader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, errorHandler);
 			loader.removeEventListener(IOErrorEvent.IO_ERROR, errorHandler);
-			MBlock.app.logMessage('Failed server request for '+url);
+			Main.app.logMessage('Failed server request for '+url);
 			whenDone(null);
 		}
 

@@ -204,8 +204,8 @@ package cc.makeblock.services.msoxford
 				if(ret.header.name.profanity!=undefined&&ret.header.name.profanity.length>0){
 					ret.header.name = "敏感词";
 				}
-				MBlock.app.extensionManager.extensionByName("Microsoft Cognitive Services").stateVars["voiceCommandReceived"] = ret.header.name;
-				MBlock.app.runtime.voiceReceived.notify(true);
+				Main.app.extensionManager.extensionByName("Microsoft Cognitive Services").stateVars["voiceCommandReceived"] = ret.header.name;
+				Main.app.runtime.voiceReceived.notify(true);
 			}
 			_recordStatus = 0;
 		}

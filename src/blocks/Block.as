@@ -577,7 +577,7 @@ public class Block extends Sprite {
 				b.requestLoader.close();
 		}
 		topBlock().fixStackLayout();
-//		MBlock.app.runtime.checkForGraphicEffects();
+//		Main.app.runtime.checkForGraphicEffects();
 	}
 
 	public function insertBlock(b:Block):void {
@@ -756,29 +756,29 @@ public class Block extends Sprite {
 		var i:int = -1;
 		if((i = op.indexOf('.')) > -1) {
 			var extName:String = op.substr(0, i);
-			if(MBlock.app.extensionManager.isInternal(extName))
-				MBlock.app.showTip('ext:'+extName);
+			if(Main.app.extensionManager.isInternal(extName))
+				Main.app.showTip('ext:'+extName);
 			else
-				DialogBox.notify('Help Missing', 'There is no documentation available for experimental extension "'+extName+'".', MBlock.app.stage);
+				DialogBox.notify('Help Missing', 'There is no documentation available for experimental extension "'+extName+'".', Main.app.stage);
 		}
 		else {
-			MBlock.app.showTip(op);
+			Main.app.showTip(op);
 		}
 	}
 */
 	public function duplicateStack(deltaX:Number, deltaY:Number):void {
 		if (isProcDef()) return; // don't duplicate procedure definition
-		var forStage:Boolean = MBlock.app.viewedObj() && MBlock.app.viewedObj().isStage;
+		var forStage:Boolean = Main.app.viewedObj() && Main.app.viewedObj().isStage;
 		var newStack:Block = BlockIO.stringToStack(BlockIO.stackToString(this), forStage);
 		newStack.x = x + deltaX;
 		newStack.y = y + deltaY;
 		parent.addChild(newStack);
-		MBlock.app.gh.grabOnMouseUp(newStack);
+		Main.app.gh.grabOnMouseUp(newStack);
 	}
 	
 	public function deleteSelf():void
 	{
-		var app:MBlock = MBlock.app;
+		var app:Main = Main.app;
 		if(op == "procDef"){
 			parent.removeChild(this);
 			removeComments();
@@ -850,7 +850,7 @@ public class Block extends Sprite {
 		if (op == 'proc_declaration') {
 			return (parent as Block).deleteStack();
 		}
-		var app:MBlock = MBlock.app;
+		var app:Main = Main.app;
 		var top:Block = topBlock();
 		if (top == this && app.interp.isRunning(top, app.viewedObj())) {
 			app.interp.toggleThread(top, app.viewedObj());
@@ -872,7 +872,7 @@ public class Block extends Sprite {
 //		if (isProcDef() || isEmbeddedInProcHat()) return true; // don't delete procedure definition this way for now
 //		if (parent == null) return true;
 //		var top:Block = topBlock();
-//		// TODO: Remove any waiting reporter data in the MBlock.app.extensionManager
+//		// TODO: Remove any waiting reporter data in the Main.app.extensionManager
 //		if (parent is Block) Block(parent).removeBlock(this);
 //		else parent.removeChild(this);
 //		this.cacheAsBitmap = false;
@@ -881,20 +881,20 @@ public class Block extends Sprite {
 //		y = top.y;
 //		if (top != this) x += top.width + 5;
 //		removeComments();
-//		MBlock.app.runtime.recordForUndelete(this, x, y, 0, MBlock.app.viewedObj());
-//		MBlock.app.scriptsPane.saveScripts();
-//		MBlock.app.runtime.checkForGraphicEffects();
+//		Main.app.runtime.recordForUndelete(this, x, y, 0, Main.app.viewedObj());
+//		Main.app.scriptsPane.saveScripts();
+//		Main.app.runtime.checkForGraphicEffects();
 //		return false;
 	}
 	private function removeComments():void{
-		var comments:Array = attachedCommentsIn(MBlock.app.scriptsPane);
+		var comments:Array = attachedCommentsIn(Main.app.scriptsPane);
 		if (comments.length <= 0) {
 			return;
 		}
 		for each (var c:ScratchComment in comments) {
 			c.parent.removeChild(c);
 		}
-		MBlock.app.scriptsPane.fixCommentLayout();
+		Main.app.scriptsPane.fixCommentLayout();
 	}
 	private function attachedCommentsIn(scriptsPane:ScriptsPane):Array {
 		var result:Array = []
@@ -917,7 +917,7 @@ public class Block extends Sprite {
 	/* Dragging */
 
 	public function objToGrab(evt:MouseEvent):Block {
-		if (isEmbeddedParameter() || isInPalette()) return duplicate(false, MBlock.app.viewedObj() is ScratchStage);
+		if (isEmbeddedParameter() || isInPalette()) return duplicate(false, Main.app.viewedObj() is ScratchStage);
 		return this;
 	}
 
@@ -926,17 +926,17 @@ public class Block extends Sprite {
 	public function click(evt:MouseEvent):void {
 		if (editArg(evt)) return;
 		if(topBlock().op.indexOf("runArduino")>-1){
-			if(!MBlock.app.stageIsArduino){
-				MBlock.app.changeToArduinoMode();
+			if(!Main.app.stageIsArduino){
+				Main.app.changeToArduinoMode();
 			}
 			return;
 		}
-		MBlock.app.runtime.interp.toggleThread(topBlock(), MBlock.app.viewedObj(), 1);
+		Main.app.runtime.interp.toggleThread(topBlock(), Main.app.viewedObj(), 1);
 	}
 
 	public function doubleClick(evt:MouseEvent):void {
 		if (editArg(evt)) return;
-		MBlock.app.runtime.interp.toggleThread(topBlock(), MBlock.app.viewedObj(), 1);
+		Main.app.runtime.interp.toggleThread(topBlock(), Main.app.viewedObj(), 1);
 	}
 
 	private function editArg(evt:MouseEvent):Boolean {

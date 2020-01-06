@@ -161,7 +161,7 @@ package cc.makeblock.interpreter {
 	}
 
 	private function mouseOrSpritePosition(targetSprite:ScratchSprite, arg:String):Point {
-		var w:ScratchStage = MBlock.app.stagePane;
+		var w:ScratchStage = Main.app.stagePane;
 		var pt:Point;
 		switch(arg)
 		{
@@ -178,7 +178,7 @@ package cc.makeblock.interpreter {
 				pt = new Point(w.width * (Math.random() - 0.5), w.height * (Math.random() - 0.5));
 				break;
 			default:
-				var s:ScratchSprite = MBlock.app.stagePane.spriteNamed(arg);
+				var s:ScratchSprite = Main.app.stagePane.spriteNamed(arg);
 				if (s == null) return null;
 				pt = new Point(s.scratchX, s.scratchY);
 		}
@@ -236,7 +236,7 @@ package cc.makeblock.interpreter {
 	}
 
 	private function primClear(thread:Thread, argList:Array):void {
-		MBlock.app.stagePane.clearPenStrokes();
+		Main.app.stagePane.clearPenStrokes();
 		thread.requestRedraw();
 	}
 
@@ -297,7 +297,7 @@ package cc.makeblock.interpreter {
 	}
 
 	private function doStamp(s:ScratchSprite, stampAlpha:Number):void {
-		MBlock.app.stagePane.stampSprite(s, stampAlpha);
+		Main.app.stagePane.stampSprite(s, stampAlpha);
 	}
 
 	private function moveSpriteTo(s:ScratchSprite, newX:Number, newY:Number, thread:Thread):void {
@@ -311,19 +311,19 @@ package cc.makeblock.interpreter {
 	}
 
 	private function stroke(s:ScratchSprite, oldX:Number, oldY:Number, newX:Number, newY:Number):void {
-		var g:Graphics = MBlock.app.stagePane.newPenStrokes.graphics;
+		var g:Graphics = Main.app.stagePane.newPenStrokes.graphics;
 		g.lineStyle(s.penWidth, s.penColorCache);
 		g.moveTo(240 + oldX, 180 - oldY);
 		g.lineTo(240 + newX, 180 - newY);
 //trace('pen line('+oldX+', '+oldY+', '+newX+', '+newY+')');
-		MBlock.app.stagePane.penActivity = true;
+		Main.app.stagePane.penActivity = true;
 	}
 
 	private function turnAwayFromEdge(s:ScratchSprite):Boolean {
 		// turn away from the nearest edge if it's close enough; otherwise do nothing
 		// Note: comparisions are in the stage coordinates, with origin (0, 0)
 		// use bounding rect of the sprite to account for costume rotation and scale
-		var r:Rectangle = s.getRect(MBlock.app.stagePane);
+		var r:Rectangle = s.getRect(Main.app.stagePane);
 		// measure distance to edges
 		var d1:Number = Math.max(0, r.left);
 		var d2:Number = Math.max(0, r.top);
@@ -350,7 +350,7 @@ package cc.makeblock.interpreter {
 	}
 
 	private function ensureOnStageOnBounce(s:ScratchSprite, thread:Thread):void {
-		var r:Rectangle = s.getRect(MBlock.app.stagePane);
+		var r:Rectangle = s.getRect(Main.app.stagePane);
 		if (r.left < 0) moveSpriteTo(s, s.scratchX - r.left, s.scratchY, thread);
 		if (r.top < 0) moveSpriteTo(s, s.scratchX, s.scratchY + r.top, thread);
 		if (r.right > ScratchObj.STAGEW) {

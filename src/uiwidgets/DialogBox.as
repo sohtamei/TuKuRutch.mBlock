@@ -80,14 +80,14 @@ public class DialogBox extends Sprite {
 		d.addTitle(question);
 		d.addField('answer', 120, defaultAnswer, false);
 		d.addButton('OK', d.accept);
-		d.showOnStage(stage ? stage : MBlock.app.stage);
+		d.showOnStage(stage ? stage : Main.app.stage);
 	}
 
 	public static function confirm(question:String, stage:Stage = null, okFunction:Function = null):void {
 		var d:DialogBox = new DialogBox(okFunction);
 		d.addTitle(question);
 		d.addAcceptCancelButtons('OK');
-		d.showOnStage(stage ? stage : MBlock.app.stage);
+		d.showOnStage(stage ? stage : Main.app.stage);
 	}
 
 	public static function notify(title:String, msg:String, stage:Stage = null, leftJustify:Boolean = false, okFunction:Function = null):void {
@@ -96,7 +96,7 @@ public class DialogBox extends Sprite {
 		d.addTitle(title);
 		d.addText(msg);
 		d.addButton('OK', d.accept);
-		d.showOnStage(stage ? stage : MBlock.app.stage);
+		d.showOnStage(stage ? stage : Main.app.stage);
 	}
 
 	public function addTitle(s:String):void {

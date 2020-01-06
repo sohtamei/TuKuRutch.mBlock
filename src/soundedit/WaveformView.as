@@ -569,7 +569,7 @@ public class WaveformView extends Sprite implements DragClient {
 	private var selectMode:String; // when not dragging, null; when dragging, one of: new, start, end
 	private var startOffset:int; // offset where drag started
 
-	public function mouseDown(evt:MouseEvent):void { MBlock(root).gh.setDragClient(this, evt) }
+	public function mouseDown(evt:MouseEvent):void { Main(root).gh.setDragClient(this, evt) }
 	
 	public function dragBegin(evt:MouseEvent):void {
 		// Decide how to make or adjust the selection.

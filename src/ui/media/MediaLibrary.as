@@ -79,7 +79,7 @@ public class MediaLibrary extends Sprite {
 
 	private static const spriteFeatures:Array = ['All', 'Scripts', 'Costumes > 1', 'Sounds'];
 
-	protected var app:MBlock;
+	protected var app:Main;
 	private var assetType:String;
 	protected var whenDone:Function;
 	private var allItems:Array = [];
@@ -101,7 +101,7 @@ public class MediaLibrary extends Sprite {
 
 	private static var libraryCache:Array; // cache of all mediaLibrary entries
 
-	public function MediaLibrary(app:MBlock, type:String, whenDone:Function) {
+	public function MediaLibrary(app:Main, type:String, whenDone:Function) {
 		this.app = app;
 		this.assetType = type;
 		this.whenDone = whenDone;
@@ -541,7 +541,7 @@ spriteFeaturesFilter.visible = false; // disable features filter for now
 			whenDone(costumeOrSprite);
 		}
 		function decodeError():void {
-			DialogBox.notify('Error decoding image', 'Sorry, Scratch was unable to load the image '+fName+'.', MBlock.app.stage);
+			DialogBox.notify('Error decoding image', 'Sorry, Scratch was unable to load the image '+fName+'.', Main.app.stage);
 		}
 		var costumeOrSprite:*;
 		var fExt:String = '';

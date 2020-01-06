@@ -239,7 +239,7 @@ package cc.makeblock.mbot.uiwidgets.extensionMgr
 		static private function getExtNameList():Array
 		{
 			var result:Array = [];
-			for each(var ext:Object in MBlock.app.extensionManager.extensionList){
+			for each(var ext:Object in Main.app.extensionManager.extensionList){
 				var author:String = ext.author?ext.author.substr(0,ext.author.indexOf("(")):"";
 				var authorLink:String = ext.author?ext.author.match(/\(.+\)/):"";
 				authorLink = authorLink && authorLink.length>0?authorLink.substring(1,authorLink.length-1):"";

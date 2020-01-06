@@ -67,7 +67,7 @@ public class LibraryPart extends UIPart {
 	private var videoLabel:TextField;
 	private var videoButton:IconButton;
 
-	public function LibraryPart(app:MBlock) {
+	public function LibraryPart(app:Main) {
 		this.app = app;
 		shape = new Shape();
 		addChild(shape);

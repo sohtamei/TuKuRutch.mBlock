@@ -29,7 +29,7 @@ public class CursorTool {
 
 	public static var tool:String; // null or one of: copy, cut, grow, shrink, help
 
-	private static var app:MBlock;
+	private static var app:Main;
 	private static var currentCursor:Bitmap;
 	private static var offsetX:int;
 	private static var offsetY:int;
@@ -85,7 +85,7 @@ public class CursorTool {
 		}
 	}
 
-	public static function init(app:MBlock):void {
+	public static function init(app:Main):void {
 		CursorTool.app = app;
 		app.stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
 		app.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeave);

@@ -210,7 +210,7 @@ package cc.makeblock.mbot.uiwidgets.extensionMgr
 		{
 			if(ExtensionUtil.showType==0)
 			{
-				switch(hasDownloaded(dataObj,MBlock.app.extensionManager.extensionList))
+				switch(hasDownloaded(dataObj,Main.app.extensionManager.extensionList))
 				{
 					case -1:
 						//no download
@@ -317,7 +317,7 @@ package cc.makeblock.mbot.uiwidgets.extensionMgr
 			canUpdata = false;
 			btnPanel.remove(updataBtn);	
 			ExtensionUtil.dispatcher.dispatchEvent(new Event("updateList"));
-			//MBlock.app.stage.removeChild(progressSp);
+			//Main.app.stage.removeChild(progressSp);
 			trace("保存完成")
 		}
 	/*
@@ -335,7 +335,7 @@ package cc.makeblock.mbot.uiwidgets.extensionMgr
 				}
 			}
 			//由于主板文件夹名和s2e文件描述的名字不一样，导致查看源码找不到路径，现在是通过对比s2e里面的extensionName来确定路径  by tql 20160810
-			for each(var obj:Object in MBlock.app.extensionManager.extensionList)
+			for each(var obj:Object in Main.app.extensionManager.extensionList)
 			{
 				if(obj.extensionName.toLowerCase()==extName)
 				{

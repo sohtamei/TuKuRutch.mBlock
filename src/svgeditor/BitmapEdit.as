@@ -80,7 +80,7 @@ public class BitmapEdit extends ImageEdit {
 	private var offscreenBM:BitmapData;
 	private var lastToolMode:String;
 
-	public function BitmapEdit(app:MBlock, imagesPart:ImagesPart) {
+	public function BitmapEdit(app:Main, imagesPart:ImagesPart) {
 		super(app, imagesPart);
 		addStampTool();
 		setToolMode('bitmapBrush');
@@ -244,7 +244,7 @@ public class BitmapEdit extends ImageEdit {
 			c.setBitmapData(newBM, Math.floor(480 - r.x), Math.floor(360 - r.y));
 		}
 		recordForUndo(c.baseLayerBitmap.clone(), c.rotationCenterX, c.rotationCenterY);
-		MBlock.app.setSaveNeeded();
+		Main.app.setSaveNeeded();
 	}
 
 	override public function setToolMode(newMode:String, bForce:Boolean = false):void {
@@ -315,12 +315,12 @@ public class BitmapEdit extends ImageEdit {
 			m = content.getChildAt(0).transform.matrix.clone();
 			m.scale(2, 2);
 			var oldQuality:String = stage.quality;
-			if (!MBlock.app.runtime.shiftIsDown) stage.quality = StageQuality.LOW;
+			if (!Main.app.runtime.shiftIsDown) stage.quality = StageQuality.LOW;
 			for (var i:int = 0; i < content.numChildren; i++) {
 				var el:DisplayObject = content.getChildAt(i) as DisplayObject;
 				var textEl:SVGTextField = el as SVGTextField;
 				
-				if (textEl && !MBlock.app.runtime.shiftIsDown) {
+				if (textEl && !Main.app.runtime.shiftIsDown) {
 					// Even in LOW quality mode, text is anti-aliased.
 					// This code forces it to have sharp edges for ease of using the paint bucket.
 					const threshold:int = 0x60 << 24;

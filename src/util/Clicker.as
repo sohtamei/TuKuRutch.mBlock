@@ -15,7 +15,7 @@ package util
 		}
 		public function click():void{
 			navigateToURL(new URLRequest(link));
-			MBlock.app.track("click_"+name);
+			Main.app.track("click_"+name);
 			SharedObjectManager.sharedManager().setObject("click_"+name,true);
 		}
 		public function isShow():Boolean{

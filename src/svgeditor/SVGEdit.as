@@ -76,7 +76,7 @@ package svgeditor {
 		private static const bmptoolist:Array = ['wand' , 'lasso', 'slice'];
 		private static const unimplemented:Array = ['wand' , 'lasso', 'slice'];
 
-		public function SVGEdit(app:MBlock, imagesPart:ImagesPart) {
+		public function SVGEdit(app:Main, imagesPart:ImagesPart) {
 			super(app, imagesPart);
 			PathEndPointManager.init(this);
 			setToolMode('path');

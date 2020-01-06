@@ -367,7 +367,7 @@ return 1; // Force integer scaling in both editors for now
 		private const growthFactor:Number = 1.2;
 		
 		public function handleTool(tool:String, evt:MouseEvent):void {
-			if ('help' == tool) MBlock.app.showTip('paint');
+			if ('help' == tool) Main.app.showTip('paint');
 			var bitmapEditor:BitmapEdit = editor as BitmapEdit;
 			if (bitmapEditor && (('grow' == tool) || ('shrink' == tool))) {
 				if ('grow' == tool) bitmapEditor.scaleAll(growthFactor);

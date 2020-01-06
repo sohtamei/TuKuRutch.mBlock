@@ -30,11 +30,11 @@ public class AskPrompter extends Sprite {
 	private const outlineColor:int = 0x4AADDE;
 	private const inputFieldColor:int = 0xF2F2F2;
 
-	private var app:MBlock;
+	private var app:Main;
 	private var input:TextField;
 	private var doneButton:Bitmap;
 
-	public function	AskPrompter(promptString:String, app:MBlock) {
+	public function	AskPrompter(promptString:String, app:Main) {
 		this.app = app;
 		var w:int = 449;
 		var h:int = (promptString == "") ? 34 : 51;

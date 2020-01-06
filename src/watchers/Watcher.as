@@ -203,7 +203,7 @@ public class Watcher extends Sprite implements DragClient {
 	private function specForCmd():String {
 		var i:int = cmd.indexOf('.');
 		if(i > -1) {
-			var spec:Array = MBlock.app.extensionManager.specForCmd(cmd);
+			var spec:Array = Main.app.extensionManager.specForCmd(cmd);
 			if(spec) return spec[0];
 		}
 
@@ -224,7 +224,7 @@ public class Watcher extends Sprite implements DragClient {
 			var v:Variable = target.lookupVar(param);
 			return (v == null) ? "unknown var: " + param : v.value;
 		}
-		var app:MBlock = runtime.app;
+		var app:Main = runtime.app;
 		if (cmd == "senseVideoMotion") {
 			if(!app.interp.isImplemented(cmd)){
 				return 0;
@@ -261,17 +261,17 @@ public class Watcher extends Sprite implements DragClient {
 		if(index >= 0){
 			var extName:String = cmd.slice(0, index);
 			var opName:String = cmd.slice(index+1);
-			var ext:ScratchExtension = MBlock.app.extensionManager.extensionByName(extName);
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName(extName);
 			if(ext != null && !ext.useSerial){
 				return ext.getStateVar(opName);
 			}
 		}
 /*
 		if(cmd.indexOf('.') > -1) {
-			var spec:Array = MBlock.app.extensionManager.specForCmd(cmd);
+			var spec:Array = Main.app.extensionManager.specForCmd(cmd);
 			if(spec) {
 				block = new Block(spec[0], spec[1], Specs.blockColor(spec[2]), spec[3]);
-				return MBlock.app.interp.evalCmd(block);
+				return Main.app.interp.evalCmd(block);
 			}
 		}
 */
@@ -372,7 +372,7 @@ public class Watcher extends Sprite implements DragClient {
 	/* Double-Click */
 
 	public function doubleClick(evt:MouseEvent):void {
-		if (!MBlock.app.editMode) return;
+		if (!Main.app.editMode) return;
 		var newMode:int = mode + 1;
 		if (targetIsVariable()) {
 			if (newMode > 3) newMode = 1;
@@ -390,10 +390,10 @@ public class Watcher extends Sprite implements DragClient {
 			if (5 == item) sliderMinMaxDialog();
 			if (item == 10) {
 				visible = false;
-				MBlock.app.updatePalette(false);
+				Main.app.updatePalette(false);
 			}
 		}
-		if (!MBlock.app.editMode) return null;
+		if (!Main.app.editMode) return null;
 		var m:Menu = new Menu(handleMenu);
 		m.addItem("normal readout", 1);
 		m.addItem("large readout", 2);
@@ -435,7 +435,7 @@ public class Watcher extends Sprite implements DragClient {
 	private function mouseDown(evt:MouseEvent):void {
 		if (mode != SLIDER_MODE) return;
 		var p:Point = globalToLocal(new Point(evt.stageX, evt.stageY));
-		if (p.y > 20) MBlock(root).gh.setDragClient(this, evt);
+		if (p.y > 20) Main(root).gh.setDragClient(this, evt);
 	}
 
 	public function dragBegin(evt:MouseEvent):void {

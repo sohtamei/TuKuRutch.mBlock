@@ -89,7 +89,7 @@ public class ScriptsPart extends UIPart {
 	
 	private var arduinoCodeText:String = "";
 	
-	public function ScriptsPart(app:MBlock) {
+	public function ScriptsPart(app:Main) {
 		this.app = app;
 
 		addChild(shape = new Shape());
@@ -286,7 +286,7 @@ public class ScriptsPart extends UIPart {
 				if(showArduinoCode()){
 					htmlLoader.window.appendInfo(ArduinoManager.sharedManager().buildAll(arduinoCodeText));
 					ConnectionManager.sharedManager().onClose();
-					MBlock.app.topBarPart.setConnectedTitle("Uploading");
+					Main.app.topBarPart.setConnectedTitle("Uploading");
 				}
 			}
 		}else{
@@ -365,7 +365,7 @@ public class ScriptsPart extends UIPart {
 
 	public function updatePalette():void {
 		selector.updateTranslation();
-		if(!MBlock.app.stageIsArduino && MBlock.app.viewedObj() is ScratchStage){
+		if(!Main.app.stageIsArduino && Main.app.viewedObj() is ScratchStage){
 			if(selector.selectedCategory == Specs.motionCategory){
 				selector.selectedCategory = Specs.myBlocksCategory;//looksCategory;
 			}

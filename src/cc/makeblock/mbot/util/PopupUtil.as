@@ -23,7 +23,7 @@ package cc.makeblock.mbot.util
 	{
 		static public function enableRightMouseEvent():void
 		{
-			var app:MBlock = MBlock.app;
+			var app:Main = Main.app;
 			app.stage.addEventListener(MouseEvent.MOUSE_DOWN, app.gh.mouseDown);
 			app.stage.addEventListener(MouseEvent.MOUSE_MOVE, app.gh.mouseMove);
 			app.stage.addEventListener(MouseEvent.MOUSE_UP, app.gh.mouseUp);
@@ -33,7 +33,7 @@ package cc.makeblock.mbot.util
 		
 		static public function disableRightMouseEvent():void
 		{
-			var app:MBlock = MBlock.app;
+			var app:Main = Main.app;
 			app.stage.removeEventListener(MouseEvent.MOUSE_DOWN, app.gh.mouseDown);
 			app.stage.removeEventListener(MouseEvent.MOUSE_MOVE, app.gh.mouseMove);
 			app.stage.removeEventListener(MouseEvent.MOUSE_UP, app.gh.mouseUp);

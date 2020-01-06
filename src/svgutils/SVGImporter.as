@@ -70,7 +70,7 @@ public class SVGImporter {
 		}
 		root = extractElement(svg, []);
 		if (!root) {
-			MBlock.app.log('No SVG root (empty file?)');
+			Main.app.log('No SVG root (empty file?)');
 			root = new SVGElement('svg');
 		}
 		resolveGradientLinks();

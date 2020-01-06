@@ -110,7 +110,7 @@ package interpreter
 						}
 					}
 				}
-				MBlock.app.runtime.allStacksAndOwnersDo(findReceivers);
+				Main.app.runtime.allStacksAndOwnersDo(findReceivers);
 				target.startAllReceivers(receivers, waitFlag);
 				if(!waitFlag){
 					return;
@@ -229,7 +229,7 @@ package interpreter
 			switch(target.arg(b, 0))
 			{
 				case "all":
-					MBlock.app.runtime.stopAll();
+					Main.app.runtime.stopAll();
 					target.setYielded();
 					break;
 				case "this script":
@@ -340,7 +340,7 @@ package interpreter
 		
 		static private function stopAll(b:Block, target:Interpreter):void
 		{
-			MBlock.app.runtime.stopAll();
+			Main.app.runtime.stopAll();
 			target.setYielded();
 		}
 	}

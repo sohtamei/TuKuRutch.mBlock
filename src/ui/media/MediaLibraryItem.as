@@ -141,14 +141,14 @@ public class MediaLibraryItem extends Sprite {
 
 		// if not in the thumbnail cache, fetch/compute it
 		if (fileType(md5) == 'svg'){
-			var data:ByteArray = MBlock.app.server.getAsset(md5);
+			var data:ByteArray = Main.app.server.getAsset(md5);
 			if (data) {
 				importer = new SVGImporter(XML(data));
 				importer.loadAllImages(svgImagesLoaded);
 			}
 		}
 		else{
-			MBlock.app.server.getThumbnail(md5, thumbnailWidth, thumbnailHeight, setThumbnail);
+			Main.app.server.getThumbnail(md5, thumbnailWidth, thumbnailHeight, setThumbnail);
 		}
 	}
 
@@ -162,7 +162,7 @@ public class MediaLibraryItem extends Sprite {
 		if (spriteCache[spriteMD5]) {
 			data = spriteCache[spriteMD5];
 		}else {
-			data = MBlock.app.server.getAsset(spriteMD5).toString();
+			data = Main.app.server.getAsset(spriteMD5).toString();
 		}
 		if (!data) return; // fetch failed
 		var sprObj:Object = util.JSON.parse(data);
@@ -333,7 +333,7 @@ public class MediaLibraryItem extends Sprite {
 
 	private function downloadAndPlay():void {
 		// Download and play a library sound.
-		var wavData:ByteArray = MBlock.app.server.getAsset(dbObj.md5);
+		var wavData:ByteArray = Main.app.server.getAsset(dbObj.md5);
 		if (!wavData) return;
 		sndData = wavData;
 		startPlayingSound();

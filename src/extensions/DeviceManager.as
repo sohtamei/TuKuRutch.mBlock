@@ -26,7 +26,7 @@ package extensions
 				return;
 			}
 			this.board = value;
-			MBlock.app.extensionManager.singleSelectExtension("remoconRobo");
+			Main.app.extensionManager.singleSelectExtension("remoconRobo");
 		}
 		public function checkCurrentBoard(board:String):Boolean{
 			return _board==board;

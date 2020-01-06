@@ -60,7 +60,7 @@ package util
 			trace("download start");
 			_download_dialog = new DialogBox;
 			_download_dialog.addTitle(Translator.map("Updating"));
-			_download_dialog.showOnStage(MBlock.app.stage);
+			_download_dialog.showOnStage(Main.app.stage);
 		}  
 		private function onDownloadComplete(evt:*):void {  
 			trace("download complete");
@@ -113,7 +113,7 @@ package util
 					}
 					dialog.addButton(Translator.map("Update Now"),checkNow);
 					dialog.addButton(Translator.map("Cancel"),cancelNow);
-					dialog.showOnStage(MBlock.app.stage);
+					dialog.showOnStage(Main.app.stage);
 				}
 			}
 		}
@@ -134,7 +134,7 @@ package util
 					dialog.addTitle(Translator.map("New Version Available!"));
 					dialog.addButton(Translator.map("Update Now"),checkNow);
 					dialog.addButton(Translator.map("Cancel"),cancelNow);
-					dialog.showOnStage(MBlock.app.stage);
+					dialog.showOnStage(Main.app.stage);
 				}
 			}else{
 				_appUpdater.currentState = "BEFORE_CHECKING";

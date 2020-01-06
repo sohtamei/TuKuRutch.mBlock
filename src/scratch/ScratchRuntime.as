@@ -72,7 +72,7 @@ package scratch {
 
 	public class ScratchRuntime {
 	
-		public var app:MBlock;
+		public var app:Main;
 		public var interp:Interpreter;
 		public var motionDetector:FunctionVideoMotion;
 		public var keyIsDown:Array = new Array(128); // records key up/down state
@@ -95,7 +95,7 @@ package scratch {
 		public const textResultReceived:Signal = new Signal(Boolean);
 		public const realFaceResultReceived:Signal = new Signal(Boolean);
 	
-		public function ScratchRuntime(app:MBlock, interp:Interpreter) {
+		public function ScratchRuntime(app:Main, interp:Interpreter) {
 			this.app = app;
 			this.interp = interp;
 			timerBase = interp.currentMSecs;
@@ -537,11 +537,11 @@ package scratch {
 		public function selectedProjectFile(file:File,callback:Function=null):void {
 			// Prompt user for a file name and load that file.
 			stopAll();
-			MBlock.app.closeWelcome();
+			Main.app.closeWelcome();
 			function doInstall(ignore:* = null):void {
 				installProjectFromFile(file);
 				//打开已有项目时，标题应该显示已保存  谭启亮 20161018 
-				MBlock.app.setSaveNeededValue(false);
+				Main.app.setSaveNeededValue(false);
 				if(callback!=null)
 				{
 					callback();
@@ -615,7 +615,7 @@ package scratch {
 	
 			for each (var obj:ScratchObj in project.allObjects()) {
 				obj.showCostume(obj.currentCostumeIndex);
-//				if(MBlock.app.isIn3D) obj.updateCostume();
+//				if(Main.app.isIn3D) obj.updateCostume();
 				var spr:ScratchSprite = obj as ScratchSprite;
 				if (spr) spr.setDirection(spr.direction);
 			}

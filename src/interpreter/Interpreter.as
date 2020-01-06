@@ -76,7 +76,7 @@ public class Interpreter {
 	private var _currentMSecs:int;	// millisecond clock for the current step
 	public var turboMode:Boolean;
 
-	private var app:MBlock;
+	private var app:Main;
 //	private const primTable:Dictionary = new Dictionary();		// maps opcodes to functions
 //	private var threads:Array = [];			// all threads
 //	private var yield:Boolean;				// set true to indicate that active thread should yield control
@@ -92,7 +92,7 @@ public class Interpreter {
 	
 //	private var workTime:int;
 
-	public function Interpreter(app:MBlock) {
+	public function Interpreter(app:Main) {
 		this.app = app;
 //		initPrims();
 		_currentMSecs = getTimer();
@@ -166,10 +166,10 @@ public class Interpreter {
 			var p:Point = b.localToGlobal(zeroPt);
 			switch(b.type.toLowerCase()){
 				case "r":
-					MBlock.app.showBubble(thread.resultValue, p.x, p.y, b.width);
+					Main.app.showBubble(thread.resultValue, p.x, p.y, b.width);
 					break;
 				case "b":
-					MBlock.app.showBubble(Boolean(thread.resultValue).toString(), p.x, p.y, b.width);
+					Main.app.showBubble(Boolean(thread.resultValue).toString(), p.x, p.y, b.width);
 					break;
 			}
 		}, true);

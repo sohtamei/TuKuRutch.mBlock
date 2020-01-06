@@ -76,7 +76,7 @@ package cc.makeblock.updater
 				return;
 			}
 			var panel:JOptionPane;
-			if(isSourceVerGreatThan(result[1], MBlock.versionString.slice(1)) && (needNotice || SharedObjectManager.sharedManager().getObject(_key, true))){
+			if(isSourceVerGreatThan(result[1], Main.versionString.slice(1)) && (needNotice || SharedObjectManager.sharedManager().getObject(_key, true))){
 				panel = PopupUtil.showConfirm(Translator.map("There is a newer version"), __onConfirm);
 				panel.getYesButton().setText(Translator.map("Download Now"));
 				panel.getCancelButton().setText(Translator.map("Download Later"));

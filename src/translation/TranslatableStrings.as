@@ -115,7 +115,7 @@ public class TranslatableStrings {
 		addAll(ProcedureSpecEditor.strings());
 		addAll(ProjectIO.strings());
 		// Get the strings from the Scratch app instance so that the offline version can add strings
-		addAll(MBlock.app.strings());
+		addAll(Main.app.strings());
 		addAll(SoundEditor.strings());
 		addAll(SoundsPart.strings());
 		addAll(SpriteInfoPart.strings());
@@ -152,7 +152,7 @@ public class TranslatableStrings {
 		for each (var s:String in strings) data += s + '\n';
 		data += '\n';
 		new FileReference().save(data, defaultName + '.txt');
-		MBlock.app.translationChanged();
+		Main.app.translationChanged();
 	}
 
 	private static function removeParentheticals(s:String):String {

@@ -36,15 +36,15 @@ package cc.makeblock.mbot.uiwidgets.extensionMgr
 		static public var currExtArr:Array = [];
 		static public function OnLoadExtension():void
 		{
-			MBlock.app.extensionManager.copyLocalFiles();
-			MBlock.app.extensionManager.importExtension();
+			Main.app.extensionManager.copyLocalFiles();
+			Main.app.extensionManager.importExtension();
 			var d:DialogBox = new DialogBox;
 			function closeHandle():void{
 				d.cancel();
 			}
 			d.addTitle(Translator.map('Extension Files Updated'));
 			d.addButton('Close', closeHandle);
-			d.showOnStage(MBlock.app.stage);
+			d.showOnStage(Main.app.stage);
 		}
 		
 		static public function OnManagerExtension():void
@@ -66,7 +66,7 @@ package cc.makeblock.mbot.uiwidgets.extensionMgr
 					return;
 				}
 				file.copyTo(libPath.resolvePath(fileName + "/" + file.name), true);
-				MBlock.app.extensionManager.importExtension();
+				Main.app.extensionManager.importExtension();
 				return;
 			}
 			
@@ -122,7 +122,7 @@ package cc.makeblock.mbot.uiwidgets.extensionMgr
 					return;
 				}
 				if(delExt(extName)){
-					MBlock.app.extensionManager.importExtension();
+					Main.app.extensionManager.importExtension();
 					callback();
 				}
 			});
@@ -147,7 +147,7 @@ package cc.makeblock.mbot.uiwidgets.extensionMgr
 				}
 				copyFileToDocuments(fzip);
 				SharedObjectManager.sharedManager().setObject(extensionName+"_selected",true);
-				MBlock.app.extensionManager.importExtension();
+				Main.app.extensionManager.importExtension();
 			}else{
 				showErrorAlert();
 			}
@@ -214,12 +214,12 @@ package cc.makeblock.mbot.uiwidgets.extensionMgr
 		
 		static private function isExtNameExist(extName:String):Boolean
 		{
-			return MBlock.app.extensionManager.findExtensionByName(extName) != null;
+			return Main.app.extensionManager.findExtensionByName(extName) != null;
 		}
 		
 		static private function delExt(extName:String):Boolean
 		{
-			for each(var obj:Object in MBlock.app.extensionManager.extensionList)
+			for each(var obj:Object in Main.app.extensionManager.extensionList)
 			{
 				if(obj.extensionName==extName)
 				{

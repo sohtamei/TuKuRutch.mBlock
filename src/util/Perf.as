@@ -28,7 +28,7 @@ public class Perf {
 
 	public static function start(msg:String = null):void {
 		if (!msg) msg = 'Perf.start';
-		MBlock.app.log(msg);
+		Main.app.log(msg);
 		totalStart = lapStart = getTimer();
 		lapTotal = 0;
 	}
@@ -40,7 +40,7 @@ public class Perf {
 	public static function lap(msg:String = ""):void {
 		if (totalStart == 0) return; // not monitoring performance
 		var lapMSecs:uint = getTimer() - lapStart;
-		MBlock.app.log('  ' + msg + ': ' + lapMSecs + ' msecs');
+		Main.app.log('  ' + msg + ': ' + lapMSecs + ' msecs');
 		lapTotal += lapMSecs;
 		lapStart = getTimer();
 	}
@@ -49,7 +49,7 @@ public class Perf {
 		if (totalStart == 0) return; // not monitoring performance
 		var totalMSecs:uint = getTimer() - totalStart;
 		var unaccountedFor:uint = totalMSecs - lapTotal;
-		MBlock.app.log('Total: ' + totalMSecs + ' msecs; unaccounted for: ' + unaccountedFor + ' msecs (' + int((100 * unaccountedFor) / totalMSecs) + '%)');
+		Main.app.log('Total: ' + totalMSecs + ' msecs; unaccounted for: ' + unaccountedFor + ' msecs (' + int((100 * unaccountedFor) / totalMSecs) + '%)');
 		totalStart = lapStart = lapTotal = 0;
 	}
 }}

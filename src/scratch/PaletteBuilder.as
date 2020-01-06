@@ -56,10 +56,10 @@ package scratch {
 
 public class PaletteBuilder {
 
-	protected var app:MBlock;
+	protected var app:Main;
 	protected var nextY:int;
 
-	public function PaletteBuilder(app:MBlock) {
+	public function PaletteBuilder(app:Main) {
 		this.app = app;
 	}
 
@@ -86,7 +86,7 @@ public class PaletteBuilder {
 	
 	static private function modifyCategory(category):int
 	{
-		if(MBlock.app.viewedObj() is ScratchSprite){
+		if(Main.app.viewedObj() is ScratchSprite){
 			return category;
 		}
 		switch(category){
@@ -103,7 +103,7 @@ public class PaletteBuilder {
 	static private function canShowInArduinoMode(spec:Array):Boolean
 	{
 		var categoryId:int = parseInt(spec[2]) % 100;
-		if(MBlock.app.stageIsArduino && categoryId == Specs.controlCategory){
+		if(Main.app.stageIsArduino && categoryId == Specs.controlCategory){
 			switch(spec[3]){
 				case "stopScripts":
 				case "whenCloned":
@@ -443,7 +443,7 @@ public class PaletteBuilder {
 		addLine(x, nextY + 9, 230 - x);
 
 		var indicator:IndicatorLight = new IndicatorLight(ext);
-		indicator.addEventListener(MouseEvent.CLICK, function(e:Event):void {MBlock.app.showTip('extensions');}, false, 0, true);
+		indicator.addEventListener(MouseEvent.CLICK, function(e:Event):void {Main.app.showTip('extensions');}, false, 0, true);
 		app.extensionManager.updateIndicator(indicator, ext);
 		indicator.x = 179+60;//app.palette.width - 30;
 		indicator.y = nextY + 2;

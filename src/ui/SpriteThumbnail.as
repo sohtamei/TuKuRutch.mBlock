@@ -60,7 +60,7 @@ public class SpriteThumbnail extends Sprite {
 
 	public var targetObj:ScratchObj;
 
-	private var app:MBlock;
+	private var app:Main;
 	private var thumbnail:Bitmap;
 	private var label:TextField;
 	private var sceneInfo:TextField;
@@ -73,7 +73,7 @@ public class SpriteThumbnail extends Sprite {
 	private var lastName:String = '';
 	private var lastSceneCount:int = 0;
 
-	public function SpriteThumbnail(targetObj:ScratchObj, app:MBlock) {
+	public function SpriteThumbnail(targetObj:ScratchObj, app:Main) {
 		this.targetObj = targetObj;
 		this.app = app;
 
@@ -296,7 +296,7 @@ public class SpriteThumbnail extends Sprite {
 	}
 
 	public function handleTool(tool:String, evt:MouseEvent):void {
-		if (tool == 'help') MBlock.app.showTip('scratchUI');
+		if (tool == 'help') Main.app.showTip('scratchUI');
 		var spr:ScratchSprite = targetObj as ScratchSprite;
 		if (!spr) return;
 		if (tool == 'copy') spr.duplicateSprite();

@@ -31,7 +31,7 @@ package cc.makeblock.services.msoxford
 		}
 		public function capture():void{
 			if(_vid==null){
-				_vid = MBlock.app.stageObj().currentVideo;
+				_vid = Main.app.stageObj().currentVideo;
 			}
 			if(new Date().time-_time>4000){
 				_time = new Date().time;
@@ -65,7 +65,7 @@ package cc.makeblock.services.msoxford
 			if(secret.length<10){
 				return;
 			}
-			MBlock.app.track("/OxfordAi/emotion/launch/"+_source);
+			Main.app.track("/OxfordAi/emotion/launch/"+_source);
 			req.requestHeaders.push(new URLRequestHeader("Content-Type","application/octet-stream"));
 			req.requestHeaders.push(new URLRequestHeader("Ocp-Apim-Subscription-Key",secret));
 			urlloader.addEventListener(Event.COMPLETE,onRequestComplete);
@@ -74,7 +74,7 @@ package cc.makeblock.services.msoxford
 			urlloader.load(req);
 		}
 		private function onRequestComplete(evt:Event):void{
-			MBlock.app.track("/OxfordAi/emotion/success/"+_source);
+			Main.app.track("/OxfordAi/emotion/success/"+_source);
 			var ret:*;
 			if(evt.target.data.toString().indexOf("xmlns")>-1){
 				try{
@@ -106,8 +106,8 @@ package cc.makeblock.services.msoxford
 						result.push(obj);
 					}
 					if(len>0){
-						MBlock.app.extensionManager.extensionByName("Microsoft Cognitive Services").stateVars["emotionResultReceived"] = result;
-						MBlock.app.runtime.emotionResultReceived.notify(true);
+						Main.app.extensionManager.extensionByName("Microsoft Cognitive Services").stateVars["emotionResultReceived"] = result;
+						Main.app.runtime.emotionResultReceived.notify(true);
 					}
 				}catch(e:*){
 					
@@ -138,13 +138,13 @@ package cc.makeblock.services.msoxford
 				result.push(obj);
 			}
 			if(len>0){
-				MBlock.app.extensionManager.extensionByName("Microsoft Cognitive Services").stateVars["emotionResultReceived"] = result;
-				MBlock.app.runtime.emotionResultReceived.notify(true);
+				Main.app.extensionManager.extensionByName("Microsoft Cognitive Services").stateVars["emotionResultReceived"] = result;
+				Main.app.runtime.emotionResultReceived.notify(true);
 			}
 		}
 		private function onIOError(evt:IOErrorEvent):void{
 			trace("error：",evt);
-			MBlock.app.track("/OxfordAi/emotion/error/"+_source);
+			Main.app.track("/OxfordAi/emotion/error/"+_source);
 		}
 		private function onHttpStatus(evt:HTTPStatusEvent):void{
 			trace("Status:",evt);

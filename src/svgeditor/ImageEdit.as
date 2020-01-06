@@ -46,7 +46,7 @@ package svgeditor {
 
 	public class ImageEdit extends Sprite {
 
-		public var app:MBlock;
+		public var app:Main;
 		public var imagesPart:ImagesPart;
 		public var targetCostume:ScratchCostume;
 		public var isScene:Boolean;
@@ -64,7 +64,7 @@ package svgeditor {
 		private var svgEditorMask:Shape;
 		private var currentCursor:String;
 
-		public function ImageEdit(app:MBlock, imagesPart:ImagesPart) {
+		public function ImageEdit(app:Main, imagesPart:ImagesPart) {
 			this.app = app;
 			this.imagesPart = imagesPart;
 

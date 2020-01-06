@@ -39,7 +39,7 @@ public class DrawProperties {
 	public function set strokeWidth(w:int):void { rawStrokeWidth = w }
 
 	public function get strokeWidth():int {
-		if (MBlock.app.imagesPart && (MBlock.app.imagesPart.editor is SVGEdit)) return rawStrokeWidth;
+		if (Main.app.imagesPart && (Main.app.imagesPart.editor is SVGEdit)) return rawStrokeWidth;
 
 		// above 10, use Squeak brush sizes
 		var n:Number = Math.max(1, Math.round(rawStrokeWidth));

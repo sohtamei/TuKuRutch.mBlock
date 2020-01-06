@@ -117,7 +117,7 @@ public class Slider extends Sprite implements DragClient {
 	}
 
 	private function mouseDown(evt:MouseEvent):void {
-		MBlock.app.gh.setDragClient(this, evt);
+		Main.app.gh.setDragClient(this, evt);
 	}
 
 	public function dragBegin(evt:MouseEvent):void {

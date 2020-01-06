@@ -95,7 +95,7 @@ public class GestureHandler {
 	private var originalPosition:Point;
 	private var originalScale:Number;
 
-	private var app:MBlock;
+	private var app:Main;
 	private var stage:Stage;
 	private var dragClient:DragClient;
 	private var mouseDownTime:uint;
@@ -110,7 +110,7 @@ public class GestureHandler {
 	private static var bubbleRange:Number = 25;
 	private static var bubbleMargin:Number = 5;
 
-	public function GestureHandler(app:MBlock) {
+	public function GestureHandler(app:Main) {
 		this.app = app;
 		this.stage = app.stage;
 	}

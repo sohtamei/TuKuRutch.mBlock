@@ -43,7 +43,7 @@ package util
 				dialog.cancel();
 			}
 			dialog.addButton("OK",onCancel);
-			dialog.showOnStage(MBlock.app.stage);
+			dialog.showOnStage(Main.app.stage);
 		}
 	}
 }

@@ -54,7 +54,7 @@ public class SoundsPart extends UIPart {
 	private var importButton:IconButton;
 	private var recordButton:IconButton;
 
-	public function SoundsPart(app:MBlock) {
+	public function SoundsPart(app:Main) {
 		this.app = app;
 		addChild(shape = new Shape());
 
@@ -70,7 +70,7 @@ public class SoundsPart extends UIPart {
 	}
 
 	public static function strings():Array {
-		new SoundsPart(MBlock.app).showNewSoundMenu(Menu.dummyButton());
+		new SoundsPart(Main.app).showNewSoundMenu(Menu.dummyButton());
 		return [
 			'New sound:', 'recording1',
 			'Choose sound from library', 'Record new sound', 'Upload sound from file',

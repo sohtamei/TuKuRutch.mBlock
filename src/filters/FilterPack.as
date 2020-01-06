@@ -104,9 +104,9 @@ public class FilterPack {
 
 	public function buildFilters(force:Boolean = false):Array {
 		// disable filters not running on x86 because PixelBender is really slow
-//		if((MBlock.app.isIn3D || Capabilities.cpuArchitecture != 'x86') && !force) return [];
+//		if((Main.app.isIn3D || Capabilities.cpuArchitecture != 'x86') && !force) return [];
 
-		var scale:Number = targetObj.isStage ? 1 : MBlock.app.stagePane.scaleX;
+		var scale:Number = targetObj.isStage ? 1 : Main.app.stagePane.scaleX;
 		var srcWidth:Number = targetObj.width * scale;
 		var srcHeight:Number = targetObj.height * scale;
 		var n:Number;
@@ -139,7 +139,7 @@ public class FilterPack {
 		if (filterDict["pixelate"] != 0) {
 			// range of absolute value: 0..(10 * min(w, h))
 			n = (Math.abs(filterDict["pixelate"]) / 10) + 1;
-			if (targetObj == MBlock.app.stagePane) n *= MBlock.app.stagePane.scaleX;
+			if (targetObj == Main.app.stagePane) n *= Main.app.stagePane.scaleX;
 			n = Math.min(n, Math.min(srcWidth, srcHeight));
 			pixelateShader.data.pixelSize.value = [n];
 			newFilters.push(new ShaderFilter(pixelateShader));

@@ -122,7 +122,7 @@ public class Menu extends Sprite {
 		}
 		if (parent != null) parent.removeChild(this);
 		
-		MBlock.app.stage.focus = null;
+		Main.app.stage.focus = null;
 	}
 
 	static public function removeMenusFrom(o:DisplayObjectContainer):void {
