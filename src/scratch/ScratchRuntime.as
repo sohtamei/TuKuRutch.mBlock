@@ -48,7 +48,7 @@ package scratch {
 	import cc.makeblock.util.FileUtil;
 	
 	import extensions.ConnectionManager;
-	import extensions.ParseManager;
+//	import extensions.ParseManager;
 	
 	import interpreter.Interpreter;
 	import interpreter.RobotHelper;
@@ -397,24 +397,6 @@ package scratch {
 			var extName:String = b.op.substr(0, i);
 			return !app.extensionManager.isInternal(extName);
 		}
-	/*
-		public function hasGraphicEffects():Boolean {
-			var found:Boolean = false;
-			allStacksAndOwnersDo(function (stack:Block, target:ScratchObj):void {
-				if(found) return;
-				stack.allBlocksDo(function (b:Block):void {
-					if(found) return;
-					if(isGraphicEffectBlock(b))
-						found = true;
-				});
-			});
-			return found;
-		}
-		private function isGraphicEffectBlock(b:Block):Boolean {
-			return ('op' in b && (b.op == 'changeGraphicEffect:by:' || b.op == 'setGraphicEffect:to:') &&
-					('argValue' in b.args[0]) && b.args[0].argValue != 'ghost' && b.args[0].argValue != 'brightness');
-		}
-	*/
 	
 		// -----------------------------
 		// Edge-trigger sensor hats
@@ -436,37 +418,14 @@ package scratch {
 				var threshold:Number = Number(hat.args[1]["argValue"]);
 				triggerCondition = (
 						(('loudness' == sensorName) && (soundLevel() > threshold)) ||
-						(('timer' == sensorName) && (timer() > threshold))/* ||
-						(('video motion' == sensorName) && (VideoMotionPrims.readMotionSensor('motion', target) > threshold))*/);
-//			} else if ('whenSensorConnected' == hat.op) {
-//				triggerCondition = getBooleanSensor(interp.arg(hat, 0));
-//			} else if('Communication.serial/received' == hat.op){
-//				triggerCondition = getBooleanSerialReceived();
+						(('timer' == sensorName) && (timer() > threshold)));
 			}else if('whenIReceive' == hat.op){
 				try{
 					triggerCondition = getBooleanBroadcastReceived(""+(hat.args[0] as BlockArg).argValue);
 				}catch(e){
 					triggerCondition = getBooleanBroadcastReceived(""+(hat.args[0] as Block).response);
 				}
-			}/* else if (true) {
-				var dotIndex:int = hat.op.indexOf('.');
-				if (dotIndex > -1) {
-					var extName:String = hat.op.substr(0, dotIndex);
-					if (app.extensionManager.extensionActive(extName)) {
-						var op:String = hat.op.substr(dotIndex+1);
-						var args:Array = hat.args;
-						var finalArgs:Array = new Array(args.length);
-						for (var i:uint=0; i<args.length; ++i){
-							finalArgs[i] = interp.arg(hat, i);
-						}
-						var ext:ScratchExtension = app.extensionManager.extensionByName(extName);
-						
-						if(ext.js.getValue(op,finalArgs,ext)==true){
-							triggerCondition = true;
-						}
-					}
-				}
-			}*/
+			}
 			if (triggerCondition) {
 				if (triggeredHats.indexOf(hat) == -1) { // not already trigged
 					// only start the stack if it is not already running
@@ -794,12 +753,12 @@ package scratch {
 		}
 		
 		public function getBooleanSerialReceived():Boolean{
-			return ParseManager.sharedManager().lines.length > 0;
+			return false;//ParseManager.sharedManager().lines.length > 0;
 		}
 		public function getBooleanBroadcastReceived(msg:String):Boolean{
-			if(ParseManager.sharedManager().lines.length>0 && ParseManager.sharedManager().lines[0].indexOf(msg)>-1){
-				return ParseManager.sharedManager().getFirstLine().indexOf(msg)>-1;
-			}
+		//	if(ParseManager.sharedManager().lines.length>0 && ParseManager.sharedManager().lines[0].indexOf(msg)>-1){
+		//		return ParseManager.sharedManager().getFirstLine().indexOf(msg)>-1;
+		//	}
 			return false;
 		}
 		public function getTimeString(which:String):* {

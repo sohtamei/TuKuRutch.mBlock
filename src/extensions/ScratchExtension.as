@@ -124,26 +124,4 @@ public class ScratchExtension {
 	public function get js():JavaScriptEngine{
 		return _jsEngine;
 	}
-	public static function PicoBoard():ScratchExtension {
-		// Return a descriptor for the Scratch PicoBoard extension.
-		var result:ScratchExtension = new ScratchExtension('PicoBoard', 0);
-		result.isInternal = true;
-		result.javascriptURL = 'makeblock/m4s_cn.js';
-		result.thumbnailMD5 = '82318df0f682b1de33f64da8726660dc.png';
-		result.url = 'http://wiki.scratch.mit.edu/wiki/Sensor_Board_Blocks';
-		result.tags = ['hardware'];
-		return result;
-	}
-
-	public static function WeDo():ScratchExtension {
-		// Return a descriptor for the LEGO WeDo extension.
-		var result:ScratchExtension = new ScratchExtension(ExtensionManager.wedoExt, 0);
-		result.isInternal = true;
-		result.javascriptURL = '/scratchr2/static/js/scratch_extensions/wedoExtension.js';
-		result.thumbnailMD5 = 'c4a6bfa4cb9f4d71b3d1e65db63cb761.png';
-		result.url = 'http://info.scratch.mit.edu/WeDo';
-		result.tags = ['hardware'];
-		return result;
-	}
-
 }}

@@ -93,7 +93,7 @@ package interpreter
 		
 		static private function broadcast(target:Interpreter, msg:String, waitFlag:Boolean):void
 		{
-			ParseManager.sharedManager().parse("serial/line/"+msg);
+		//	ParseManager.sharedManager().parse("serial/line/"+msg);
 			if (target.activeThread.firstTime) {
 				var receivers:Array = [];
 				msg = msg.toLowerCase();

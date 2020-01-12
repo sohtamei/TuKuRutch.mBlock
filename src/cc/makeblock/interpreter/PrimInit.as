@@ -7,7 +7,7 @@ package cc.makeblock.interpreter
 	
 	import cc.makeblock.util.StringChecker;
 	
-	import extensions.ParseManager;
+//	import extensions.ParseManager;
 	
 	import interpreter.Variable;
 	
@@ -44,7 +44,7 @@ package cc.makeblock.interpreter
 		
 		static private function broadcast(thread:Thread, msg:String, waitFlag:Boolean):void
 		{
-			ParseManager.sharedManager().parse("serial/line/"+msg);
+//			ParseManager.sharedManager().parse("serial/line/"+msg);
 //			if (target.activeThread.firstTime) {
 			var receivers:Array = [];
 			msg = msg.toLowerCase();
@@ -93,92 +93,6 @@ package cc.makeblock.interpreter
 		{
 			broadcast(thread, argList[0], true);
 		}
-		/*
-		static private function doForLoop(thread:Thread, argList:Array):void
-		{
-			var list:Array = [];
-			var loopVar:Variable;
-			
-			if (target.activeThread.firstTime) {
-				if (!(target.arg(b, 0) is String)) return;
-				var listArg:* = target.arg(b, 1);
-				if (listArg is Array) {
-					list = listArg as Array;
-				}
-				if (listArg is String) {
-					var n:Number = Number(listArg);
-					if (!isNaN(n)) listArg = n;
-				}
-				if ((listArg is Number) && !isNaN(listArg)) {
-					var last:int = int(listArg);
-					if (last >= 1) {
-						list = new Array(last - 1);
-						for (var i:int = 0; i < last; i++) list[i] = i + 1;
-					}
-				}
-				loopVar = target.activeThread.target.lookupOrCreateVar(target.arg(b, 0));
-				target.activeThread.args = [list, loopVar];
-				target.activeThread.tmp = 0;
-				target.activeThread.firstTime = false;
-			}
-			
-			list = target.activeThread.args[0];
-			loopVar = target.activeThread.args[1];
-			if (target.activeThread.tmp < list.length) {
-				loopVar.value = list[target.activeThread.tmp++];
-				target.startCmdList(b.subStack1, true);
-			} else {
-				target.activeThread.args = null;
-				target.activeThread.tmp = 0;
-				target.activeThread.firstTime = true;
-			}
-		}
-		static private function doIf(thread:Thread, argList:Array):void
-		{
-			if (target.arg(b, 0)){
-				target.startCmdList(b.subStack1);
-			}
-		}
-		
-		static private function doIfElse(thread:Thread, argList:Array):void
-		{
-			if (target.arg(b, 0)){
-				target.startCmdList(b.subStack1);
-			}else{
-				target.startCmdList(b.subStack2);
-			}
-		}
-		
-		static private function doWaitUntil(thread:Thread, argList:Array):void
-		{
-			if (!target.arg(b, 0)) {
-				target.setYielded();
-			}
-		}
-		
-		static private function doWhile(thread:Thread, argList:Array):void
-		{
-			if (target.arg(b, 0)){
-				target.startCmdList(b.subStack1, true);
-			}
-		}
-		
-		static private function doUntil(thread:Thread, argList:Array):void
-		{
-			if (!target.arg(b, 0)){
-				target.startCmdList(b.subStack1, true);
-			}
-		}
-		
-		static private function doReturn(thread:Thread, argList:Array):void
-		{
-			// Return from the innermost procedure. If not in a procedure, stop the thread.
-			if (!target.activeThread.returnFromProcedure()) {
-				target.activeThread.stop();
-				target.setYielded();
-			}
-		}
-		*/
 		
 		static private function stopScripts(thread:Thread, argList:Array):void
 		{
@@ -196,44 +110,6 @@ package cc.makeblock.interpreter
 					break;
 			}
 		}
-		/*
-		static private function doCall(thread:Thread, argList:Array):void
-		{
-			// Call a procedure. Handle recursive calls and "warp" procedures.
-			// The activeThread.firstTime flag is used to mark the first call
-			// to a procedure running in warp mode. activeThread.firstTime is
-			// false for subsequent calls to warp mode procedures.
-			
-			// Lookup the procedure and cache for future use
-			var obj:ScratchObj = target.activeThread.target;
-			var spec:String = b.spec;
-			var proc:Block = obj.procCache[spec];
-			if (!proc) {
-				proc = obj.lookupProcedure(spec);
-				obj.procCache[spec] = proc;
-			}
-			if (!proc) return;
-			
-			if (target.warpThread) {
-				target.activeThread.firstTime = false;
-				if (target.isTimeOut()) target.setYielded();
-			} else {
-				if (proc.warpProcFlag) {
-					// Start running in warp mode.
-					target.warpBlock = b;
-					target.warpThread = target.activeThread;
-					target.activeThread.firstTime = true;
-				}
-				else if (target.activeThread.isRecursiveCall(b, proc)) {
-					target.setYielded();
-				}
-			}
-			var argCount:int = proc.parameterNames.length;
-			var argList:Array = [];
-			for (var i:int = 0; i < argCount; ++i) argList.push(target.arg(b, i));
-			target.startCmdList(proc, false, argList);
-		}
-		*/
 		static private function getVarRealVal(val:*):*
 		{
 			var result:* = val;
@@ -281,25 +157,6 @@ package cc.makeblock.interpreter
 			}
 			v.value = Number(v.value) + Number(argList[1]);
 		}
-		
-//		static private function getParam(thread:Thread, argList:Array):void
-//		{
-//			if (b.parameterIndex < 0) {
-//				var proc:Block = b.topBlock();
-//				if (proc.parameterNames) b.parameterIndex = proc.parameterNames.indexOf(b.spec);
-//				if (b.parameterIndex < 0) return 0;
-//			}
-//			if ((target.activeThread.args == null) || (b.parameterIndex >= target.activeThread.args.length)) return 0;
-//			return target.activeThread.args[b.parameterIndex];
-//		}
-//		
-//		static private function warpSpeed(thread:Thread, argList:Array):void
-//		{
-//			// Semi-support for old warp block: run substack at normal speed.
-//			if(b.subStack1 != null){
-//				target.startCmdList(b.subStack1);
-//			}
-//		}
 		
 		static private function stopAll(thread:Thread, argList:Array):void
 		{

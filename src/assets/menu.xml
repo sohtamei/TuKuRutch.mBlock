@@ -23,7 +23,9 @@
 	</subMenu>
 -->
 	<subMenu name="Extensions" label="扩展">
+<!--
 		<item name="Restore Extensions" label="检查最新扩展" />
+-->
 		<item name="Clear Cache" label="清空缓存" />
 		<item isSeparator="true" />
 	</subMenu>

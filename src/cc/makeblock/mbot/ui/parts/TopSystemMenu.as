@@ -9,8 +9,8 @@ package cc.makeblock.mbot.ui.parts
 	import flash.net.navigateToURL;
 	
 //	import cc.makeblock.mbot.uiwidgets.DynamicCompiler;
-	import cc.makeblock.mbot.uiwidgets.errorreport.ErrorReportFrame;
-	import cc.makeblock.mbot.uiwidgets.extensionMgr.ExtensionUtil;
+//	import cc.makeblock.mbot.uiwidgets.errorreport.ErrorReportFrame;
+//	import cc.makeblock.mbot.uiwidgets.extensionMgr.ExtensionUtil;
 	import cc.makeblock.media.MediaManager;
 	import cc.makeblock.menu.MenuUtil;
 	import cc.makeblock.menu.SystemMenu;
@@ -49,8 +49,8 @@ package cc.makeblock.mbot.ui.parts
 		//	register("Boards", __onSelectBoard);
 			register("Help", __onHelp);
 
-			register("Manage Extensions", ExtensionUtil.OnManagerExtension);
-			register("Restore Extensions", ExtensionUtil.OnLoadExtension);
+		//	register("Manage Extensions", ExtensionUtil.OnManagerExtension);
+		//	register("Restore Extensions", ExtensionUtil.OnLoadExtension);
 			register("Clear Cache", ArduinoManager.sharedManager().clearTempFiles);
 		}
 		public function changeLang():void
@@ -352,9 +352,9 @@ package cc.makeblock.mbot.ui.parts
 				case "check_app_update":
 					AppUpdater.getInstance().start(true);
 					break;
-				case "upload_bug":
-					ErrorReportFrame.OpenSendWindow("");
-					break;
+//				case "upload_bug":
+//					ErrorReportFrame.OpenSendWindow("");
+//					break;
 			}
 		}
 	}
