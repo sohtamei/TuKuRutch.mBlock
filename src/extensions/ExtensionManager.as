@@ -187,7 +187,7 @@ public class ExtensionManager {
 	static public function isMakeBlockExt(extName:String):Boolean
 	{
 		var ext:Object = Main.app.extensionManager.findExtensionByName(extName);
-		return ext != null && ext.isMakeBlockBoard;
+		return ext != null /*&& ext.isMakeBlockBoard*/;
 	}
 	public function singleSelectExtension(name:String):void{
 		var ext:Object = findExtensionByName(name);

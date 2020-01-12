@@ -227,9 +227,9 @@ void updateVar(char * varName,double * var)
 				}
 			}
 			//			var isStringValue:Boolean = false;
-			//			if(getQualifiedClassName(mp1) == "Array")
+			//			if(getQualifiedClassName(mp1)=="Array")
 			//				mp1 = getCodeBlock(blk[1])
-			//			if(getQualifiedClassName(mp2) == "Array")
+			//			if(getQualifiedClassName(mp2)=="Array")
 			//				mp2 = getCodeBlock(blk[2]);
 			//			else
 			//			{
@@ -269,7 +269,7 @@ void updateVar(char * varName,double * var)
 			if(varList.indexOf(varName)==-1)
 				varList.push(varName)
 			var varValue:* = blk[2] is CodeObj?blk[2].code:blk[2];
-			if(getQualifiedClassName(varValue) == "Array"){
+			if(getQualifiedClassName(varValue)=="Array"){
 				varValue = getCodeBlock(varValue);
 				if(varValue.type=="obj"){
 					if(varValue.code.code.indexOf("ir.getString()")>-1){
@@ -357,7 +357,7 @@ void updateVar(char * varName,double * var)
 				}
 				if(cBlk.type=="obj"){
 					vars += cBlk.code.code;//(isNaN(Number(params[i]))?'"'+params[i]+'"':(params[i]==""?(ps[i-1]=="s"?'"s"':"false"):params[i]))+(i<params.length-1?", ":"");
-				}else if(cBlk.type == "string"){
+				}else if(cBlk.type=="string"){
 					vars += '"' + cBlk.code + '"';
 				}else{
 					vars += cBlk.code;
@@ -672,11 +672,15 @@ void updateVar(char * varName,double * var)
 			else{
 				var objs:Array = Main.app.extensionManager.specForCmd(blk[0]);
 				if(objs!=null){
-					var obj:Object = objs[objs.length-1];
-					obj = obj[obj.length-1];
-					if(typeof obj == "object"){
+					var obj:Object = objs[objs.length-1];	// spec[1]:"play tone ..", spec[0]:"w", extensionsCategory:20, prefix+spec[2]:"remoconRobo.runBuzzerJ2", spec.slice(3):(初期値+obj)
+					obj = obj[obj.length-1];				// 初期値, .. obj
+					if(typeof obj=="object"){
 						var ext:ScratchExtension = Main.app.extensionManager.extensionByName(blk[0].split(".")[0]);
-						var codeObj:Object = {code:{setup:substitute(obj.setup,blk as Array,ext),work:substitute(obj.work,blk as Array,ext),def:substitute(obj.def,blk as Array,ext),inc:substitute(obj.inc,blk as Array,ext),loop:substitute(obj.loop,blk as Array,ext)}};	
+						var codeObj:Object = {code:{setup:substitute(getProperty(obj,'setup'), blk as Array, ext),
+													work :substitute(getProperty(obj,'work'),  blk as Array, ext),
+													def  :substitute(getProperty(obj,'def'),   blk as Array, ext),
+													inc  :substitute(getProperty(obj,'inc'),   blk as Array, ext),
+													loop :substitute(getProperty(obj,'loop'),  blk as Array, ext)}};
 						if(!availableBlock(codeObj)){
 							if(ext!=null){
 								if(srcDocuments.indexOf(ext.srcPath)==-1){
@@ -709,7 +713,11 @@ void updateVar(char * varName,double * var)
 			codeBlock.code = code;
 			return codeBlock;
 		}
-		private function substitute(str:String,params:Array,ext:ScratchExtension=null,offset:uint = 1):String{
+		private function getProperty(obj:Object, key:String):String{
+			return obj.hasOwnProperty(key) ? obj[key] : "";
+		}
+		// デファインをext.valuesで展開し、"remoconRobo_tone({0},{1});\n" の{0},{1}を展開
+		private function substitute(str:String, params:Array, ext:ScratchExtension=null, offset:uint = 1):String{
 			for(var i:uint=0;i<params.length-offset;i++){
 				var o:CodeBlock = getCodeBlock(params[i+offset]);
 				//满足下面的条件则不作字符替换处理
@@ -719,29 +727,21 @@ void updateVar(char * varName,double * var)
 				}
 				else
 				{
-					v=o.type=="string"?(ext.values[o.code]==undefined?o.code:ext.values[o.code]):null;
+					v = o.type=="string" ? (ext.values[o.code]==undefined ? o.code: ext.values[o.code]): null;
 				}
-				
-//				if(str.indexOf("sendString")>-1){
-//					v = o.code;
-//				}
 				var s:CodeBlock = new CodeBlock();
 				if(ext==null||(v==null||v==undefined)){
-					
 					s = getCodeBlock(params[i+offset]);
-					s.type = (s.type=="obj"&&s.code.type!="code")?"string":"number";
-					
+					s.type = (s.type=="obj" && s.code.type!="code")?"string":"number";
 				}else{
-					
 					s.type = isNaN(Number(v))?"string":"number";
 					s.code = v;
-
 				}
-				if((s.code==""||s.code==" ")&&s.code!=0&&s.type == "number"){
+				if((s.code==""||s.code==" ") && s.code!=0&&s.type=="number"){
 					s.type = "string";
 				}
 				if(str.indexOf(".drawStr(")>-1){
-					if(i==3 && s.type == "number"){
+					if(i==3 && s.type=="number"){
 						if(s.code is String){
 							s.type = "string";
 						}else if(s.code is CodeObj){
@@ -750,30 +750,25 @@ void updateVar(char * varName,double * var)
 						}
 					}
 				}else if(str.indexOf("ir.sendString(") == 0){
-					if(s.type == "number" && s.code is String){
+					if(s.type=="number" && s.code is String){
 						s.type = "string";
 					}
 				}
-				/*if(str.indexOf("se.equalString")>-1)
-				{
-					s.type = "string";
-				}*/
 				//如果用到通讯模块的=号，那么将数字也转为字符串进行比较，否则报错
 				if(str.indexOf("se.equalString")>-1)
 				{
-					str = str.split("{"+i+"}").join(( s.type == "string"||!isNaN(Number(s.code)))?('"'+s.code+'"'):(( s.type == "number")?s.code:s.code.code));
+					str = str.split("{"+i+"}").join((s.type=="string"||!isNaN(Number(s.code)))?('"'+s.code+'"'):((s.type=="number")?s.code:s.code.code));
 				}
 				else
 				{
-					str = str.split("{"+i+"}").join(( s.type == "string")?('"'+s.code+'"'):(( s.type == "number")?s.code:s.code.code));
+					str = str.split("{"+i+"}").join((s.type=="string")?('"'+s.code+'"'):((s.type=="number")?s.code:s.code.code));
 				}
-				
 			}
 			return str;
 		}
 		private function availableBlock(obj:Object):Boolean{
 			for each(var o:Object in moduleList){
-				if(o.code.def==obj.code.def&&o.code.setup==obj.code.setup){
+				if(o.code.def==obj.code.def && o.code.setup==obj.code.setup){
 					return true;
 				}
 			}
@@ -797,8 +792,12 @@ void updateVar(char * varName,double * var)
 				if(objs!=null){
 					var obj:Object = objs[objs.length-1];
 					obj = obj[obj.length-1];
-					if(typeof obj == "object"&&obj!=null){
-						var codeObj:Object = {code:{setup:obj.setup,work:obj.work,def:obj.def,inc:obj.inc,loop:obj.loop}};	
+					if(typeof obj=="object" && obj!=null){
+						var codeObj:Object = {code:{setup:getProperty(obj,'setup'),
+													work :getProperty(obj,'work'),
+													def  :getProperty(obj,'def'),
+													inc  :getProperty(obj,'inc'),
+													loop :getProperty(obj,'loop')}};
 						moduleList.push(codeObj);
 					}
 				}
@@ -823,8 +822,12 @@ void updateVar(char * varName,double * var)
 					if(objs!=null){
 						var obj:Object = objs[objs.length-1];
 						obj = obj[obj.length-1];
-						if(typeof obj == "object"&&obj!=null){
-							var codeObj:Object = {code:{setup:obj.setup,work:obj.work,def:obj.def,inc:obj.inc,loop:obj.loop}};	
+						if(typeof obj=="object" && obj!=null){
+							var codeObj:Object = {code:{setup:getProperty(obj,'setup'),
+														work :getProperty(obj,'work'),
+														def  :getProperty(obj,'def'),
+														inc  :getProperty(obj,'inc'),
+														loop :getProperty(obj,'loop')}};
 							moduleList.push(codeObj);
 						}
 					}
@@ -920,7 +923,7 @@ void updateVar(char * varName,double * var)
 			//由于2.4G手柄，不同主板的接口不一样，所以在这里修正一下port口
 			if(retcode.indexOf("MePS2 MePS2(PORT)")>-1)
 			{
-			//	else if(DeviceManager.sharedManager().currentName == "mBot")
+			//	else if(DeviceManager.sharedManager().currentName=="mBot")
 				retcode = retcode.replace("MePS2 MePS2(PORT)","MePS2 MePS2(PORT_5)");
 			}
 			
@@ -1121,7 +1124,7 @@ void updateVar(char * varName,double * var)
 						//ccode_inc += code;
 				}
 			}
-			if(/*DeviceManager.sharedManager().currentName == "mBot" &&*/ ccode_inc.indexOf("void move(int direction, int speed)") < 0)
+			if(/*DeviceManager.sharedManager().currentName=="mBot" &&*/ ccode_inc.indexOf("void move(int direction, int speed)") < 0)
 			{
 /*
 				ccode_inc += <![CDATA[
