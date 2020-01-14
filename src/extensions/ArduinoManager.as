@@ -42,7 +42,6 @@ package extensions
 		public var hasUnknownCode:Boolean = false;
 		private var ccode_setup:String = "";
 		private var ccode_setup_fun:String = "";
-//		private var ccode_setup_def:String = "";
 		private var ccode_loop:String = ""
 		private var ccode_loop2:String = ""
 		private var ccode_def:String = ""
@@ -62,12 +61,9 @@ package extensions
 		
 		// maintance of project and arduino path
 		private var arduinoPath:String;
-//		private var avrPath:String = "";
 		private var arduinoLibPath:String = "";
 		private var projectPath:String = "";
 		private var EVENT_NATIVE_DONE:String = "EVENT_NATIVE_DONE"
-		private var EVENT_LIBCOMPILE_DONE:String = "EVENT_LIBCOMPILE_DONE"
-		private var EVENT_COMPILE_DONE:String = "EVENT_COMPILE_DONE"
 		
 		public var mainX:int = 0;
 		public var mainY:int = 0;
@@ -75,7 +71,6 @@ package extensions
 		
 		private var codeTemplate:String = ( <![CDATA[#include <Arduino.h>
 #include <Wire.h>
-//#include <SoftwareSerial.h>
 
 //include
 double angle_rad = PI/180.0;
@@ -171,19 +166,10 @@ void updateVar(char * varName,double * var)
 		
 		public function ArduinoManager()
 		{
-//			addEventListener(EVENT_NATIVE_DONE, gotoNextNativeCmd)
-//			addEventListener(EVENT_LIBCOMPILE_DONE,runToolChain,false)
-//			addEventListener(EVENT_COMPILE_DONE,uploadHex,false);
 		}
 		
 		public function clearTempFiles():void
 		{
-			/*
-			var workdir:File = File.applicationStorageDirectory.resolvePath("scratchTemp");
-			if(workdir.exists){
-				workdir.deleteDirectory(true);
-			}
-			//*/
 			if(File.applicationStorageDirectory.exists){
 				File.applicationStorageDirectory.deleteDirectory(true);
 			}
@@ -193,20 +179,6 @@ void updateVar(char * varName,double * var)
 		public function setScratch(scratch:Main):void{
 			_scratch = scratch;
 		}
-		/*
-		private function portMapPin(port:String,slot:String):String{
-			var pin:String = leoPortMap[portEnum[port]][slotEnum[slot]]
-			return pin
-		}
-		
-		private function portMapPort(port:String):String{
-			return portPortEnum[port]
-		}
-		
-		private function slotMapSlot(slot:String):String{
-			return slotSlotEnum[slot]
-		}
-		*/
 		private function parseMath(blk:Object):CodeObj{
 			var op:Object= blk[0]
 			var mp1:CodeBlock=getCodeBlock(blk[1]);
@@ -226,17 +198,6 @@ void updateVar(char * varName,double * var)
 					mp2.code = Number(mp2.code);
 				}
 			}
-			//			var isStringValue:Boolean = false;
-			//			if(getQualifiedClassName(mp1)=="Array")
-			//				mp1 = getCodeBlock(blk[1])
-			//			if(getQualifiedClassName(mp2)=="Array")
-			//				mp2 = getCodeBlock(blk[2]);
-			//			else
-			//			{
-			//				if(mp1 is String){
-			//					isStringValue = mp1.indexOf("readDataLine")>-1;
-			//				}
-			//			}
 			var code:String = StringUtil.substitute("({0}) {1} ({2})",mp1.type=="obj"?mp1.code.code:mp1.code ,op,mp2.type=="obj"?mp2.code.code:mp2.code);
 			if(op=="=="){
 				if(mp1.type=="string"&&mp2.type=="string"){
@@ -356,7 +317,7 @@ void updateVar(char * varName,double * var)
 					vars +=",";
 				}
 				if(cBlk.type=="obj"){
-					vars += cBlk.code.code;//(isNaN(Number(params[i]))?'"'+params[i]+'"':(params[i]==""?(ps[i-1]=="s"?'"s"':"false"):params[i]))+(i<params.length-1?", ":"");
+					vars += cBlk.code.code;
 				}else if(cBlk.type=="string"){
 					vars += '"' + cBlk.code + '"';
 				}else{
@@ -531,14 +492,6 @@ void updateVar(char * varName,double * var)
 			var c:String =  funcode.charAt(funcode.length-1)
 			if(ccode_pointer=="setup"){
 				ccode_setup_fun += funcode;
-				//解决连续两条设置变量的指令在Arduino下会被过滤的bug 这里貌似不需要去重处理，只要setup里面的代码保持初始化一次，后面work的代码应该可以多次出现 20161121
-				/*if((ccode_setup.indexOf(funcode)==-1&&ccode_setup_fun.indexOf(funcode)==-1)||funcode.indexOf("delay")>-1||allowAdd){
-//					if((funcode.indexOf(" = ")>-1&&funcode.indexOf("drawTemp")==-1&&funcode.indexOf("lastTime = ")==-1)&&funcode.indexOf("while")==-1&&funcode.indexOf("for")==-1){
-//						ccode_setup_def = funcode + ccode_setup_def;
-//					}else{
-						ccode_setup_fun += funcode;
-//					}
-				}*/
 			}
 			else if(ccode_pointer=="loop"){
 				ccode_loop+=funcode;
@@ -635,7 +588,7 @@ void updateVar(char * varName,double * var)
 			}else if(blk[0]=="randomFrom:to:"){
 				codeBlock.type = "number";
 				//as same as scratch, include max value
-				codeBlock.code = StringUtil.substitute("random({0},({1})+1)",getCodeBlock(blk[1]).code,getCodeBlock(blk[2]).code);
+				codeBlock.code = StringUtil.substitute("random({0},({1})+1)", getCodeBlock(blk[1]).code, getCodeBlock(blk[2]).code);
 				return codeBlock;
 			}else if(blk[0]=="computeFunction:of:"){
 				codeBlock.type = "number";
@@ -645,30 +598,27 @@ void updateVar(char * varName,double * var)
 				var s1:CodeBlock = getCodeBlock(blk[1]);
 				var s2:CodeBlock = getCodeBlock(blk[2]);
 				codeBlock.type = "obj";
-				codeBlock.code = new CodeObj(StringUtil.substitute("{0}+{1}",(s1.type=="obj")?s1.code.code:"String(\""+s1.code+"\")",(s2.type=="obj")?s2.code.code:"String(\""+s2.code+"\")"));
+				codeBlock.code = new CodeObj(StringUtil.substitute("{0}+{1}", (s1.type=="obj")?s1.code.code:"String(\""+s1.code+"\")", (s2.type=="obj")?s2.code.code:"String(\""+s2.code+"\")"));
 				return codeBlock;
 			}else if(blk[0]=="letter:of:"){
 				s2 = getCodeBlock(blk[2]);
 				codeBlock.type = "obj";
-				codeBlock.code = new CodeObj(StringUtil.substitute("{1}.charAt({0}-1)",getCodeBlock(blk[1]).code,(s2.type=="obj")?"String("+s2.code.code+")":"String(\""+s2.code+"\")"));
+				codeBlock.code = new CodeObj(StringUtil.substitute("{1}.charAt({0}-1)", getCodeBlock(blk[1]).code, (s2.type=="obj")?"String("+s2.code.code+")":"String(\""+s2.code+"\")"));
 				return codeBlock;
 			}else if(blk[0]=="castDigitToString:"){
 				codeBlock.type = "obj";
-				codeBlock.code = new CodeObj(StringUtil.substitute('String({0})',getCodeBlock(blk[1]).code));
+				codeBlock.code = new CodeObj(StringUtil.substitute('String({0})', getCodeBlock(blk[1]).code));
 				return codeBlock;
 			}else if(blk[0]=="stringLength:"){
 				s1 = getCodeBlock(blk[1]);
 				codeBlock.type = "obj";
-				codeBlock.code = new CodeObj(StringUtil.substitute("String({0}).length()",(s1.type != "obj")?"\""+s1.code+"\"":s1.code.code));
+				codeBlock.code = new CodeObj(StringUtil.substitute("String({0}).length()", (s1.type != "obj")?"\""+s1.code+"\"":s1.code.code));
 				return codeBlock;
 			}else if(blk[0]=="changeVar:by:"){
 				codeBlock.type = "string";
-				codeBlock.code = StringUtil.substitute("{0} += {1};\n",getCodeBlock(castVarName(blk[1])).code,getCodeBlock(blk[2]).code);
+				codeBlock.code = StringUtil.substitute("{0} += {1};\n", getCodeBlock(castVarName(blk[1])).code, getCodeBlock(blk[2]).code);
 				return codeBlock;
 			}
-				//			else if(blk[0].indexOf("Makeblock")>=0||blk[0].indexOf("Arduino")>=0||blk[0].indexOf("Communication")>=0){
-				//				code = new CodeObj(getModule(blk)["code"]["work"]);
-				//			}
 			else{
 				var objs:Array = Main.app.extensionManager.specForCmd(blk[0]);
 				if(objs!=null){
@@ -676,11 +626,11 @@ void updateVar(char * varName,double * var)
 					obj = obj[obj.length-1];				// 初期値, .. obj
 					if(typeof obj=="object"){
 						var ext:ScratchExtension = Main.app.extensionManager.extensionByName(blk[0].split(".")[0]);
-						var codeObj:Object = {code:{setup:substitute(getProperty(obj,'setup'), blk as Array, ext),
-													work :substitute(getProperty(obj,'work'),  blk as Array, ext),
-													def  :substitute(getProperty(obj,'def'),   blk as Array, ext),
-													inc  :substitute(getProperty(obj,'inc'),   blk as Array, ext),
-													loop :substitute(getProperty(obj,'loop'),  blk as Array, ext)}};
+						var codeObj:Object = {code:{setup:substitute(getProp(obj,'setup'), blk as Array, ext),
+													work :substitute(getProp(obj,'work'),  blk as Array, ext),
+													def  :substitute(getProp(obj,'def'),   blk as Array, ext),
+													inc  :substitute(getProp(obj,'inc'),   blk as Array, ext),
+													loop :substitute(getProp(obj,'loop'),  blk as Array, ext)}};
 						if(!availableBlock(codeObj)){
 							if(ext!=null){
 								if(srcDocuments.indexOf(ext.srcPath)==-1){
@@ -713,7 +663,7 @@ void updateVar(char * varName,double * var)
 			codeBlock.code = code;
 			return codeBlock;
 		}
-		private function getProperty(obj:Object, key:String):String{
+		private function getProp(obj:Object, key:String):String{
 			return obj.hasOwnProperty(key) ? obj[key] : "";
 		}
 		// デファインをext.valuesで展開し、"remoconRobo_tone({0},{1});\n" の{0},{1}を展開
@@ -793,11 +743,11 @@ void updateVar(char * varName,double * var)
 					var obj:Object = objs[objs.length-1];
 					obj = obj[obj.length-1];
 					if(typeof obj=="object" && obj!=null){
-						var codeObj:Object = {code:{setup:getProperty(obj,'setup'),
-													work :getProperty(obj,'work'),
-													def  :getProperty(obj,'def'),
-													inc  :getProperty(obj,'inc'),
-													loop :getProperty(obj,'loop')}};
+						var codeObj:Object = {code:{setup:getProp(obj,'setup'),
+													work :getProp(obj,'work'),
+													def  :getProp(obj,'def'),
+													inc  :getProp(obj,'inc'),
+													loop :getProp(obj,'loop')}};
 						moduleList.push(codeObj);
 					}
 				}
@@ -823,11 +773,11 @@ void updateVar(char * varName,double * var)
 						var obj:Object = objs[objs.length-1];
 						obj = obj[obj.length-1];
 						if(typeof obj=="object" && obj!=null){
-							var codeObj:Object = {code:{setup:getProperty(obj,'setup'),
-														work :getProperty(obj,'work'),
-														def  :getProperty(obj,'def'),
-														inc  :getProperty(obj,'inc'),
-														loop :getProperty(obj,'loop')}};
+							var codeObj:Object = {code:{setup:getProp(obj,'setup'),
+														work :getProp(obj,'work'),
+														def  :getProp(obj,'def'),
+														inc  :getProp(obj,'inc'),
+														loop :getProp(obj,'loop')}};
 							moduleList.push(codeObj);
 						}
 					}
@@ -888,7 +838,6 @@ void updateVar(char * varName,double * var)
 			// reset code buffers 
 			ccode_setup=""
 			ccode_setup_fun = "";
-//			ccode_setup_def = "";
 			ccode_loop=""
 			ccode_inc=""
 			ccode_def=""
@@ -915,17 +864,63 @@ void updateVar(char * varName,double * var)
 			}
 			ccode_func+=buildFunctions();
 			ccode_setup = hackVaribleWithPinMode(ccode_setup);
-			var retcode:String = codeTemplate.replace("//setup",ccode_setup).replace("//loop", ccode_loop).replace("//define", ccode_def).replace("//include", ccode_inc).replace("//function",ccode_func);
+			var retcode:String = codeTemplate
+									.replace("//setup",ccode_setup)
+									.replace("//loop", ccode_loop)
+									.replace("//define", ccode_def)
+									.replace("//include", ccode_inc)
+									.replace("//function",ccode_func);
 			retcode = retcode.replace("//_loop", ccode_loop2);
 			retcode = buildSerialParser(retcode);
 			retcode = fixTabs(retcode);
 			retcode = fixVars(retcode);
-			//由于2.4G手柄，不同主板的接口不一样，所以在这里修正一下port口
-			if(retcode.indexOf("MePS2 MePS2(PORT)")>-1)
-			{
-			//	else if(DeviceManager.sharedManager().currentName=="mBot")
-				retcode = retcode.replace("MePS2 MePS2(PORT)","MePS2 MePS2(PORT_5)");
+			
+			requiredCpp = getRequiredCpp()
+			// now go into compile process
+			if(!NativeProcess.isSupported) return "";
+			return (retcode);
+			//			buildAll(retcode, requiredCpp);
+		}
+		public function jsonToCpp2(code:String):String{
+			// reset code buffers 
+			ccode_setup=""
+			ccode_setup_fun = "";
+			ccode_loop=""
+			ccode_inc=""
+			ccode_def=""
+			ccode_func="";
+			hasUnknownCode = false;
+			// reset arrays
+			varList=[];
+			varStringList=[];
+			varListWrite=[]
+			paramList=[]
+			moduleList=[]
+			funcList = [];
+			unknownBlocks = [];
+			// params for compiler
+			requiredCpp=[];
+			var buildSuccess:Boolean = false;
+			var objs:Object = util.JSON.parse(code);
+			var childs:Array = objs.children.reverse();
+			for(var i:int=0;i<childs.length;i++){
+				buildSuccess = parseScripts(childs[i].scripts);
 			}
+			if(!buildSuccess){
+				parseScripts(objs.scripts);
+			}
+			ccode_func+=buildFunctions();
+			ccode_setup = hackVaribleWithPinMode(ccode_setup);
+			var retcode:String = codeTemplate
+									.replace("//setup",ccode_setup)
+									.replace("//loop", ccode_loop)
+									.replace("//define", ccode_def)
+									.replace("//include", ccode_inc)
+									.replace("//function",ccode_func);
+			retcode = retcode.replace("//_loop", ccode_loop2);
+			retcode = buildSerialParser(retcode);
+			retcode = fixTabs(retcode);
+			retcode = fixVars(retcode);
 			
 			requiredCpp = getRequiredCpp()
 			// now go into compile process
@@ -1010,11 +1005,9 @@ void updateVar(char * varName,double * var)
 			return result;
 		}
 		private function buildCodes():void{
-			buildInclude();			
+			buildInclude();
 			buildDefine();
 			buildSetup();
-//			ccode_setup+=ccode_setup_def;
-			//buildSetup();
 			ccode_setup+=ccode_setup_fun;
 			ccode_setup_fun = "";
 			ccode_loop2=buildLoopMaintance();
@@ -1026,7 +1019,7 @@ void updateVar(char * varName,double * var)
 				var code:* = m["code"]["setup"];
 				code = code is CodeObj?code.code:code;
 				if(code!=""){
-					if(ccode_setup.indexOf(code)==-1&&ccode_setup_fun.indexOf(code)==-1){
+					if(ccode_setup.indexOf(code)==-1 && ccode_setup_fun.indexOf(code)==-1){
 						ccode_setup+=code+"";
 					}
 				}
@@ -1095,13 +1088,9 @@ void updateVar(char * varName,double * var)
 								ccode_def+=array[k]+"\n";
 							}
 						}
-						
 					}
-					
-					
 				}
 			}
-			
 			return modDefineCode;
 		}
 		
@@ -1121,38 +1110,7 @@ void updateVar(char * varName,double * var)
 						{
 							ccode_inc += code;
 						}
-						//ccode_inc += code;
 				}
-			}
-			if(/*DeviceManager.sharedManager().currentName=="mBot" &&*/ ccode_inc.indexOf("void move(int direction, int speed)") < 0)
-			{
-/*
-				ccode_inc += <![CDATA[
-MeDCMotor motor_9(9);
-MeDCMotor motor_10(10);		
-
-void move(int direction, int speed)
-{
-  int leftSpeed = 0;
-  int rightSpeed = 0;
-  if(direction == 1){
-	leftSpeed = speed;
-	rightSpeed = speed;
-  }else if(direction == 2){
-	leftSpeed = -speed;
-	rightSpeed = -speed;
-  }else if(direction == 3){
-	leftSpeed = -speed;
-	rightSpeed = speed;
-  }else if(direction == 4){
-	leftSpeed = speed;
-	rightSpeed = -speed;
-  }
-  motor_9.run((9)==M1?-(leftSpeed):(leftSpeed));
-  motor_10.run((10)==M1?-(rightSpeed):(rightSpeed));
-}
-				]]>.toString();
-*/
 			}
 			return modIncudeCode;
 		}
@@ -1216,14 +1174,9 @@ void move(int direction, int speed)
 			
 		}
 		
-		
-		
-		
 		/****** *****************************
 		 * compiler ralated functions 
 		 * **********************************/
-		
-		
 		
 		private var tc_projCpp:*;
 		private var tc_workdir:*;
@@ -1235,7 +1188,6 @@ void move(int direction, int speed)
 		private var numOfSuccess:uint = 0;
 		private var _projectDocumentName:String = "";
 		private function prepareProjectDir(ccode:String):void{
-//			_currentDevice = DeviceManager.sharedManager().currentDevice;
 			
 			var cppList:Array =  requiredCpp;
 			// get building direcotry ready
@@ -1243,16 +1195,11 @@ void move(int direction, int speed)
 			if(!workdir.exists){
 				workdir.createDirectory(); 
 			}
-			//			var srcdir:File = File.applicationDirectory.resolvePath("compiler"); 
 			if(!workdir.exists){
 				return;
 			}
 			// copy firmware directory
 			workdir = workdir.resolvePath(projectDocumentName);
-//			var srcdir:File = ApplicationManager.sharedManager().documents.resolvePath("mBlock/libraries/"+_extSrcPath+"/src");
-//			if(srcdir.exists && srcdir.getDirectoryListing().length > 0){
-//				srcdir.copyTo(workdir,true);
-//			}
 			//*
 			for each(var path:String in srcDocuments){
 				var srcdir:File = new File(path);
@@ -1331,10 +1278,6 @@ void move(int direction, int speed)
 			nativeWorkList = []
 			// copy firmware directory
 			workdir = workdir.resolvePath(projectDocumentName);
-//			var srcdir:File = ApplicationManager.sharedManager().documents.resolvePath("mBlock/libraries/"+_extSrcPath+"/src");
-//			if(srcdir.exists && srcdir.getDirectoryListing().length > 0){
-//				srcdir.copyTo(workdir,true);
-//			}
 			//*
 			for each(var path:String in srcDocuments){
 				var srcdir:File = new File(path);
@@ -1370,10 +1313,7 @@ void move(int direction, int speed)
 			if(ApplicationManager.sharedManager().system==ApplicationManager.WINDOWS){
 				file = new File(arduinoInstallPath+"/arduino.exe");
 			}else{
-//				file = new File(arduinoInstallPath+"/../../MacOS/JavaApplicationStub");
-//				if(!file.exists){
-					file = new File(arduinoInstallPath+"/../MacOS/Arduino");
-//				}
+				file = new File(arduinoInstallPath+"/../MacOS/Arduino");
 			}
 			
 			var processArgs:Vector.<String> = new Vector.<String>();

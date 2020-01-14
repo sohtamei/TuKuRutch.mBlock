@@ -2,10 +2,13 @@ package cc.makeblock.interpreter
 {
 	import flash.utils.clearTimeout;
 	import flash.utils.setTimeout;
+	import flash.utils.ByteArray;
+	import flash.utils.Endian;
 	
 	import blockly.runtime.Thread;
 	
 	import extensions.ScratchExtension;
+	import extensions.ConnectionManager;
 
 	public class RemoteCallMgr
 	{
@@ -90,8 +93,49 @@ package cc.makeblock.interpreter
 				return;
 			}
 			var info:Array = requestList[0];
-			var ext:ScratchExtension = info[3];
-			ext.js.call(info[1], info[2], null);
+			var ext:ScratchExtension = info[3];		// 
+			var i:int;
+			var obj1:Array;
+			for(i = 0; i<ext.blockSpecs.length; i++) {
+				if(ext.blockSpecs[i][2]==info[1]) {
+					obj1 = ext.blockSpecs[i];
+					break;
+				}
+			}
+			var obj2:Object = obj1[obj1.length-1];
+
+			if(obj2.hasOwnProperty("encode")) {
+				switch(obj1[0]) {
+				case 'w':
+				case 'R':
+				//	var param:Array;
+					var param:Array = [0xff, 0x55, 0x00, 0x00, obj1[0]=='w'?2:1, obj2.encode[0]];
+					for(i = 1; i < obj2.encode.length; i++) {
+						var val:int=0;
+						if(typeof info[2][i-1]=="string")
+							val = ext.values[info[2][i-1]];
+						else
+							val = info[2][i-1];
+						switch(obj2.encode[i]) {
+						case 1:
+							param.push(val)
+							break;
+						case 2:
+							tempBytes.position = 0;
+							tempBytes.writeShort(val);
+							param.push(tempBytes[0]);
+							param.push(tempBytes[1]);
+							break;
+						}
+					}
+					param[2] = param.length-3;
+					ConnectionManager.sharedManager().send(param);
+				//	ext.js.call('send', param, null);
+					break;
+				}
+			} else {
+				ext.js.call(info[1], info[2], null);	// runBuzzerJ2, [ド4, Half]
+			}
 			if(info[1].slice(0,9) == "runBuzzer")
 			{
 				timerId = setTimeout(onTimeout, 5000);
@@ -101,6 +145,8 @@ package cc.makeblock.interpreter
 				timerId = setTimeout(onTimeout, 500);
 			}
 		}
+		static private const tempBytes:ByteArray = new ByteArray();
+		tempBytes.endian = Endian.LITTLE_ENDIAN;
 		
 		private function onTimeout():void
 		{
