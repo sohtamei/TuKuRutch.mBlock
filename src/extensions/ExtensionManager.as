@@ -68,24 +68,19 @@ public class ExtensionManager {
 	// Block Specifications
 	//------------------------------
 
+	// spec[1]:"play tone ..", spec[0]:"w", extensionsCategory:20, prefix+spec[2]:"remoconRobo.runBuzzerJ2", spec.slice(3):(初期値+obj)
 	public function specForCmd(op:String):Array {
 		// Return a command spec array for the given operation or null.
 		var count:int=0;
 		for each (var ext:ScratchExtension in extensionDict) {
 			var prefix:String = ext.useScratchPrimitives ? '' : (ext.name + '.');
-			trace(count++);
 			for each (var spec:Array in ext.blockSpecs) {
-				if(spec.length <= 2){
+				if(spec.length < 3){
 					continue;
 				}
-				if(isCommonExt(ext.name)){
-					if ((prefix + spec[2]) == op) {
-						return [spec[1], spec[0], Specs.extensionsCategory, prefix + spec[2], spec.slice(3)];
-					}
-				}else{
-					if(op.split(".")[1] == spec[2]){
-						return [spec[1], spec[0], Specs.extensionsCategory, prefix + spec[2], spec.slice(3)];
-					}
+				if ((prefix + spec[2]) == op) {
+			//	if(op.split(".")[1] == spec[2]){
+					return [spec[1], spec[0], Specs.extensionsCategory, prefix + spec[2], spec.slice(3)];
 				}
 			}
 		}
@@ -174,6 +169,7 @@ public class ExtensionManager {
 			unloadRawExtension(ext);
 		}
 	}
+/*
 	static public function isCommonExt(extName:String):Boolean
 	{
 		switch(extName){
@@ -184,6 +180,7 @@ public class ExtensionManager {
 		}
 		return false;
 	}
+*/
 	static public function isMakeBlockExt(extName:String):Boolean
 	{
 		var ext:Object = Main.app.extensionManager.findExtensionByName(extName);
@@ -322,7 +319,7 @@ public class ExtensionManager {
 		if(extObj.extensionType) ext.type = extObj.extensionType;
 		var srcArr:Array = extObj.srcPath.split("/");
 		ext.docPath = extObj.srcPath.split(srcArr[srcArr.length-1]).join("");
-		ext.srcPath = ext.docPath+"/src";
+	//	ext.srcPath = ext.docPath+"/src";
 		//ext.showBlocks = true;
 		ext.menus = extObj.menus;
 		if(extObj.values){

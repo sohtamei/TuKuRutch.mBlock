@@ -69,7 +69,7 @@ public class ScratchExtension {
 	public var problem:String = '';
 	public var success:String = 'Okay';
 	public var nextID:int;
-	public var srcPath:String = "";
+//	public var srcPath:String = "";
 	public var docPath:String = "";
 	public var busy:Array = [];
 	public var waiting:Dictionary = new Dictionary(true);

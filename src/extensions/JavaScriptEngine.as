@@ -145,7 +145,7 @@ package extensions
 			if(args.length < 2){
 				RemoteCallMgr.Instance.onPacketRecv();
 			}else if(args[0] == 0x80){
-				Main.app.runtime.mbotButtonPressed.notify(Boolean(args[1]));
+			//	Main.app.runtime.mbotButtonPressed.notify(Boolean(args[1]));
 			}else{
 				RemoteCallMgr.Instance.onPacketRecv(args[1]);
 			}

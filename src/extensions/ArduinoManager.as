@@ -42,18 +42,16 @@ package extensions
 		public var hasUnknownCode:Boolean = false;
 		private var ccode_setup:String = "";
 		private var ccode_setup_fun:String = "";
-		private var ccode_loop:String = ""
-		private var ccode_loop2:String = ""
-		private var ccode_def:String = ""
-		private var ccode_inc:String = ""
-		private var ccode_pointer:String="setup"
+		private var ccode_loop:String = "";
+		private var ccode_loop2:String = "";
+		private var ccode_def:String = "";
+		private var ccode_inc:String = "";
+		private var ccode_pointer:String="setup";
 		private var ccode_func:String = "";
 		//添加 && ||
 		private var mathOp:Array=["+","-","*","/","%",">","=","<","&","&&","|","||","!","not","rounded"];
 		private var varList:Array = [];
 		private var varStringList:Array = [];
-		private var varListWrite:Array=[]
-		private var paramList:Array=[]
 		private var moduleList:Array=[];
 		private var funcList:Array = [];
 		
@@ -63,7 +61,7 @@ package extensions
 		private var arduinoPath:String;
 		private var arduinoLibPath:String = "";
 		private var projectPath:String = "";
-		private var EVENT_NATIVE_DONE:String = "EVENT_NATIVE_DONE"
+		private var EVENT_NATIVE_DONE:String = "EVENT_NATIVE_DONE";
 		
 		public var mainX:int = 0;
 		public var mainY:int = 0;
@@ -73,17 +71,13 @@ package extensions
 #include <Wire.h>
 
 //include
-double angle_rad = PI/180.0;
-double angle_deg = 180.0/PI;
 //define
-//serialParser
 //function
 void setup(){
 //setup
 }
 
 void loop(){
-//serialParserCall
 //loop
 _loop();
 }
@@ -98,64 +92,6 @@ void _loop(){
 }
 
 ]]> ).toString();//delay(50);
-		
-		private var codeSerialParser:String = ( <![CDATA[
-char inputBuf[64];
-int inputIndex;
-void parseSerialInput(){
-if(Serial.available()){
-char c = Serial.read();
-inputBuf[inputIndex++] = c;
-if(c=='\\n'){
-int value;
-//parseList
-memset(inputBuf,0,64);
-inputIndex = 0;
-}
-}
-}
-]]> ).toString();
-		
-		private var codeSerialScanf:String = ( <![CDATA[
-if(sscanf(inputBuf,"param=%d",&value)){
-param = value;
-//Serial.printf("param=%d\\n",value);
-}
-]]> ).toString();
-		
-		private var serialParserInoFile:String = ( <![CDATA[
-char buf[64];
-char readLine[64];
-bool lineParsed = true;
-int bufIndex = 0;
-
-void updateVar(char * varName,double * var)
-{
-  char tmp[16];
-  int value,i;
-  while(Serial.available()){
-	char c = Serial.read();
-	buf[bufIndex++] = c;
-	if(c=='\n'){
-	  memset(readLine,0,64);
-	  memcpy(readLine,buf,bufIndex);
-	  memset(buf,0,64);
-	  bufIndex = 0;
-	  lineParsed = false;
-	}
-  }
-  if(!lineParsed){
-	char * tmp;
-	char * str;
-	str = strtok_r(readLine, "=", &tmp);
-	if(str!=NULL && strcmp(str,varName)==0){
-	  float v = atof(tmp);
-	  *var = v;
-	  lineParsed = true;
-	}
-  }
-}
-]]> ).toString();
 		
 		public static function sharedManager():ArduinoManager{
 			if(_instance==null){
@@ -180,7 +116,7 @@ void updateVar(char * varName,double * var)
 			_scratch = scratch;
 		}
 		private function parseMath(blk:Object):CodeObj{
-			var op:Object= blk[0]
+			var op:Object= blk[0];
 			var mp1:CodeBlock=getCodeBlock(blk[1]);
 			var mp2:CodeBlock=getCodeBlock(blk[2]);
 			if(op=="="){
@@ -217,7 +153,7 @@ void updateVar(char * varName,double * var)
 		
 		
 		private function parseVarRead(blk:Object):CodeObj{
-			var varName:Object = blk[1]
+			var varName:Object = blk[1];
 			if(varList.indexOf(varName)==-1){
 				varList.push(varName);
 			}
@@ -226,35 +162,26 @@ void updateVar(char * varName,double * var)
 		}
 		
 		private function parseVarSet(blk:Object):String{
-			var varName:String = blk[1]
+			var varName:String = blk[1];
 			if(varList.indexOf(varName)==-1)
-				varList.push(varName)
+				varList.push(varName);
 			var varValue:* = blk[2] is CodeObj?blk[2].code:blk[2];
 			if(getQualifiedClassName(varValue)=="Array"){
 				varValue = getCodeBlock(varValue);
 				if(varValue.type=="obj"){
-					if(varValue.code.code.indexOf("ir.getString()")>-1){
-						varStringList.push(varName);
-					}
+				//	if(varValue.code.code.indexOf("ir.getString()")>-1){
+				//		varStringList.push(varName);
+				//	}
 				}else if(varValue.type=="string"){
 					if(varStringList.indexOf(varName)==-1){
 						varStringList.push(varName);
 					}
 				}
-				return (StringUtil.substitute("{0} = {1};\n",castVarName(varName),varValue.type=="obj"?varValue.code.code:varValue.code))
+				return (StringUtil.substitute("{0} = {1};\n",castVarName(varName),varValue.type=="obj"?varValue.code.code:varValue.code));
 			}else{
 				return (StringUtil.substitute("{0} = {1};\n",castVarName(varName),varValue is CodeObj?varValue.code:varValue));
 			}
 		}
-		
-		private function parseVarShow(fun:Object):CodeObj{
-			var param:Object = fun[1]
-			if(paramList.indexOf(param)==-1)
-				paramList.push(param)
-			var funcode:CodeObj=new CodeObj(StringUtil.substitute("Serial.print(\"{0}=\");Serial.println(\"{1}\");\n",param,param));
-			return funcode;
-		}
-		
 		private function parseDelay(fun:Object):String{
 			var cBlk:CodeBlock=getCodeBlock(fun[1]);
 			var funcode:String=(StringUtil.substitute("_delay({0});\n",cBlk.type=="obj"?cBlk.code.code:cBlk.code));
@@ -265,7 +192,7 @@ void updateVar(char * varName,double * var)
 			var repeatCode:String=StringUtil.substitute("for(int __i__=0;__i__<{0};++__i__)\n{\n",initCode.type=="obj"?initCode.code.code:initCode.code);
 			if(blk[2]!=null){
 				for(var i:int=0;i<blk[2].length;i++){
-					var b:Object = blk[2][i]
+					var b:Object = blk[2][i];
 					var cBlk:CodeBlock=getCodeBlock(b);
 					repeatCode+=cBlk.type=="obj"?cBlk.code.code:cBlk.code;
 				}
@@ -283,7 +210,7 @@ void updateVar(char * varName,double * var)
 			var untilCode:String=StringUtil.substitute("while(!({0}))\n{\n_loop();\n",initCode.type=="obj"?initCode.code.code:initCode.code);
 			if(blk[2]!=null){
 				for(var i:int=0;i<blk[2].length;i++){
-					var b:Object = blk[2][i]
+					var b:Object = blk[2][i];
 					var cBlk:CodeBlock=getCodeBlock(b);
 					untilCode+=cBlk.type=="obj"?cBlk.code.code:cBlk.code;
 				}
@@ -369,13 +296,13 @@ void updateVar(char * varName,double * var)
 			funcList.push({name:funcName,code:funcCode});
 		}
 		private function parseIfElse(blk:Object):String{
-			var codeIfElse:String = ""
+			var codeIfElse:String = "";
 			var logiccode:CodeBlock = getCodeBlock(blk[1]);
 			codeIfElse+=StringUtil.substitute("if({0}){\n",logiccode.type=="obj"?logiccode.code.code:logiccode.code);
 			if(blk[2]!=null){
 				for(var i:int=0;i<blk[2].length;i++){
 					var b:CodeBlock = getCodeBlock(blk[2][i]);
-					var ifcode:String=(b.type=="obj"?b.code.code:b.code)+""
+					var ifcode:String=(b.type=="obj"?b.code.code:b.code)+"";
 					codeIfElse+=ifcode
 				}
 			}
@@ -387,14 +314,14 @@ void updateVar(char * varName,double * var)
 					codeIfElse+=elsecode;
 				}
 			}
-			codeIfElse+="}\n"
+			codeIfElse+="}\n";
 			return codeIfElse
 		}
 		
 		private function parseIf(blk:Object):String{
-			var codeIf:String = ""
+			var codeIf:String = "";
 			var logiccode:String = getCodeBlock(blk[1]).code;
-			codeIf+=StringUtil.substitute("if({0}){\n",logiccode)
+			codeIf+=StringUtil.substitute("if({0}){\n",logiccode);
 			if(blk is Array){
 				if(blk.length>2){
 					if(blk[2]!=null){
@@ -406,20 +333,10 @@ void updateVar(char * varName,double * var)
 					}
 				}
 			}
-			codeIf+="}\n"
+			codeIf+="}\n";
 			return codeIf
 		}
 		
-		private function parseVarWrite(blk:Object):String{
-			var varName:String = blk[2]
-			if (varList.indexOf(varName)==-1){
-				varList.push(varName)
-			}
-			if (varListWrite.indexOf(varName)==-1){
-				varListWrite.push(varName)
-			}	
-			return ""
-		}
 		private function parseComputeFunction(blk:Object):String{
 			var cBlk:CodeBlock = getCodeBlock(blk[2]);
 			if(blk[1]=="10 ^"){
@@ -436,51 +353,6 @@ void updateVar(char * varName,double * var)
 			
 			return StringUtil.substitute("{0}({1})",getCodeBlock(blk[1]).code,cBlk.code).split("sin(").join("sin(angle_rad*").split("cos(").join("cos(angle_rad*").split("tan(").join("tan(angle_rad*");
 		}
-		private function buildCode(modtype:String,iotype:String,modport:*,modslot:*,valuestring:*):Object{
-			var workcode:String = ""
-			var setupcode:String = ""
-			var defcode:String = ""    
-			var inccode:String = ""
-			var loopcode:String = ""
-			var portcode:String = modport is CodeObj?modport.code:modport;
-			var slotcode:String = modslot is CodeObj?modslot.code:modslot;
-			var valuecode:String = valuestring is CodeObj?valuestring.code:valuestring;
-			if(modtype=="available"){
-				if(iotype=="serial"){
-					setupcode = StringUtil.substitute("Serial.begin(115200);\n")
-					workcode=StringUtil.substitute("dataLineAvailable()");
-				}
-			}else if(modtype=="read"){
-				if(iotype=="serial"){
-					setupcode = StringUtil.substitute("Serial.begin(115200);\n")
-					workcode=StringUtil.substitute("readDataLine()");
-				}
-			}else if(modtype=="write"){
-				if(iotype=="serial"){
-					setupcode = StringUtil.substitute("Serial.begin(115200);\n");
-					if(modslot=="command"){
-						workcode = StringUtil.substitute("Serial.print(\"{0}=\");Serial.println({1});\n",portcode,valuecode);
-					}else if(modslot=="update"){
-						workcode = StringUtil.substitute("updateVar(\"{0}\",&{1});\n",portcode,portcode);
-					}else{
-						workcode=StringUtil.substitute("Serial.println("+(modport is CodeObj?"{0}":"\"{0}\"")+");\n",portcode);
-					}
-				}
-			}else if(modtype=="clear"){
-				
-			}else{
-				hasUnknownCode = true;
-				trace("Unknow Module:"+modtype)
-			}
-			var codeObj:Object = {setup:setupcode,work:workcode,def:defcode,inc:inccode,loop:loopcode};		
-			return codeObj;
-		}
-		
-		private function buildModule(mname:String,mport:*,mslot:*,mtype:String,mindex:int,mvalue:*):Object{
-			var modDict:Object = {name:mname,port:mport,slot:mslot,type:mtype,index:mindex,value:mvalue}
-			modDict.code = buildCode(mname,mtype,mport,mslot,mvalue)
-			return modDict;
-		}
 		private function appendFun(funcode:*):void{
 			//			if (c!="\n" && c!="}")
 			//funcode+=";\n"
@@ -489,12 +361,13 @@ void updateVar(char * varName,double * var)
 			
 			if(funcode==null) return;
 			if(funcode.length==0) return;
-			var c:String =  funcode.charAt(funcode.length-1)
+			if(funcode.charAt(funcode.length-1) != "\n")
+				funcode += "\n";
 			if(ccode_pointer=="setup"){
 				ccode_setup_fun += funcode;
 			}
 			else if(ccode_pointer=="loop"){
-				ccode_loop+=funcode;
+				ccode_loop += funcode;
 			}
 		}
 		
@@ -533,7 +406,7 @@ void updateVar(char * varName,double * var)
 			else if(blk[0]=="initVar:to:"){
 				codeBlock.type = "obj";
 				codeBlock.code = null;
-				var tmpCodeBlock:Object = {code:{setup:parseVarSet(blk),work:"",def:"",inc:"",loop:""}}
+				var tmpCodeBlock:Object = {code:{setup:parseVarSet(blk),work:"",def:"",inc:"",loop:""}};
 				moduleList.push(tmpCodeBlock);
 				return codeBlock;
 			}
@@ -542,8 +415,6 @@ void updateVar(char * varName,double * var)
 				codeBlock.code = parseVarSet(blk);
 				return codeBlock;
 			}
-			else if(blk[0]=="readVariable:")
-				code = parseVarShow(blk);
 			else if(blk[0]=="wait:elapsed:from:"){
 				codeBlock.type = "string";
 				codeBlock.code = parseDelay(blk);
@@ -557,12 +428,6 @@ void updateVar(char * varName,double * var)
 			else if(blk[0]=="doIf"){
 				codeBlock.type = "string";
 				codeBlock.code = parseIf(blk);
-				return codeBlock;
-			}
-			else if(blk[0]=="writeVariable:")
-			{
-				codeBlock.type = "string";
-				codeBlock.code = parseVarWrite(blk);
 				return codeBlock;
 			}
 			else if(blk[0]=="doRepeat"){
@@ -631,12 +496,7 @@ void updateVar(char * varName,double * var)
 													def  :substitute(getProp(obj,'def'),   blk as Array, ext),
 													inc  :substitute(getProp(obj,'inc'),   blk as Array, ext),
 													loop :substitute(getProp(obj,'loop'),  blk as Array, ext)}};
-						if(!availableBlock(codeObj)){
-							if(ext!=null){
-								if(srcDocuments.indexOf(ext.srcPath)==-1){
-									srcDocuments.push(ext.srcPath);
-								}
-							}
+						if(!availableBlock(codeObj)){	// 重複チェック
 							moduleList.push(codeObj);
 						}
 						codeBlock.type = "obj";
@@ -670,26 +530,35 @@ void updateVar(char * varName,double * var)
 		private function substitute(str:String, params:Array, ext:ScratchExtension=null, offset:uint = 1):String{
 			for(var i:uint=0;i<params.length-offset;i++){
 				var o:CodeBlock = getCodeBlock(params[i+offset]);
+				var v:*;
+			/*
 				//满足下面的条件则不作字符替换处理
 				if(str.indexOf("ir.sendString")>-1 || (str.indexOf(".drawStr(")>-1 && i==3))
 				{
-					var v:*=o.code;
+					v = o.code;
 				}
 				else
+			*/
 				{
-					v = o.type=="string" ? (ext.values[o.code]==undefined ? o.code: ext.values[o.code]): null;
+					if(o.type!="string")
+						v = null;
+					else if(ext.values[o.code]!=undefined)
+						v = ext.values[o.code];
+					else
+						v = o.code;
 				}
 				var s:CodeBlock = new CodeBlock();
-				if(ext==null||(v==null||v==undefined)){
+				if(ext==null || v==null || v==undefined){
 					s = getCodeBlock(params[i+offset]);
 					s.type = (s.type=="obj" && s.code.type!="code")?"string":"number";
 				}else{
 					s.type = isNaN(Number(v))?"string":"number";
 					s.code = v;
 				}
-				if((s.code==""||s.code==" ") && s.code!=0&&s.type=="number"){
+				if((s.code==""||s.code==" ") && s.code!=0 && s.type=="number"){
 					s.type = "string";
 				}
+			/*
 				if(str.indexOf(".drawStr(")>-1){
 					if(i==3 && s.type=="number"){
 						if(s.code is String){
@@ -704,12 +573,13 @@ void updateVar(char * varName,double * var)
 						s.type = "string";
 					}
 				}
-				//如果用到通讯模块的=号，那么将数字也转为字符串进行比较，否则报错
+				// 通信モジュールの=記号が使用されている場合、数値も比較のために文字列に変換されます。そうでない場合、エラーが報告されます
 				if(str.indexOf("se.equalString")>-1)
 				{
 					str = str.split("{"+i+"}").join((s.type=="string"||!isNaN(Number(s.code)))?('"'+s.code+'"'):((s.type=="number")?s.code:s.code.code));
 				}
 				else
+			*/
 				{
 					str = str.split("{"+i+"}").join((s.type=="string")?('"'+s.code+'"'):((s.type=="number")?s.code:s.code.code));
 				}
@@ -728,7 +598,7 @@ void updateVar(char * varName,double * var)
 			ccode_pointer="loop";
 			if(blks!=null){
 				for(var i:int;i<blks.length;i++){
-					var b:Object = blks[i]
+					var b:Object = blks[i];
 					var cBlk:CodeBlock = getCodeBlock(b);
 					appendFun(cBlk.code);
 				}
@@ -742,7 +612,7 @@ void updateVar(char * varName,double * var)
 				if(objs!=null){
 					var obj:Object = objs[objs.length-1];
 					obj = obj[obj.length-1];
-					if(typeof obj=="object" && obj!=null){
+					if(typeof obj == "object"&&obj!=null){
 						var codeObj:Object = {code:{setup:getProp(obj,'setup'),
 													work :getProp(obj,'work'),
 													def  :getProp(obj,'def'),
@@ -762,13 +632,7 @@ void updateVar(char * varName,double * var)
 					ccode_pointer="setup";
 					isArduinoCode = true;
 					
-					var objs:Array = Main.app.extensionManager.specForCmd(op);
-					var ext:ScratchExtension = Main.app.extensionManager.extensionByName(op.split(".")[0]);
-					if(ext!=null){
-						if(srcDocuments.indexOf(ext.srcPath)==-1){
-							srcDocuments.push(ext.srcPath);
-						}
-					}
+					var objs:Array = Main.app.extensionManager.specForCmd(op);	// "remoconRobo.runArduino"からspec取得
 					if(objs!=null){
 						var obj:Object = objs[objs.length-1];
 						obj = obj[obj.length-1];
@@ -791,39 +655,23 @@ void updateVar(char * varName,double * var)
 			}
 			return isArduinoCode;
 		}
-		
-		private function buildSerialParser(code:String):String{
-			if(varListWrite.length==0){
-				code = code.replace("//serialParserCall","").replace("//serialParser","")
-				return code;
-			}
-			var codeParser:String=""
-			for(var i:int=0;i<varListWrite.length;i++){
-				var p:String = varListWrite[i]
-				codeParser+=codeSerialScanf.replace("param", p)
-			}			
-			codeParser = codeSerialParser.replace("//parseList", codeParser)
-			code = code.replace("//serialParserCall","parseSerialInput();").replace("//serialParser",codeParser);
-			return code;
-		}
-		
 		private function fixTabs(code:String):String{
 			var tmp:String = "";
-			var tabindex:int=0
-			var newLineList:Array = []
-			var lines:Array = code.split('\n')
+			var tabindex:int=0;
+			var newLineList:Array = [];
+			var lines:Array = code.split('\n');
 			for(var i:int=0;i<lines.length;i++){
-				var l:String = lines[i]
+				var l:String = lines[i];
 				if(l.indexOf("}")>=0)
-					tabindex-=1
-				tmp = ""
+					tabindex-=1;
+				tmp = "";
 				for(var j:int=0;j<tabindex;j++)
-					tmp+="    "
-				newLineList.push(tmp+l)
+					tmp+="    ";
+				newLineList.push(tmp+l);
 				if(l.indexOf("{")>=0)
-					tabindex+=1
+					tabindex+=1;
 			}
-			code = newLineList.join("\n")
+			code = newLineList.join("\n");
 			code = code.replace(new RegExp("\r\n", "gi"),"\n") // replace windows type end line
 			return code;
 		}
@@ -836,19 +684,17 @@ void updateVar(char * varName,double * var)
 		private var requiredCpp:Array=[];
 		public function jsonToCpp(code:String):String{
 			// reset code buffers 
-			ccode_setup=""
+			ccode_setup="";
 			ccode_setup_fun = "";
-			ccode_loop=""
-			ccode_inc=""
-			ccode_def=""
+			ccode_loop="";
+			ccode_inc="";
+			ccode_def="";
 			ccode_func="";
 			hasUnknownCode = false;
 			// reset arrays
 			varList=[];
 			varStringList=[];
-			varListWrite=[]
-			paramList=[]
-			moduleList=[]
+			moduleList=[];
 			funcList = [];
 			unknownBlocks = [];
 			// params for compiler
@@ -871,67 +717,19 @@ void updateVar(char * varName,double * var)
 									.replace("//include", ccode_inc)
 									.replace("//function",ccode_func);
 			retcode = retcode.replace("//_loop", ccode_loop2);
-			retcode = buildSerialParser(retcode);
 			retcode = fixTabs(retcode);
 			retcode = fixVars(retcode);
 			
-			requiredCpp = getRequiredCpp()
-			// now go into compile process
-			if(!NativeProcess.isSupported) return "";
-			return (retcode);
-			//			buildAll(retcode, requiredCpp);
-		}
-		public function jsonToCpp2(code:String):String{
-			// reset code buffers 
-			ccode_setup=""
-			ccode_setup_fun = "";
-			ccode_loop=""
-			ccode_inc=""
-			ccode_def=""
-			ccode_func="";
-			hasUnknownCode = false;
-			// reset arrays
-			varList=[];
-			varStringList=[];
-			varListWrite=[]
-			paramList=[]
-			moduleList=[]
-			funcList = [];
-			unknownBlocks = [];
-			// params for compiler
-			requiredCpp=[];
-			var buildSuccess:Boolean = false;
-			var objs:Object = util.JSON.parse(code);
-			var childs:Array = objs.children.reverse();
-			for(var i:int=0;i<childs.length;i++){
-				buildSuccess = parseScripts(childs[i].scripts);
-			}
-			if(!buildSuccess){
-				parseScripts(objs.scripts);
-			}
-			ccode_func+=buildFunctions();
-			ccode_setup = hackVaribleWithPinMode(ccode_setup);
-			var retcode:String = codeTemplate
-									.replace("//setup",ccode_setup)
-									.replace("//loop", ccode_loop)
-									.replace("//define", ccode_def)
-									.replace("//include", ccode_inc)
-									.replace("//function",ccode_func);
-			retcode = retcode.replace("//_loop", ccode_loop2);
-			retcode = buildSerialParser(retcode);
-			retcode = fixTabs(retcode);
-			retcode = fixVars(retcode);
-			
-			requiredCpp = getRequiredCpp()
+			requiredCpp = getRequiredCpp();
 			// now go into compile process
 			if(!NativeProcess.isSupported) return "";
 			return (retcode);
 			//			buildAll(retcode, requiredCpp);
 		}
 		
-		// HACK: 在Arduino模式下，如果你定义一个变量，设置一个变量，并对其进行IO操作，
-		// 该变量会在pinMode语句之后被设置。
-		// 这会导致pinMode语句中变量未初始化的问题。
+		// HACK: In Arduino mode, if you define a variable, set a variable, and perform IO operations on it，
+		// This variable is set after the pinMode statement.
+		// This can cause problems with uninitialized variables in the pinMode statement.
 		private function hackVaribleWithPinMode(originalCode:String):String
 		{
 			var lines:Array= originalCode.split("\n");
@@ -954,9 +752,15 @@ void updateVar(char * varName,double * var)
 			// put pinMode command just before io commands
 			for(i=0; i<lines.length; i++) {
 				line = lines[i];
-				if(line.indexOf("digitalWrite")!=-1 || line.indexOf("digitalRead")!=-1 || line.indexOf("pulseIn")!=-1 || 
-					line.indexOf("if(")!=-1 || line.indexOf("for(")!=-1 || line.indexOf("while(")!=-1 || 
-					line.indexOf("analogWrite")!=-1 || line.indexOf("analogWrite")!=-1 || line.indexOf("// write to")!=-1) {
+				if(line.indexOf("digitalWrite")!=-1 ||
+					line.indexOf("digitalRead")!=-1 || 
+					line.indexOf("pulseIn")!=-1 || 
+					line.indexOf("if(")!=-1 || 
+					line.indexOf("for(")!=-1 || 
+					line.indexOf("while(")!=-1 || 
+					line.indexOf("analogWrite")!=-1 || 
+					line.indexOf("analogWrite")!=-1 || 
+					line.indexOf("// write to")!=-1) {
 					break;
 				}
 			}
@@ -982,15 +786,17 @@ void updateVar(char * varName,double * var)
 				}
 			}
 			for(j=0;j<scripts.length;j++){
-				scr = scripts[j][2];
+				scr = scripts[j][2];			// block配列 (name, 初期値)
+			/*
 				if(scr[0][0].indexOf("whenButtonPressed") > 0)
 				{
 					getCodeBlock(scr[0]);
 				}
+			*/
 				if(scr[0][0].indexOf("runArduino") < 0){
-					continue;
-				}//选中的Arduino主代码
-				
+					continue;	// １個目がrunArduinoでないときskip
+				}
+
 				if(!parseCodeBlocks(scr)){
 					continue;
 				}
@@ -1040,17 +846,17 @@ void updateVar(char * varName,double * var)
 		}
 		
 		private function buildDefine():String{
-			var modDefineCode:String = ""
+			var modDefineCode:String = "";
 			for(var i:int=0;i<varList.length;i++){
 				var v:String = varList[i];
-				var code:* = StringUtil.substitute("double {0};\n" ,castVarName(v))
+				var code:* = StringUtil.substitute("double {0};\n" ,castVarName(v));
 				if(ccode_def.indexOf(code)==-1){
 					ccode_def+=code;
 				}
 			}
 			
 			for(i=0;i<moduleList.length;i++){
-				var m:Object = moduleList[i]
+				var m:Object = moduleList[i];
 				code = m["code"]["def"];
 				code = code is CodeObj?code.code:code;
 				if(code!=""){
@@ -1095,9 +901,9 @@ void updateVar(char * varName,double * var)
 		}
 		
 		private function buildInclude():String{
-			var modIncudeCode:String = ""
+			var modIncudeCode:String = "";
 			for(var i:int=0;i<moduleList.length;i++){
-				var m:Object = moduleList[i]
+				var m:Object = moduleList[i];
 				var code:* = m["code"]["inc"];
 				code = code is CodeObj?code.code:code;
 				if(code!=""){
@@ -1116,9 +922,9 @@ void updateVar(char * varName,double * var)
 		}
 		
 		private function buildLoopMaintance():String{
-			var modMaintanceCode:String = ""
+			var modMaintanceCode:String = "";
 			for(var i:int=0;i<moduleList.length;i++){
-				var m:Object = moduleList[i]
+				var m:Object = moduleList[i];
 				var code:* = m["code"]["loop"];
 				code = code is CodeObj?code.code:code;
 				if(code!=""){
@@ -1130,9 +936,9 @@ void updateVar(char * varName,double * var)
 			return modMaintanceCode
 		}
 		private function buildFunctions():String{
-			var funcCodes:String = ""
+			var funcCodes:String = "";
 			for(var i:int=0;i<funcList.length;i++){
-				var m:Object = funcList[i]
+				var m:Object = funcList[i];
 				var code:* = m["code"];
 				code = code is CodeObj?code.code:code;
 				if(code!=""){
@@ -1160,10 +966,10 @@ void updateVar(char * varName,double * var)
 			var response:String = String(e.target.data);
 			//trace("response:"+response);
 			jsonObj = util.JSON.parse(response);
-			hexCode = jsonObj["hex"]
-			ccode = jsonObj["code"]
-			token = jsonObj["hash"]
-			output = jsonObj["output"]
+			hexCode = jsonObj["hex"];
+			ccode = jsonObj["code"];
+			token = jsonObj["hash"];
+			output = jsonObj["output"];
 			_scratch.dispatchEvent(new RobotEvent(RobotEvent.CCODE_GOT,ccode));
 			_scratch.dispatchEvent(new RobotEvent(RobotEvent.COMPILE_OUTPUT,output));
 			if(hexCode)
@@ -1183,7 +989,7 @@ void updateVar(char * varName,double * var)
 		private var tc_cppList:*;
 		private var nativeDoneEvent:String;
 		private var nativeWorkList:Array=[];
-		private var srcDocuments:Array = [];
+	//	private var srcDocuments:Array = [];
 		private var numOfProcess:uint = 0;
 		private var numOfSuccess:uint = 0;
 		private var _projectDocumentName:String = "";
@@ -1193,62 +999,24 @@ void updateVar(char * varName,double * var)
 			// get building direcotry ready
 			var workdir:File = File.applicationStorageDirectory.resolvePath("scratchTemp");
 			if(!workdir.exists){
-				workdir.createDirectory(); 
+				workdir.createDirectory();
 			}
 			if(!workdir.exists){
 				return;
 			}
 			// copy firmware directory
 			workdir = workdir.resolvePath(projectDocumentName);
-			//*
-			for each(var path:String in srcDocuments){
-				var srcdir:File = new File(path);
-				if(srcdir.exists && srcdir.isDirectory){
-					copyCompileFiles(srcdir.getDirectoryListing(),workdir);
-				}
-			}
-			//*/
 			var projCpp:File = File.applicationStorageDirectory.resolvePath("scratchTemp/"+projectDocumentName+"/"+projectDocumentName+".ino")
 			LogManager.sharedManager().log("projCpp:"+projCpp.nativePath);
 			var outStream:FileStream = new FileStream();
 			outStream.open(projCpp, FileMode.WRITE);
-			outStream.writeUTFBytes(ccode)
-			outStream.close()
-			if(ccode.indexOf("updateVar")>-1){
-				// aux ino file for serial variable parser
-				projCpp = File.applicationStorageDirectory.resolvePath("scratchTemp/"+projectDocumentName+"/MeComm.ino")
-				outStream = new FileStream();
-				outStream.open(projCpp, FileMode.WRITE);
-				outStream.writeUTFBytes(serialParserInoFile)
-				outStream.close()
-			}
-			
+			outStream.writeUTFBytes(ccode);
+			outStream.close();
 			projectPath = workdir.nativePath;
 			LogManager.sharedManager().log("projectPath:"+projectPath);
 		}
 		
 		private var compileErr:Boolean = false;
-		//*
-		private function copyCompileFiles(files:Array, workdir:File):void
-		{
-			for(var i:int = 0; i < files.length; ++i){
-				var file:File = files[i];
-				switch(file.extension){
-					case "cpp":
-					case "c":{
-						var fileName:String = file.name.split(".")[0];
-						if(requiredCpp.indexOf(fileName) < 0){
-							requiredCpp.push(fileName);
-						}
-					}
-						//fall through
-					case "h":
-						file.copyTo(workdir.resolvePath(file.name), true);
-						break;
-				}
-			}
-		}
-		//*/
 		private function get projectDocumentName():String{
 			var now:Date = new Date;
 			var pName:String = Main.app.projectName().split(" ").join("").split("(").join("").split(")").join("");
@@ -1269,37 +1037,20 @@ void updateVar(char * varName,double * var)
 			// get building direcotry ready
 			var workdir:File = File.applicationStorageDirectory.resolvePath("scratchTemp")
 			if(!workdir.exists){
-				workdir.createDirectory(); 
-			} 
+				workdir.createDirectory();
+			}
 			
 			if(!workdir.exists){
 				return "workdir not exists";
 			}
-			nativeWorkList = []
+			nativeWorkList = [];
 			// copy firmware directory
 			workdir = workdir.resolvePath(projectDocumentName);
-			//*
-			for each(var path:String in srcDocuments){
-				var srcdir:File = new File(path);
-				if(srcdir.exists && srcdir.isDirectory){
-					copyCompileFiles(srcdir.getDirectoryListing(), workdir);
-				}
-			}
-			//*/
-			var projCpp:File = File.applicationStorageDirectory.resolvePath("scratchTemp/"+projectDocumentName+"/"+projectDocumentName+".ino")
+			var projCpp:File = File.applicationStorageDirectory.resolvePath("scratchTemp/"+projectDocumentName+"/"+projectDocumentName+".ino");
 			var outStream:FileStream = new FileStream();
 			outStream.open(projCpp, FileMode.WRITE);
-			outStream.writeUTFBytes(ccode)
-			outStream.close()
-			if(ccode.indexOf("updateVar")>-1){
-				// aux ino file for serial variable parser
-				projCpp = File.applicationStorageDirectory.resolvePath("scratchTemp/"+projectDocumentName+"/MeComm.ino")
-				outStream = new FileStream();
-				outStream.open(projCpp, FileMode.WRITE);
-				outStream.writeUTFBytes(serialParserInoFile)
-				outStream.close()
-				ccode = ccode.replace("void setup(){",serialParserInoFile+"\nvoid setup(){"); // too tricky here?
-			}
+			outStream.writeUTFBytes(ccode);
+			outStream.close();
 			ConnectionManager.sharedManager().onClose();
 			UploaderEx.Instance.upload(projCpp.nativePath);
 			isUploading = true;
@@ -1308,7 +1059,7 @@ void updateVar(char * varName,double * var)
 		
 		
 		public function openArduinoIDE(ccode:String):String{
-			prepareProjectDir(ccode)
+			prepareProjectDir(ccode);
 			var file:File;
 			if(ApplicationManager.sharedManager().system==ApplicationManager.WINDOWS){
 				file = new File(arduinoInstallPath+"/arduino.exe");
@@ -1320,14 +1071,14 @@ void updateVar(char * varName,double * var)
 			//trace(contents[i].name, contents[i].size);
 			var nativeProcessStartupInfo:NativeProcessStartupInfo =new NativeProcessStartupInfo();
 			nativeProcessStartupInfo.executable = file;
-			processArgs.push(projectPath+"/"+projectDocumentName+".ino")
+			processArgs.push(projectPath+"/"+projectDocumentName+".ino");
 			nativeProcessStartupInfo.arguments = processArgs;
 			process = new NativeProcess();
-			process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA, function(e:ProgressEvent):void{}); 
+			process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA, function(e:ProgressEvent):void{});
 			process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, function(e:ProgressEvent):void{});
 			process.addEventListener(NativeProcessExitEvent.EXIT, function(e:NativeProcessExitEvent):void{});
 			process.start(nativeProcessStartupInfo);
-			return ""
+			return "";
 		}
 		private function get arduinoInstallPath():String{
 			if(null == arduinoPath){

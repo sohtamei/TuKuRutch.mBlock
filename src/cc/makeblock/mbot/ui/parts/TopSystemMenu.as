@@ -14,7 +14,7 @@ package cc.makeblock.mbot.ui.parts
 	import cc.makeblock.media.MediaManager;
 	import cc.makeblock.menu.MenuUtil;
 	import cc.makeblock.menu.SystemMenu;
-	import cc.makeblock.updater.AppUpdater;
+//	import cc.makeblock.updater.AppUpdater;
 	
 	import extensions.ArduinoManager;
 	import extensions.ConnectionManager;
@@ -348,14 +348,16 @@ package cc.makeblock.mbot.ui.parts
 					Main.app.track("/OpenHelp/"+menuItem.data.@key);
 			}
 			
+/*
 			switch(menuItem.data.@key.toString()){
 				case "check_app_update":
 					AppUpdater.getInstance().start(true);
 					break;
-//				case "upload_bug":
-//					ErrorReportFrame.OpenSendWindow("");
-//					break;
+				case "upload_bug":
+					ErrorReportFrame.OpenSendWindow("");
+					break;
 			}
+*/
 		}
 	}
 }
