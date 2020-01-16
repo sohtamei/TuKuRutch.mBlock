@@ -50,7 +50,7 @@ package scratch {
 	import by.blooddy.crypto.image.PNG24Encoder;
 	import by.blooddy.crypto.image.PNGFilter;
 	
-	import extensions.DeviceManager;
+	//import extensions.DeviceManager;
 	
 	import filters.FilterPack;
 	
@@ -689,7 +689,7 @@ public class ScratchStage extends ScratchObj {
 		info.scriptCount = scriptCount();
 		info.spriteCount = spriteCount();
 		info.flashVersion = Capabilities.version;
-		info.boardVersion = DeviceManager.sharedManager().currentBoard;
+		info.boardVersion = "remoconRobo";//DeviceManager.sharedManager().currentBoard;
 		if (Main.app.projectID != '') info.projectID = Main.app.projectID;
 		info.videoOn = isVideoOn();
 		info.swfVersion = Main.versionString;

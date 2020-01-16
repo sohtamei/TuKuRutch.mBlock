@@ -40,7 +40,7 @@ package {
 	import cc.makeblock.util.FlashSprite;
 	import cc.makeblock.util.InvokeMgr;
 	
-	import extensions.DeviceManager;
+//	import extensions.DeviceManager;
 	import extensions.ExtensionManager;
 	import extensions.ConnectionManager;
 	
@@ -239,7 +239,7 @@ package {
 			else runtime.installEmptyProject();
 			
 			fixLayout();
-			setTimeout(DeviceManager.sharedManager, 100);
+		//	setTimeout(DeviceManager.sharedManager, 100);
 			if(!SharedObjectManager.sharedManager().getObject("mblock-first-launch",false))
 			{
 				SharedObjectManager.sharedManager().setObject("mblock-first-launch",true);
@@ -1133,7 +1133,7 @@ package {
 			revertUndo = new ProjectIO(Main.app).encodeProjectAsZipFile(stagePane);
 			doRevert();
 		}
-	
+	/*
 		public function revertToOriginalProject():void {
 			if (!originalProj) return;
 			DialogBox.confirm('Throw away all changes since opening this project?', stage, preDoRevert);
@@ -1145,7 +1145,7 @@ package {
 			revertUndo = null;
 			saveNeeded = true;
 		}
-	
+	*/
 		public function canRevert():Boolean { return originalProj != null && saveNeeded }
 		public function canUndoRevert():Boolean { return revertUndo != null }
 		private function clearRevertUndo():void { revertUndo = null }

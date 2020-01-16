@@ -37,7 +37,7 @@ import flash.utils.ByteArray;
 import flash.utils.Dictionary;
 import flash.utils.setTimeout;
 
-import extensions.DeviceManager;
+//import extensions.DeviceManager;
 
 import scratch.ScratchCostume;
 import scratch.ScratchObj;
@@ -182,6 +182,7 @@ public class ProjectIO {
 		//先处理兼容性问题
 		fixManager(jsonObj);
 		trace(util.JSON.stringify(jsonObj));
+/*
 		if(jsonObj['info']){
 			if(jsonObj['info']['boardVersion']){
 				DeviceManager.sharedManager().onSelectBoard(jsonObj['info']['boardVersion']);
@@ -189,7 +190,7 @@ public class ProjectIO {
 				DeviceManager.sharedManager().onSelectBoard("remoconRobo");
 			}
 		}
-		if (jsonObj['children']) { // project JSON
+*/		if (jsonObj['children']) { // project JSON
 			
 			var proj:ScratchStage = new ScratchStage();
 			proj.readJSON(jsonObj);

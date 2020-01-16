@@ -49,6 +49,7 @@ public class ExtensionManager {
 	public function ExtensionManager(app:Main) {
 		this.app = app;
 		clearImportedExtensions();
+		singleSelectExtension("remoconRobo");
 	}
 
 	public function extensionActive(extName:String):Boolean {
@@ -169,24 +170,12 @@ public class ExtensionManager {
 			unloadRawExtension(ext);
 		}
 	}
-/*
-	static public function isCommonExt(extName:String):Boolean
-	{
-		switch(extName){
-			case "Arduino":
-			case "Communication":
-			case "Joystick(Arduino Mode Only)":
-				return true;
-		}
-		return false;
-	}
-*/
 	static public function isMakeBlockExt(extName:String):Boolean
 	{
 		var ext:Object = Main.app.extensionManager.findExtensionByName(extName);
 		return ext != null /*&& ext.isMakeBlockBoard*/;
 	}
-	public function singleSelectExtension(name:String):void{
+	private function singleSelectExtension(name:String):void{
 		var ext:Object = findExtensionByName(name);
 		if(null == ext){
 			return;
@@ -216,6 +205,7 @@ public class ExtensionManager {
 	public function checkExtensionSelected(name:String):Boolean{
 		return SharedObjectManager.sharedManager().getObject(name+"_selected",false);
 	}
+/*
 	public function checkExtensionEnabled():Boolean{
 		var list:Array = extensionList;
 		for(var i:uint=0;i<list.length;i++){
@@ -226,7 +216,7 @@ public class ExtensionManager {
 		}
 		return false;
 	}
-
+*/
 	public function copyLocalFiles():void{
 		Main.app.track("copy local files...");
 		copyDir("media/mediaLibrary.json");

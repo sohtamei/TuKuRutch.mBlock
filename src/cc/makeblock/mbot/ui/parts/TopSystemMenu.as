@@ -8,24 +8,15 @@ package cc.makeblock.mbot.ui.parts
 	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
 	
-//	import cc.makeblock.mbot.uiwidgets.DynamicCompiler;
-//	import cc.makeblock.mbot.uiwidgets.errorreport.ErrorReportFrame;
-//	import cc.makeblock.mbot.uiwidgets.extensionMgr.ExtensionUtil;
-	import cc.makeblock.media.MediaManager;
 	import cc.makeblock.menu.MenuUtil;
 	import cc.makeblock.menu.SystemMenu;
-//	import cc.makeblock.updater.AppUpdater;
 	
 	import extensions.ArduinoManager;
 	import extensions.ConnectionManager;
-	import extensions.DeviceManager;
 	import extensions.ExtensionManager;
-	
-	import org.aswing.AsWingUtils;
 	
 	import translation.Translator;
 	
-	import util.ApplicationManager;
 	import util.SharedObjectManager;
 
 	import cc.makeblock.mbot.util.PopupUtil;
@@ -37,20 +28,19 @@ package cc.makeblock.mbot.ui.parts
 			super(stage, path);
 			
 			getNativeMenu().getItemByName("File").submenu.addEventListener(Event.DISPLAYING, __onInitFielMenu);
+			register("File", __onFile);
+
 			getNativeMenu().getItemByName("Edit").submenu.addEventListener(Event.DISPLAYING, __onInitEditMenu);
+			register("Edit", __onEdit);
+
 			getNativeMenu().getItemByName("Connect").submenu.addEventListener(Event.DISPLAYING, __onShowConnect);
-		//	getNativeMenu().getItemByName("Boards").submenu.addEventListener(Event.DISPLAYING, __onShowBoards);
+			register("Connect", __onConnect);
+
 			getNativeMenu().getItemByName("Extensions").submenu.addEventListener(Event.DISPLAYING, __onInitExtMenu);
 			getNativeMenu().getItemByName("Language").submenu.addEventListener(Event.DISPLAYING, __onShowLanguage);
 			
-			register("File", __onFile);
-			register("Edit", __onEdit);
-			register("Connect", __onConnect);
-		//	register("Boards", __onSelectBoard);
 			register("Help", __onHelp);
 
-		//	register("Manage Extensions", ExtensionUtil.OnManagerExtension);
-		//	register("Restore Extensions", ExtensionUtil.OnLoadExtension);
 			register("Clear Cache", ArduinoManager.sharedManager().clearTempFiles);
 		}
 		public function changeLang():void
@@ -74,12 +64,6 @@ package cc.makeblock.mbot.ui.parts
 				}
 			}
 			setItemLabel(item);
-/*
-			if(item.name == "Boards"){
-				setItemLabel(item.submenu.getItemByName("Others"));
-				return true;
-			}
-*/
 			if(item.name == "Language"){
 				item = MenuUtil.FindItem(item.submenu, "set font size");
 				setItemLabel(item);
@@ -111,18 +95,6 @@ package cc.makeblock.mbot.ui.parts
 				case "Save Project As":
 					Main.app.exportProjectToFile();
 					break;
-				case "Undo Revert":
-					Main.app.undoRevert();
-					break;
-				case "Revert":
-					Main.app.revertToOriginalProject();
-					break;
-				case "Import Image":
-					MediaManager.getInstance().importImage();
-					break;
-				case "Export Image":
-					MediaManager.getInstance().exportImage();
-					break;
 			}
 		}
 		
@@ -152,21 +124,11 @@ package cc.makeblock.mbot.ui.parts
 		
 		private function __onConnect(menuItem:NativeMenuItem):void
 		{
-			var key:String;
 			if(menuItem.data){
-				key = menuItem.data.@action;
+				ConnectionManager.sharedManager().onConnect(menuItem.data.@action);
 			}else{
-				key = menuItem.name;
+				ConnectionManager.sharedManager().onConnect(menuItem.name);
 			}
-		/*
-			if("upgrade_custom_firmware" == key){
-				var panel:DynamicCompiler = new DynamicCompiler();
-				panel.show();
-				AsWingUtils.centerLocate(panel);
-			}else{
-		*/
-				ConnectionManager.sharedManager().onConnect(key);
-		//	}
 		}
 		
 		private function __onShowLanguage(evt:Event):void
@@ -197,10 +159,6 @@ package cc.makeblock.mbot.ui.parts
 			}
 		}
 		
-		private function __onMicrosoftSettingSelect(item:NativeMenuItem):void
-		{
-			Main.app.openMicrosoftCognitiveSetting(Translator.map("Microsoft Cognitive Services"));
-		}
 		private function __onLanguageSelect(evt:Event):void
 		{
 			var item:NativeMenuItem = evt.target as NativeMenuItem;
@@ -213,12 +171,6 @@ package cc.makeblock.mbot.ui.parts
 		
 		private function __onInitFielMenu(evt:Event):void
 		{
-			var menu:NativeMenu = evt.target as NativeMenu;
-			
-		//	MenuUtil.setEnable(menu.getItemByName("Undo Revert"), Main.app.canUndoRevert());
-		//	MenuUtil.setEnable(menu.getItemByName("Revert"), Main.app.canRevert());
-			
-			Main.app.track("/OpenFile");
 		}
 		
 		private function __onInitEditMenu(evt:Event):void
@@ -229,7 +181,6 @@ package cc.makeblock.mbot.ui.parts
 //			MenuUtil.setChecked(menu.getItemByName("Small stage layout"),	!Main.app.stageIsHided && Main.app.stageIsContracted);
 //			MenuUtil.setChecked(menu.getItemByName("Turbo mode"),			Main.app.interp.turboMode);
 			MenuUtil.setChecked(menu.getItemByName("Arduino mode"),			Main.app.stageIsArduino);
-			Main.app.track("/OpenEdit");
 		}
 		
 		private var initConnectMenuItemCount:int = -1;
@@ -237,7 +188,6 @@ package cc.makeblock.mbot.ui.parts
 		private function __onShowConnect(evt:Event):void
 		{
 			var menu:NativeMenu = evt.target as NativeMenu;
-//			var subMenu:NativeMenu = new NativeMenu();
 			
 			if(initConnectMenuItemCount < 0){
 				initConnectMenuItemCount = menu.numItems;
@@ -246,7 +196,6 @@ package cc.makeblock.mbot.ui.parts
 				menu.removeItemAt(menu.numItems-1);
 			}
 
-			var enabled:Boolean = Main.app.extensionManager.checkExtensionEnabled();
 			var arr:Array = ConnectionManager.sharedManager().portlist;
 			if(arr.length==0)
 			{
@@ -261,33 +210,16 @@ package cc.makeblock.mbot.ui.parts
 					var item:NativeMenuItem = menu.addItem(new NativeMenuItem(Translator.map("Connect to Robot") + "(" + arr[i] + ")"));
 					item.name = "serial_"+arr[i];
 					
-					item.enabled = enabled;
+					item.enabled = true;
 					item.checked = ConnectionManager.sharedManager().selectPort==arr[i] && ConnectionManager.sharedManager().isConnected;
 				}
 			}
-			
-//			menu.getItemByName("Serial Port").submenu = subMenu;
 			
 			var canReset:Boolean = ConnectionManager.sharedManager().isConnected;
 			MenuUtil.FindItem(getNativeMenu(), "Reset Default Program").enabled = canReset;
 			MenuUtil.FindItem(getNativeMenu(), "Upgrade Firmware").enabled = canReset;
 		}
 
-		private function __onSelectBoard(menuItem:NativeMenuItem):void
-		{
-			DeviceManager.sharedManager().onSelectBoard(menuItem.name);
-		}
-		
-		private function __onShowBoards(evt:Event):void
-		{
-			var menu:NativeMenu = evt.target as NativeMenu;
-			for each(var item:NativeMenuItem in menu.items){
-				if(item.enabled){
-					MenuUtil.setChecked(item, DeviceManager.sharedManager().checkCurrentBoard(item.name));
-				}
-			}
-		}
-		
 		private var initExtMenuItemCount:int = -1;
 		
 		private function __onInitExtMenu(evt:Event):void
@@ -305,7 +237,6 @@ package cc.makeblock.mbot.ui.parts
 				menuItem.removeItemAt(menuItem.numItems-1);
 			}
 			list = Main.app.extensionManager.extensionList;
-//			var subMenu:NativeMenu = menuItem;
 			for(var i:int=0;i<list.length;i++){
 				var extName:String = list[i].extensionName;
 				var subMenuItem:NativeMenuItem = menuItem.addItem(new NativeMenuItem(Translator.map(extName)));
@@ -323,41 +254,14 @@ package cc.makeblock.mbot.ui.parts
 		
 		private function __onHelp(menuItem:NativeMenuItem):void
 		{
-			var path:String = menuItem.data.@url;
-			if(path){
-				navigateToURL(new URLRequest(path),"_blank");
-			}else{
-				path = menuItem.data.@url_en;
-				if(path){
-					if(Translator.currentLang == "zh_CN" || Translator.currentLang == "zh_TW"){
-						path = menuItem.data.@url_cn;
-					}
-					navigateToURL(new URLRequest(path),"_blank");
-				}
-			}
-			
+			var url:String = "http://sohta02.web.fc2.com/familyday.html";
 			switch(menuItem.name)
 			{
-				case "Share Your Project":
-					Main.app.track("/OpenShare/");
-					break;
-				case "FAQ":
-					Main.app.track("/OpenFaq/");
-					break;
+				case "Educators' Content":
 				default:
-					Main.app.track("/OpenHelp/"+menuItem.data.@key);
-			}
-			
-/*
-			switch(menuItem.data.@key.toString()){
-				case "check_app_update":
-					AppUpdater.getInstance().start(true);
-					break;
-				case "upload_bug":
-					ErrorReportFrame.OpenSendWindow("");
+					navigateToURL(new URLRequest(url),"_blank");
 					break;
 			}
-*/
 		}
 	}
 }

@@ -13,7 +13,7 @@ package extensions
 	import flash.utils.setTimeout;
 	import cc.makeblock.interpreter.BlockInterpreter;
 	import cc.makeblock.mbot.util.AppTitleMgr;
-	import cc.makeblock.util.UploadSizeInfo;
+//	import cc.makeblock.util.UploadSizeInfo;
 	
 	import translation.Translator;
 	
@@ -334,7 +334,7 @@ package extensions
 			}
 			Main.app.topBarPart.setConnectedTitle(AppTitleMgr.Uploading);
 			var tf:File;
-			var currentDevice:String = DeviceManager.sharedManager().currentDevice;
+		//	var currentDevice:String = DeviceManager.sharedManager().currentDevice;
 			var nativeProcessStartupInfo:NativeProcessStartupInfo =new NativeProcessStartupInfo();
 			nativeProcessStartupInfo.executable = file;
 			var v:Vector.<String> = new Vector.<String>();//外部应用程序需要的参数
@@ -367,7 +367,7 @@ package extensions
 //			process.addEventListener(IOErrorEvent.STANDARD_OUTPUT_IO_ERROR, onIOError);
 //			process.addEventListener(IOErrorEvent.STANDARD_ERROR_IO_ERROR, onIOError);
 			process.start(nativeProcessStartupInfo);
-			sizeInfo.reset();
+//			sizeInfo.reset();
 			Main.app.scriptsPart.clearInfo();
 			Main.app.scriptsPart.appendMessage(nativeProcessStartupInfo.executable.nativePath + " " + v.join(" "));
 			ArduinoManager.sharedManager().isUploading = true;
@@ -375,7 +375,7 @@ package extensions
 		}
 		
 		private var errorText:String;
-		private var sizeInfo:UploadSizeInfo = new UploadSizeInfo();
+//		private var sizeInfo:UploadSizeInfo = new UploadSizeInfo();
 		private function onStandardOutputData(event:ProgressEvent):void
 		{
 			var msg:String = process.standardError.readUTFBytes(process.standardError.bytesAvailable);
@@ -390,7 +390,7 @@ package extensions
 				errorText += msg;
 			}
 			Main.app.scriptsPart.appendRawMessage(msg);
-			_dialog.setText(Translator.map('Uploading') + " ... " + sizeInfo.update(msg) + "%");
+			_dialog.setText(Translator.map('Uploading') + " ... " + "0%");// + sizeInfo.update(msg) + "%");
 		}
 		
 		private function onExit(event:NativeProcessExitEvent):void

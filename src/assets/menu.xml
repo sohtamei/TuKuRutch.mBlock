@@ -17,11 +17,6 @@
 		<item name="Hide stage layout" label="隐藏舞台" keyEquivalent="" />
 		<item name="Arduino mode" label="Arduino模式" keyEquivalent="" />
 	</subMenu>
-<!--
-	<subMenu name="Boards" label="控制板">
-		<item name="remoconRobo" label="FamilyDay" />
-	</subMenu>
--->
 	<subMenu name="Extensions" label="扩展">
 <!--
 		<item name="Restore Extensions" label="检查最新扩展" />
@@ -52,6 +47,6 @@
 		</subMenu>
 	</subMenu>
 	<subMenu name="Help" label="帮助">
-		<item name="Educators' Content" url="http://sohta02.web.fc2.com/familyday.html" />
+		<item name="Educators' Content"/>
 	</subMenu>
 </menu>
