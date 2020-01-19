@@ -105,13 +105,14 @@ package extensions
 		// 6. deviceOpened (robot.js)			- set_receive_handler(processData)
 
 		public function onConnect(name:String):void{
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName("RobotExt");
 			switch(name){
 				case "upgrade_firmware":{
-					upgrade(File.applicationDirectory.nativePath + "/ext/firmware/hex/robot_pcmode/robot_pcmode.cpp.standard.hex");
+					upgrade(ext.docPath + ext.pcmodeFW + ".cpp.standard.hex");
 					break;
 				}
 				case "reset_program":{
-					upgrade(File.applicationDirectory.nativePath + "/ext/firmware/hex/robot_normal/robot_normal.cpp.standard.hex");
+					upgrade(ext.docPath + ext.normalFW + ".cpp.standard.hex");
 					break;
 				}
 				default:{
@@ -294,7 +295,8 @@ package extensions
 			_dialog.setText(Translator.map('Executing'));
 			_dialog.showOnStage(_mBlock.stage);
 
-			_hexToDownload = hexFile;
+			var f:File = new File(hexFile);
+			_hexToDownload = f.nativePath;
 			Main.app.topBarPart.setConnectedTitle(AppTitleMgr.Uploading);
 			ArduinoManager.sharedManager().isUploading = false;
 			_serial.close();
@@ -371,7 +373,6 @@ package extensions
 			Main.app.scriptsPart.clearInfo();
 			Main.app.scriptsPart.appendMessage(nativeProcessStartupInfo.executable.nativePath + " " + v.join(" "));
 			ArduinoManager.sharedManager().isUploading = true;
-			
 		}
 		
 		private var errorText:String;

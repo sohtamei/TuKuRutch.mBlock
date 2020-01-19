@@ -99,7 +99,9 @@ package cc.makeblock.interpreter
 				var tmp:Array = [0xff, 0x55, 0x00, index];
 				for(i = 0; i < tmp.length; i++)
 					cmd.writeByte(tmp[i]);
-				for(i = 0; i < obj2.remote.length; i++) {
+				var size:int = obj2.remote.length;
+				if(obj1[0] != "w") size--;
+				for(i = 0; i < size; i++) {
 					switch(obj2.remote[i]) {
 					case "B": cmd.writeByte(param[i]);   break;
 					case "S": cmd.writeShort(param[i]);  break;

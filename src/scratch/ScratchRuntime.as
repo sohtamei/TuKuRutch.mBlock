@@ -112,17 +112,12 @@ package scratch {
 			if (motionDetector) motionDetector.step(); // Video motion detection
 	
 			// Step the stage, sprites, and watchers
-			
 				app.stagePane.step(this);
 				
 			// run scripts and commit any pen strokes
 				processEdgeTriggeredHats();
-			
 				interp.stepThreads();
-			
-			
 				app.stagePane.commitPenStrokes();
-			
 		 }
 		
 	//-------- recording test ---------

@@ -695,12 +695,13 @@ void _loop(){
 		
 		public function jsonToCpp2():void
 		{
-			var f:File = new File(File.applicationDirectory.nativePath + "/ext/firmware/hex/robot_pcmode/robot_pcmode.ino.template");
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName("RobotExt");
+		//	var f:File = new File(File.applicationDirectory.nativePath + "/ext/firmware/hex/robot_pcmode/robot_pcmode.ino.template");
+			var f:File = new File(ext.docPath + ext.pcmodeFW + ".ino.template");
 			if(f==null || !f.exists)
 				return;
 			var code:String = FileUtil.ReadString(f);
 
-			var ext:ScratchExtension = Main.app.extensionManager.extensionByName("RobotExt");
 			code = code.replace("// HEADER", getProp(ext, "header"))
 						.replace("// SETUP", getProp(ext, "setup"))
 						.replace("// LOOP", getProp(ext, "loop"));
@@ -743,12 +744,12 @@ void _loop(){
 					work += "case " + i.toString() + ": " + setcmd + "((" + tmp + ")); break;\n";
 					break;
 				}
-
 			}
 			code = code.replace("// WORK\n", work);
 			code = fixTabs(code);
 
-			f = new File(File.applicationDirectory.nativePath + "/ext/firmware/hex/robot_pcmode/robot_pcmode.ino");
+		//	f = new File(File.applicationDirectory.nativePath + "/ext/libraries/robot/robot_pcmode/robot_pcmode.ino");
+			f = new File(url2nativePath(ext.docPath + ext.pcmodeFW + ".ino"));
 			FileUtil.WriteString(f, code);
 			return;
 		}
@@ -798,6 +799,11 @@ void _loop(){
 			return joinedLines;
 		}
 */
+		private function url2nativePath(url:String):String
+		{
+			var f:File = new File(url);
+			return f.nativePath;
+		}
 		private function parseScripts(scripts:Object):Boolean
 		{
 			if(null == scripts){
@@ -992,6 +998,7 @@ void _loop(){
 		{
 			jsonToCpp2();
 
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName("RobotExt");
 			var file:File;
 			if(ApplicationManager.sharedManager().system==ApplicationManager.WINDOWS){
 				file = new File(arduinoInstallPath+"/arduino.exe");
@@ -1001,7 +1008,7 @@ void _loop(){
 			var processArgs:Vector.<String> = new Vector.<String>();
 			var nativeProcessStartupInfo:NativeProcessStartupInfo =new NativeProcessStartupInfo();
 			nativeProcessStartupInfo.executable = file;
-			processArgs.push(File.applicationDirectory.nativePath + "/ext/firmware/hex/robot_pcmode/robot_pcmode.ino");
+			processArgs.push(url2nativePath(ext.docPath + ext.pcmodeFW + ".ino"));
 			nativeProcessStartupInfo.arguments = processArgs;
 			process = new NativeProcess();
 			process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA, function(e:ProgressEvent):void{});

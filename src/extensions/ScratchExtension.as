@@ -48,6 +48,8 @@ public class ScratchExtension {
 	public var name:String = '';
 	public var port:int;
 	private var _javascriptURL:String = ''; // URL to load a javascript extension
+	public var normalFW:String = "";
+	public var pcmodeFW:String = "";
 
 	public var blockSpecs:Array = [];
 	public var menus:Object = {};

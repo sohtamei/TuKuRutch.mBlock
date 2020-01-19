@@ -866,18 +866,15 @@ package {
 				showMessage("file.url11="+file.url);
 				//处理ios 10.11.6，会自动将默认名称包含进去，比如Untitle.sb2/myproject.sb2
 				var pathArr:Array = file.url.split("/");
-				for(var i:int=0;i<pathArr.length;i++)
-				{
-					if(i<pathArr.length-1 &&　pathArr[i].indexOf(".sb2")>-1)
-					{
+				for(var i:int=0;i<pathArr.length;i++) {
+					if(i<pathArr.length-1 && pathArr[i].indexOf(".sb2")>-1) {
 						pathArr.splice(i,1);
 						i--;
 					}
 				}
 				file.url = pathArr.join("/");
 				//自动为文件名加上后缀，如果用户没指定的话
-				if(file.url.substr(file.url.length-4)!=".sb2")
-				{
+				if(file.url.substr(file.url.length-4)!=".sb2") {
 					file.url = file.url+".sb2";
 				}
 				showMessage("file.url="+file.url);
