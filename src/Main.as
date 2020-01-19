@@ -240,6 +240,7 @@ package {
 			
 			fixLayout();
 		//	setTimeout(DeviceManager.sharedManager, 100);
+			setTimeout(extensionManager.singleSelectExtension, 100, "RobotExt");
 			if(!SharedObjectManager.sharedManager().getObject("mblock-first-launch",false))
 			{
 				SharedObjectManager.sharedManager().setObject("mblock-first-launch",true);

@@ -689,7 +689,7 @@ public class ScratchStage extends ScratchObj {
 		info.scriptCount = scriptCount();
 		info.spriteCount = spriteCount();
 		info.flashVersion = Capabilities.version;
-		info.boardVersion = "remoconRobo";//DeviceManager.sharedManager().currentBoard;
+		info.boardVersion = "RobotExt";
 		if (Main.app.projectID != '') info.projectID = Main.app.projectID;
 		info.videoOn = isVideoOn();
 		info.swfVersion = Main.versionString;

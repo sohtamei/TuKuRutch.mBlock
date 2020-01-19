@@ -42,6 +42,7 @@ package cc.makeblock.mbot.ui.parts
 			register("Help", __onHelp);
 
 			register("Clear Cache", ArduinoManager.sharedManager().clearTempFiles);
+			register("Convert robot.s2e to PC mode firmware", ArduinoManager.sharedManager().openArduinoIDE2);
 		}
 		public function changeLang():void
 		{
@@ -119,7 +120,6 @@ package cc.makeblock.mbot.ui.parts
 					Main.app.changeToArduinoMode();
 					break;
 			}
-			Main.app.track("/OpenEdit");
 		}
 		
 		private function __onConnect(menuItem:NativeMenuItem):void

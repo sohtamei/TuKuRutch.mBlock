@@ -49,7 +49,6 @@ public class ExtensionManager {
 	public function ExtensionManager(app:Main) {
 		this.app = app;
 		clearImportedExtensions();
-		singleSelectExtension("remoconRobo");
 	}
 
 	public function extensionActive(extName:String):Boolean {
@@ -112,7 +111,7 @@ public class ExtensionManager {
 		for each (ext in extensionDict) {
 			result.push(ext);
 		}
-		result.sortOn('sort');
+		result.sortOn('name');
 		return result;
 	}
 	public function allExtensions():Array {
@@ -122,7 +121,7 @@ public class ExtensionManager {
 		for each (ext in extensionDict) {
 			result.push(ext);
 		}
-		result.sortOn('sort');
+		result.sortOn('name');
 		return result;
 	}
 	public function extensionByName(extName:String):ScratchExtension{
@@ -175,7 +174,7 @@ public class ExtensionManager {
 		var ext:Object = Main.app.extensionManager.findExtensionByName(extName);
 		return ext != null /*&& ext.isMakeBlockBoard*/;
 	}
-	private function singleSelectExtension(name:String):void{
+	public function singleSelectExtension(name:String):void{
 		var ext:Object = findExtensionByName(name);
 		if(null == ext){
 			return;
@@ -243,7 +242,6 @@ public class ExtensionManager {
 			}
 			_extensionList.sortOn("sort", Array.NUMERIC);
 		}
-		
 		return;
 	}
 
@@ -303,35 +301,34 @@ public class ExtensionManager {
 		if(!ext || (ext.blockSpecs && ext.blockSpecs.length)){
 			ext = new ScratchExtension(extObj.extensionName, extObj.extensionPort);
 		}
-		ext.blockSpecs = extObj.blockSpecs;
-		if(extObj.url) ext.url = extObj.url;
-		if(extObj.extensionHost) ext.host = extObj.extensionHost;
-		if(extObj.extensionType) ext.type = extObj.extensionType;
 		var srcArr:Array = extObj.srcPath.split("/");
 		ext.docPath = extObj.srcPath.split(srcArr[srcArr.length-1]).join("");
 	//	ext.srcPath = ext.docPath+"/src";
-		//ext.showBlocks = true;
-		ext.menus = extObj.menus;
-		if(extObj.values){
-			ext.values = extObj.values;
-		}
-		if(extObj.translators){
-			ext.translators = extObj.translators;
-		}
-		if(extObj.firmware){
-			ext.firmware = extObj.firmware;
-		}
-		ext.javascriptURL = extObj.javascriptURL;	
-		if (extObj.host) ext.host = extObj.host; // non-local host allowed but not saved in project
-		if(ext.port==0&&ext.javascriptURL!=""){
+
+									ext.javascriptURL = extObj.javascriptURL;
+		if(extObj.header)			ext.header = extObj.header;
+		if(extObj.setup)			ext.setup = extObj.setup;
+		if(extObj.loop)				ext.loop = extObj.loop;
+									ext.blockSpecs = extObj.blockSpecs;
+									ext.menus = extObj.menus;
+		if(extObj.values)			ext.values = extObj.values;
+		if(extObj.translators)		ext.translators = extObj.translators;
+
+//									ext.showBlocks = true;
+//		if(extObj.url)				ext.url = extObj.url;
+//		if(extObj.extensionHost)	ext.host = extObj.extensionHost;
+//		if(extObj.extensionType)	ext.type = extObj.extensionType;
+//		if(extObj.firmware)			ext.firmware = extObj.firmware;
+//		if(extObj.host)				ext.host = extObj.host; // non-local host allowed but not saved in project
+//		if(extObj.sort)				ext.sort = extObj.sort;
+
+		if(ext.port==0 && ext.javascriptURL!=""){
 			ext.useSerial = true;
 		}else{
 			ext.useSerial = false;
 		}
-		if(extObj.sort){
-			ext.sort = extObj.sort;
-		}
 		extensionDict[extObj.extensionName] = ext;
+
 		parseTranslators(ext);
 //		parseAllTranslators();
 		Main.app.translationChanged();
@@ -423,7 +420,6 @@ public class ExtensionManager {
 			else if (ext.problem != '') indicator.setColorAndMsg(0xE0E000, ext.problem);
 			else indicator.setColorAndMsg(0x00C000, ext.success);
 		}
-		
 	}
 
 	// -----------------------------
@@ -455,7 +451,6 @@ public class ExtensionManager {
 		}
 	}
 
-	
 	public function getStateVar(extensionName:String, varName:String, defaultValue:*):* {
 		var ext:ScratchExtension = extensionDict[extensionName];
 		if (ext == null) return defaultValue; // unknown extension

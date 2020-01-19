@@ -417,6 +417,7 @@ public class PaletteBuilder {
 			else m.addItem('Show Extension', showExtension);
 			m.showOnStage(app.stage);
 		}
+	/*
 		function showAbout():void {
 			// Open in the tips window if the URL starts with /info/ and another tab otherwise
 			if (ext.url) {
@@ -424,6 +425,7 @@ public class PaletteBuilder {
 				else navigateToURL(new URLRequest(ext.url));
 			}
 		}
+	*/
 		function hideExtension():void {
 			app.extensionManager.setEnabled(ext.name, false);
 			app.updatePalette();

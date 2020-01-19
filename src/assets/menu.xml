@@ -22,6 +22,7 @@
 		<item name="Restore Extensions" label="检查最新扩展" />
 -->
 		<item name="Clear Cache" label="清空缓存" />
+		<item name="Convert robot.s2e to PC mode firmware"/>
 		<item isSeparator="true" />
 	</subMenu>
 	<subMenu name="Language" label="语言">

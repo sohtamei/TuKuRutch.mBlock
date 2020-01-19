@@ -17,6 +17,7 @@ package extensions
 	
 	import cc.makeblock.mbot.util.PopupUtil;
 	import cc.makeblock.mbot.util.StringUtil;
+	import cc.makeblock.util.FileUtil;
 	
 	import translation.Translator;
 	
@@ -26,16 +27,9 @@ package extensions
 
 	public class ArduinoManager extends EventDispatcher
 	{
-		
 		private static var _instance:ArduinoManager;
 		public var _scratch:Main;
-		public var jsonObj:Object;
 		
-		public var hexCode:String;
-		public var token:String;
-		public var output:String;
-		public var ccode:String = "";
-		public var hexPath:String;
 		public var isUploading:Boolean = false;
 		
 		private var process:NativeProcess;
@@ -43,11 +37,8 @@ package extensions
 		private var ccode_setup:String = "";
 		private var ccode_setup_fun:String = "";
 		private var ccode_loop:String = "";
-		private var ccode_loop2:String = "";
 		private var ccode_def:String = "";
-		private var ccode_inc:String = "";
 		private var ccode_pointer:String="setup";
-		private var ccode_func:String = "";
 		//添加 && ||
 		private var mathOp:Array=["+","-","*","/","%",">","=","<","&","&&","|","||","!","not","rounded"];
 		private var varList:Array = [];
@@ -59,39 +50,10 @@ package extensions
 		
 		// maintance of project and arduino path
 		private var arduinoPath:String;
-		private var arduinoLibPath:String = "";
 		private var projectPath:String = "";
-		private var EVENT_NATIVE_DONE:String = "EVENT_NATIVE_DONE";
 		
 		public var mainX:int = 0;
 		public var mainY:int = 0;
-		
-		
-		private var codeTemplate:String = ( <![CDATA[#include <Arduino.h>
-#include <Wire.h>
-
-//include
-//define
-//function
-void setup(){
-//setup
-}
-
-void loop(){
-//loop
-_loop();
-}
-
-void _delay(float seconds){
-long endTime = millis() + seconds * 1000;
-while(millis() < endTime)_loop();
-}
-
-void _loop(){
-//_loop
-}
-
-]]> ).toString();//delay(50);
 		
 		public static function sharedManager():ArduinoManager{
 			if(_instance==null){
@@ -406,7 +368,7 @@ void _loop(){
 			else if(blk[0]=="initVar:to:"){
 				codeBlock.type = "obj";
 				codeBlock.code = null;
-				var tmpCodeBlock:Object = {code:{setup:parseVarSet(blk),work:"",def:"",inc:"",loop:""}};
+				var tmpCodeBlock:Object = {code:{setup:parseVarSet(blk)}};
 				moduleList.push(tmpCodeBlock);
 				return codeBlock;
 			}
@@ -492,15 +454,14 @@ void _loop(){
 					if(typeof obj=="object"){
 						var ext:ScratchExtension = Main.app.extensionManager.extensionByName(blk[0].split(".")[0]);
 						var codeObj:Object = {code:{setup:substitute(getProp(obj,'setup'), blk as Array, ext),
-													work :substitute(getProp(obj,'work'),  blk as Array, ext),
-													def  :substitute(getProp(obj,'def'),   blk as Array, ext),
-													inc  :substitute(getProp(obj,'inc'),   blk as Array, ext),
-													loop :substitute(getProp(obj,'loop'),  blk as Array, ext)}};
+													func :substitute(getProp(obj,'func'),  blk as Array, ext)}};
 						if(!availableBlock(codeObj)){	// 重複チェック
 							moduleList.push(codeObj);
 						}
 						codeBlock.type = "obj";
-						codeBlock.code = new CodeObj(codeObj.code.work);
+						codeBlock.code = new CodeObj(codeObj.code.func);
+						if(codeBlock.code.code.charAt(codeBlock.code.code.length-1) == ";")
+							codeBlock.code.code+="\n";
 						return codeBlock;
 					}
 				}
@@ -588,7 +549,7 @@ void _loop(){
 		}
 		private function availableBlock(obj:Object):Boolean{
 			for each(var o:Object in moduleList){
-				if(o.code.def==obj.code.def && o.code.setup==obj.code.setup){
+				if(o.code.setup==obj.code.setup){
 					return true;
 				}
 			}
@@ -614,10 +575,7 @@ void _loop(){
 					obj = obj[obj.length-1];
 					if(typeof obj == "object"&&obj!=null){
 						var codeObj:Object = {code:{setup:getProp(obj,'setup'),
-													work :getProp(obj,'work'),
-													def  :getProp(obj,'def'),
-													inc  :getProp(obj,'inc'),
-													loop :getProp(obj,'loop')}};
+													func :getProp(obj,'func')}};
 						moduleList.push(codeObj);
 					}
 				}
@@ -631,20 +589,6 @@ void _loop(){
 				if(op.indexOf("runArduino")>-1){
 					ccode_pointer="setup";
 					isArduinoCode = true;
-					
-					var objs:Array = Main.app.extensionManager.specForCmd(op);	// "remoconRobo.runArduino"からspec取得
-					if(objs!=null){
-						var obj:Object = objs[objs.length-1];
-						obj = obj[obj.length-1];
-						if(typeof obj=="object" && obj!=null){
-							var codeObj:Object = {code:{setup:getProp(obj,'setup'),
-														work :getProp(obj,'work'),
-														def  :getProp(obj,'def'),
-														inc  :getProp(obj,'inc'),
-														loop :getProp(obj,'loop')}};
-							moduleList.push(codeObj);
-						}
-					}
 				}else if(op=="doForever"){
 					ccode_pointer="loop";
 					parseLoop(b[1]);
@@ -681,15 +625,38 @@ void _loop(){
 			}
 			return code;
 		}
-		private var requiredCpp:Array=[];
+		private var codeTemplate:String = ( <![CDATA[
+// HEADER
+// DEFINE
+// FUNCTION
+void setup(){
+// SETUP1
+Serial.println("Normal: " mVersion);
+// SETUP2
+}
+
+void loop(){
+// LOOP1
+// LOOP2
+_loop();
+}
+
+void _delay(float seconds){
+long endTime = millis() + seconds * 1000;
+while(millis() < endTime) _loop();
+}
+
+void _loop(){
+}
+
+]]> ).toString();
+
 		public function jsonToCpp(code:String):String{
 			// reset code buffers 
+			ccode_def="";
 			ccode_setup="";
 			ccode_setup_fun = "";
 			ccode_loop="";
-			ccode_inc="";
-			ccode_def="";
-			ccode_func="";
 			hasUnknownCode = false;
 			// reset arrays
 			varList=[];
@@ -698,7 +665,6 @@ void _loop(){
 			funcList = [];
 			unknownBlocks = [];
 			// params for compiler
-			requiredCpp=[];
 			var buildSuccess:Boolean = false;
 			var objs:Object = util.JSON.parse(code);
 			var childs:Array = objs.children.reverse();
@@ -708,28 +674,89 @@ void _loop(){
 			if(!buildSuccess){
 				parseScripts(objs.scripts);
 			}
-			ccode_func+=buildFunctions();
-			ccode_setup = hackVaribleWithPinMode(ccode_setup);
+			var ccode_func:String = ccode_func=buildFunctions();
+		//	ccode_setup = hackVaribleWithPinMode(ccode_setup);
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName("RobotExt");
 			var retcode:String = codeTemplate
-									.replace("//setup",ccode_setup)
-									.replace("//loop", ccode_loop)
-									.replace("//define", ccode_def)
-									.replace("//include", ccode_inc)
-									.replace("//function",ccode_func);
-			retcode = retcode.replace("//_loop", ccode_loop2);
+									.replace("// HEADER", getProp(ext, "header"))
+									.replace("// DEFINE", ccode_def)
+									.replace("// FUNCTION",ccode_func)
+									.replace("// SETUP1", getProp(ext, "setup"))
+									.replace("// SETUP2", ccode_setup)
+									.replace("// LOOP1", getProp(ext, "loop"))
+									.replace("// LOOP2", ccode_loop);
 			retcode = fixTabs(retcode);
 			retcode = fixVars(retcode);
 			
-			requiredCpp = getRequiredCpp();
 			// now go into compile process
 			if(!NativeProcess.isSupported) return "";
 			return (retcode);
-			//			buildAll(retcode, requiredCpp);
 		}
 		
+		public function jsonToCpp2():void
+		{
+			var f:File = new File(File.applicationDirectory.nativePath + "/ext/firmware/hex/robot_pcmode/robot_pcmode.ino.template");
+			if(f==null || !f.exists)
+				return;
+			var code:String = FileUtil.ReadString(f);
+
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName("RobotExt");
+			code = code.replace("// HEADER", getProp(ext, "header"))
+						.replace("// SETUP", getProp(ext, "setup"))
+						.replace("// LOOP", getProp(ext, "loop"));
+
+			var work:String = "";
+			for(var i:int=0; i<ext.blockSpecs.length; i++) {
+				var spec:Array = ext.blockSpecs[i];
+				if(spec.length < 3){
+					continue;
+				}
+				var obj:Object = spec[spec.length-1];
+				if(!obj.hasOwnProperty("remote")) continue;
+				var getcmds:Array = [];
+				var setcmd:String;
+				var offset:int=0;
+				var j:int;
+				for(j=0; j<obj.remote.length; j++) {
+					switch(obj.remote[j]) {
+					case "B": getcmds[j] = "getByte("+offset.toString()+")";   offset+=1; setcmd="sendByte"; break;
+					case "S": getcmds[j] = "getShort("+offset.toString()+")";  offset+=2; setcmd="sendShort"; break;
+					case "L": getcmds[j] = "getLong("+offset.toString()+")";   offset+=4; setcmd="sendLong"; break;
+					case "F": getcmds[j] = "getFloat("+offset.toString()+")";  offset+=4; setcmd="sendFloat"; break;
+					case "D": getcmds[j] = "getDouble("+offset.toString()+")"; offset+=8; setcmd="sendDouble"; break;
+				//	case "s":
+					}
+				}
+				var tmp:String = obj.func;
+				switch(spec[0]) {
+				case "w":
+				//	case CMD_ROBOT: remoconRobo_setRobot(getByte(0), getShort(1)); callOK(); break;
+					for(j = 0; j<obj.remote.length; j++)
+						tmp = tmp.replace(new RegExp("\\{"+j+"\\}", "g"), getcmds[j]);
+					work += "case " + i.toString() + ": " + tmp + "; callOK(); break;\n";
+					break;
+				case "B":
+				case "R":
+				//	case CMD_DIGITAL: sendByte(pinMode(getByte(0), INPUT), digitalRead(getByte(0))); break;
+					for(j = 0; j<obj.remote.length-1; j++)
+						tmp = tmp.replace(new RegExp("\\{"+j+"\\}", "g"), getcmds[j]);
+					work += "case " + i.toString() + ": " + setcmd + "((" + tmp + ")); break;\n";
+					break;
+				}
+
+			}
+			code = code.replace("// WORK\n", work);
+			code = fixTabs(code);
+
+			f = new File(File.applicationDirectory.nativePath + "/ext/firmware/hex/robot_pcmode/robot_pcmode.ino");
+			FileUtil.WriteString(f, code);
+			return;
+		}
+
 		// HACK: In Arduino mode, if you define a variable, set a variable, and perform IO operations on it，
 		// This variable is set after the pinMode statement.
 		// This can cause problems with uninitialized variables in the pinMode statement.
+/*
 		private function hackVaribleWithPinMode(originalCode:String):String
 		{
 			var lines:Array= originalCode.split("\n");
@@ -770,12 +797,13 @@ void _loop(){
 			var joinedLines:String = lines.join("\n");
 			return joinedLines;
 		}
-		
+*/
 		private function parseScripts(scripts:Object):Boolean
 		{
 			if(null == scripts){
 				return false;
 			}
+			// scripts[0][2] = block配列 (関数名, 引数1, ..)
 			var result:Boolean = false;
 			for(var j:uint=0;j<scripts.length;j++){
 				var scr:Object = scripts[j][2];
@@ -786,7 +814,7 @@ void _loop(){
 				}
 			}
 			for(j=0;j<scripts.length;j++){
-				scr = scripts[j][2];			// block配列 (name, 初期値)
+				scr = scripts[j][2];
 			/*
 				if(scr[0][0].indexOf("whenButtonPressed") > 0)
 				{
@@ -811,12 +839,10 @@ void _loop(){
 			return result;
 		}
 		private function buildCodes():void{
-			buildInclude();
 			buildDefine();
 			buildSetup();
 			ccode_setup+=ccode_setup_fun;
 			ccode_setup_fun = "";
-			ccode_loop2=buildLoopMaintance();
 		}
 		private function buildSetup():String{
 			var modInitCode:String = "";
@@ -854,87 +880,9 @@ void _loop(){
 					ccode_def+=code;
 				}
 			}
-			
-			for(i=0;i<moduleList.length;i++){
-				var m:Object = moduleList[i];
-				code = m["code"]["def"];
-				code = code is CodeObj?code.code:code;
-				if(code!=""){
-					if(code.indexOf("--separator--")>-1)
-					{
-						//以--separator--分割，以代码块为单位进行去重
-						var categoryArr:Array = code.split("--separator--");
-						for(var k:int=0;k<categoryArr.length;k++)
-						{
-							var array:Array = categoryArr[k].split("\n");
-							var tmpCode_def:String = "";
-							for(var j:int=0;j<array.length;j++){
-								if(!Boolean(array[j])){
-									continue;
-								}
-								
-								tmpCode_def+=array[j]+"\n";
-								
-								//ccode_def+=array[j]+"\n";
-							}
-							if(ccode_def.indexOf(tmpCode_def)<0)
-							{
-								ccode_def+=tmpCode_def;
-							}
-						}
-					}
-					else
-					{
-						//按行分割，进行去重
-						array = code.split("\n");
-						for(k=0;k<array.length;k++)
-						{
-							if(ccode_def.indexOf(array[k])<0)
-							{
-								ccode_def+=array[k]+"\n";
-							}
-						}
-					}
-				}
-			}
 			return modDefineCode;
 		}
 		
-		private function buildInclude():String{
-			var modIncudeCode:String = "";
-			for(var i:int=0;i<moduleList.length;i++){
-				var m:Object = moduleList[i];
-				var code:* = m["code"]["inc"];
-				code = code is CodeObj?code.code:code;
-				if(code!=""){
-					if(ccode_inc.indexOf(code)==-1)
-						if(code.indexOf("#include")>-1)
-						{
-							ccode_inc = code+ccode_inc;
-						}
-						else
-						{
-							ccode_inc += code;
-						}
-				}
-			}
-			return modIncudeCode;
-		}
-		
-		private function buildLoopMaintance():String{
-			var modMaintanceCode:String = "";
-			for(var i:int=0;i<moduleList.length;i++){
-				var m:Object = moduleList[i];
-				var code:* = m["code"]["loop"];
-				code = code is CodeObj?code.code:code;
-				if(code!=""){
-					if(modMaintanceCode.indexOf(code)==-1){
-						modMaintanceCode+=code+"\n";
-					}
-				}
-			}
-			return modMaintanceCode
-		}
 		private function buildFunctions():String{
 			var funcCodes:String = "";
 			for(var i:int=0;i<funcList.length;i++){
@@ -948,54 +896,14 @@ void _loop(){
 			}
 			return funcCodes;
 		}
-		private function getRequiredCpp():Array{
-			return [];
-		}
-		private function saveHexFile(token:String,hexString:String):void{
-			var f:File = new File();
-			f.addEventListener(Event.COMPLETE, _onRfComplete);
-			f.save(hexString,token+".hex");
-		}
-		
-		private function _onRfComplete(e:Event):void{
-			hexPath = e.target.nativePath
-			_scratch.dispatchEvent(new RobotEvent(RobotEvent.HEX_SAVED,hexPath));
-		}
-		
-		private function uploadCompleteHandler(e:Event):void{
-			var response:String = String(e.target.data);
-			//trace("response:"+response);
-			jsonObj = util.JSON.parse(response);
-			hexCode = jsonObj["hex"];
-			ccode = jsonObj["code"];
-			token = jsonObj["hash"];
-			output = jsonObj["output"];
-			_scratch.dispatchEvent(new RobotEvent(RobotEvent.CCODE_GOT,ccode));
-			_scratch.dispatchEvent(new RobotEvent(RobotEvent.COMPILE_OUTPUT,output));
-			if(hexCode)
-				saveHexFile(token,hexCode);
-		}
-		
-		private function ioErrorHandler(e:Event):void{
-			
-		}
 		
 		/****** *****************************
 		 * compiler ralated functions 
 		 * **********************************/
 		
-		private var tc_projCpp:*;
-		private var tc_workdir:*;
-		private var tc_cppList:*;
-		private var nativeDoneEvent:String;
-		private var nativeWorkList:Array=[];
-	//	private var srcDocuments:Array = [];
-		private var numOfProcess:uint = 0;
-		private var numOfSuccess:uint = 0;
-		private var _projectDocumentName:String = "";
+	//	private var numOfSuccess:uint = 0;
 		private function prepareProjectDir(ccode:String):void{
 			
-			var cppList:Array =  requiredCpp;
 			// get building direcotry ready
 			var workdir:File = File.applicationStorageDirectory.resolvePath("scratchTemp");
 			if(!workdir.exists){
@@ -1017,6 +925,7 @@ void _loop(){
 		}
 		
 		private var compileErr:Boolean = false;
+		private var _projectDocumentName:String = "";
 		private function get projectDocumentName():String{
 			var now:Date = new Date;
 			var pName:String = Main.app.projectName().split(" ").join("").split("(").join("").split(")").join("");
@@ -1043,7 +952,6 @@ void _loop(){
 			if(!workdir.exists){
 				return "workdir not exists";
 			}
-			nativeWorkList = [];
 			// copy firmware directory
 			workdir = workdir.resolvePath(projectDocumentName);
 			var projCpp:File = File.applicationStorageDirectory.resolvePath("scratchTemp/"+projectDocumentName+"/"+projectDocumentName+".ino");
@@ -1080,6 +988,28 @@ void _loop(){
 			process.start(nativeProcessStartupInfo);
 			return "";
 		}
+		public function openArduinoIDE2():void
+		{
+			jsonToCpp2();
+
+			var file:File;
+			if(ApplicationManager.sharedManager().system==ApplicationManager.WINDOWS){
+				file = new File(arduinoInstallPath+"/arduino.exe");
+			}else{
+				file = new File(arduinoInstallPath+"/../MacOS/Arduino");
+			}
+			var processArgs:Vector.<String> = new Vector.<String>();
+			var nativeProcessStartupInfo:NativeProcessStartupInfo =new NativeProcessStartupInfo();
+			nativeProcessStartupInfo.executable = file;
+			processArgs.push(File.applicationDirectory.nativePath + "/ext/firmware/hex/robot_pcmode/robot_pcmode.ino");
+			nativeProcessStartupInfo.arguments = processArgs;
+			process = new NativeProcess();
+			process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA, function(e:ProgressEvent):void{});
+			process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, function(e:ProgressEvent):void{});
+			process.addEventListener(NativeProcessExitEvent.EXIT, function(e:NativeProcessExitEvent):void{});
+			process.start(nativeProcessStartupInfo);
+			return;
+		}
 		private function get arduinoInstallPath():String{
 			if(null == arduinoPath){
 				if(Capabilities.os.indexOf("Windows") == 0){
@@ -1090,40 +1020,5 @@ void _loop(){
 			}
 			return arduinoPath;
 		}
-		
-		private function onOutputData(event:ProgressEvent):void
-		{ 
-			isUploading = true;
-		}
-		
-		private function onErrorData(event:ProgressEvent):void
-		{
-			isUploading = true;
-			compileErr = true
-			var errOut:String = process.standardError.readUTFBytes(process.standardError.bytesAvailable);
-			if(null == errorText){
-				errorText = errOut;
-			}else{
-				errorText += errOut;
-			}
-		}
-		
-		private function onExit(event:NativeProcessExitEvent):void
-		{
-			isUploading = false;
-			var date:Date = new Date;
-			
-			Main.app.scriptsPart.appendMessage(""+(date.month+1)+"-"+date.date+" "+date.hours+":"+date.minutes+": Process exited with "+event.exitCode);
-			numOfSuccess++;
-			if(event.exitCode > 0){
-				Main.app.scriptsPart.appendMsgWithTimestamp(errorText, true);
-				errorText = null;
-			}
-			if(compileErr == false){
-				dispatchEvent(new Event(EVENT_NATIVE_DONE));
-			}
-		}
-		
-		private var errorText:String;
 	}
 }

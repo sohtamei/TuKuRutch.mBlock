@@ -46,21 +46,26 @@ import util.SharedObjectManager;
 public class ScratchExtension {
 
 	public var name:String = '';
-	public var host:String = '127.0.0.1'; // most extensions run on the local host
 	public var port:int;
-	public var sort:int = 10;
-	public var type:String = "http";
+	private var _javascriptURL:String = ''; // URL to load a javascript extension
+
 	public var blockSpecs:Array = [];
-	public var isInternal:Boolean;
-	public var useScratchPrimitives:Boolean; // true for extensions built into Scratch (WeDo, PicoBoard) that have custom primitives
-	private var _showBlocks:Boolean;
 	public var menus:Object = {};
 	public var values:Object = {};
 	public var translators:Object = {};
-	public var firmware:String = "";
+	public var header:String = "";
+	public var setup:String = "";
+	public var loop:String = "";
+	public var useSerial:Boolean = false;
+
+//	public var sort:int = 10;
+
+	public var isInternal:Boolean;
+	public var useScratchPrimitives:Boolean; // true for extensions built into Scratch (WeDo, PicoBoard) that have custom primitives
+	private var _showBlocks:Boolean;
+//	public var firmware:String = "";
 	public var thumbnailMD5:String = ''; // md5 has for extension image shown in extension library
-	public var url:String = ''; // URL for extension documentation page (with helper app download link, if appropriate)
-	private var _javascriptURL:String = ''; // URL to load a javascript extension
+//	public var url:String = ''; // URL for extension documentation page (with helper app download link, if appropriate)
 	public var tags:Array = []; // tags for the extension library filter
 	public var isBusy:Boolean = false;
 	// Runtime state
@@ -69,12 +74,11 @@ public class ScratchExtension {
 	public var problem:String = '';
 	public var success:String = 'Okay';
 	public var nextID:int;
-//	public var srcPath:String = "";
 	public var docPath:String = "";
 	public var busy:Array = [];
 	public var waiting:Dictionary = new Dictionary(true);
-	public var useSerial:Boolean = false;
 	private var _jsEngine:JavaScriptEngine;
+
 	public function ScratchExtension(name:String, port:int) {
 		this.name = name;
 		this.port = port;
