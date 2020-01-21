@@ -1,5 +1,6 @@
 <menu>
 	<subMenu name="File" label="文件">
+		<item name="Undelete" label="撤销删除" />
 		<item name="New" label="新建项目" keyEquivalent="N" />
 		<item isSeparator="true" />
 		<item name="Load Project" label="打开项目" keyEquivalent="o" />
@@ -7,20 +8,20 @@
 		<item name="Save Project As" label="另存项目" keyEquivalent="S" />
 	</subMenu>
 	<subMenu name="Connect" label="连接">
-		<item name="Upgrade Firmware" label="安装固件" action="upgrade_firmware" />
-		<item name="Reset Default Program" label="恢复出厂程序" action="reset_program" />
+		<item name="Set Robot to PC connection mode" label="安装固件" />
+		<item name="Reset Default Program" label="恢复出厂程序" />
 		<item isSeparator="true" />
 	</subMenu>
+<!--
 	<subMenu name="Edit" label="编辑">
 		<item name="Undelete" label="撤销删除" />
 		<item isSeparator="true" />
 		<item name="Hide stage layout" label="隐藏舞台" keyEquivalent="" />
 		<item name="Arduino mode" label="Arduino模式" keyEquivalent="" />
 	</subMenu>
-	<subMenu name="Extensions" label="扩展">
-<!--
 		<item name="Restore Extensions" label="检查最新扩展" />
 -->
+	<subMenu name="Robots" label="扩展">
 		<item name="Clear Cache" label="清空缓存" />
 		<item name="Convert robot.s2e to PC mode firmware"/>
 		<item isSeparator="true" />
@@ -48,6 +49,9 @@
 		</subMenu>
 	</subMenu>
 	<subMenu name="Help" label="帮助">
-		<item name="Educators' Content"/>
+		<item name="Support Site"/>
 	</subMenu>
+	<subMenu name=" ShowStage "/>
+	<subMenu name=" Standard "/>
+	<subMenu name=" Arduino "/>
 </menu>

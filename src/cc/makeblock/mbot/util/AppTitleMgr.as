@@ -2,28 +2,21 @@ package cc.makeblock.mbot.util
 {
 	import flash.display.NativeWindow;
 	import flash.events.Event;
-	
 	import translation.Translator;
 
 	public class AppTitleMgr
 	{
-		static public const Uploading:String = "Uploading";
 		static public const Instance:AppTitleMgr = new AppTitleMgr();
-		
-		private var window:NativeWindow;
-		private var strList:Array;
-		
-		public function AppTitleMgr()
-		{
-		}
+		private var _window:NativeWindow;
+		private var _title:String;
+		private var _isModified:Boolean;
+		private var _ProjectName:String = "";
 		
 		public function init(window:NativeWindow):void
 		{
-			this.window = window;
-			strList = [window.title];
-			
+			_window = window;
+			_title = window.title;
 			Translator.regChangeEvt(__onLangChanged, false);
-			setConnectInfo(null);
 		}
 		
 		private function __onLangChanged(evt:Event):void
@@ -31,45 +24,22 @@ package cc.makeblock.mbot.util
 			updateTitle();
 		}
 		
-		public function setConnectInfo(info:String):void
+		public function setProjectName(name:String):void
 		{
-			strList[1] = info;	// "Connect" / null
+			_ProjectName = name;
 			updateTitle();
 		}
 		
 		public function setProjectModifyInfo(isModified:Boolean):void
 		{
-			strList[2] = isModified;
+			_isModified = isModified;
 			updateTitle();
 		}
 		
 		private function updateTitle():void
 		{
-			if(!window.closed)
-			{
-				window.title = getTitleStr();
-			}
-		}
-		
-		private function getTitleStr():String
-		{
-			var result:String = strList[0];
-			/*
-			var str:String = strList[1];
-			if(Boolean(str)){
-				if(str == Uploading){
-					str = Translator.map(str);
-				}else{
-					str = Translator.map("Connected");
-				}
-			}else{
-				str = Translator.map("Disconnected");
-			}
-			result += " - " + str;
-			*/
-		//	result += " - " + Translator.map(strList[2]==null ||strList[2] ? "Not saved" :  "Saved");
-			
-			return result;
+			if(_window.closed) return;
+			_window.title = _title + " - " + _ProjectName + (_isModified ? " *": "");
 		}
 	}
 }

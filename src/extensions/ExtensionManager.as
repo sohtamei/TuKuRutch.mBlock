@@ -28,7 +28,6 @@ import flash.filesystem.File;
 import flash.utils.getTimer;
 import flash.utils.setTimeout;
 
-import cc.makeblock.interpreter.RemoteCallMgr;
 import cc.makeblock.util.FileUtil;
 
 import translation.Translator;
@@ -216,9 +215,11 @@ public class ExtensionManager {
 			ext = new ScratchExtension(extObj.name, extObj.port);
 		}
 									ext.docPath = extObj.docPath;
-									ext.javascriptURL = extObj.javascriptURL;
-		if(extObj.normalFW)			ext.normalFW = extObj.normalFW;
-		if(extObj.pcmodeFW)			ext.pcmodeFW = extObj.pcmodeFW;
+									ext.javascriptURL = extObj.javascriptURL;		// LoadJS
+		if(extObj.sort)				ext.sort = extObj.sort;
+		if(extObj.helpURL)			ext.helpURL = extObj.helpURL;
+		if(extObj.normalFW)			ext.normalFW = extObj.docPath + extObj.normalFW;
+		if(extObj.pcmodeFW)			ext.pcmodeFW = extObj.docPath + extObj.pcmodeFW;
 		if(extObj.header)			ext.header = extObj.header;
 		if(extObj.setup)			ext.setup = extObj.setup;
 		if(extObj.loop)				ext.loop = extObj.loop;

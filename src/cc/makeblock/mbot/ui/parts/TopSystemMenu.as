@@ -14,6 +14,7 @@ package cc.makeblock.mbot.ui.parts
 	import extensions.ArduinoManager;
 	import extensions.ConnectionManager;
 	import extensions.ExtensionManager;
+	import extensions.ScratchExtension;
 	
 	import translation.Translator;
 	
@@ -26,23 +27,27 @@ package cc.makeblock.mbot.ui.parts
 		public function TopSystemMenu(stage:Stage, path:String)
 		{
 			super(stage, path);
-			
-			getNativeMenu().getItemByName("File").submenu.addEventListener(Event.DISPLAYING, __onInitFielMenu);
+			var menu:NativeMenu = getNativeMenu();
+
 			register("File", __onFile);
 
-			getNativeMenu().getItemByName("Edit").submenu.addEventListener(Event.DISPLAYING, __onInitEditMenu);
-			register("Edit", __onEdit);
-
-			getNativeMenu().getItemByName("Connect").submenu.addEventListener(Event.DISPLAYING, __onShowConnect);
+			menu.getItemByName("Connect").submenu.addEventListener(Event.DISPLAYING, __onShowConnect);
 			register("Connect", __onConnect);
 
-			getNativeMenu().getItemByName("Extensions").submenu.addEventListener(Event.DISPLAYING, __onInitExtMenu);
-			getNativeMenu().getItemByName("Language").submenu.addEventListener(Event.DISPLAYING, __onShowLanguage);
-			
-			register("Help", __onHelp);
+		//	menu.getItemByName("Edit").submenu.addEventListener(Event.DISPLAYING, __onInitEditMenu);
+		//	register("Edit", __onEdit);
 
+			menu.getItemByName("Robots").submenu.addEventListener(Event.DISPLAYING, __onInitExtMenu);
+			menu.getItemByName("Language").submenu.addEventListener(Event.DISPLAYING, __onShowLanguage);
+
+			register("Help", __onHelp);
 			register("Clear Cache", ArduinoManager.sharedManager().clearTempFiles);
 			register("Convert robot.s2e to PC mode firmware", ArduinoManager.sharedManager().openArduinoIDE2);
+
+			register(" ShowStage ", __ShowStage);
+			register(" Standard ", __Standard);
+			menu.getItemByName(" Standard ").label = Translator.map("[Standard]");
+			register(" Arduino ", __Arduino);
 		}
 		public function changeLang():void
 		{
@@ -59,9 +64,15 @@ package cc.makeblock.mbot.ui.parts
 				return;
 			}
 			var p:NativeMenuItem = MenuUtil.FindParentItem(item);
-			if(p != null && p.name == "Extensions"){
-				if(p.submenu.getItemIndex(item) > 4){
+			if(p != null && p.name == "Robots"){
+				if(p.submenu.getItemIndex(item) > 4){		// ?
 					return true;
+				}
+			}
+			for each(var name:String in [" ShowStage ", " Standard ", " Arduino "] ) {
+				if(name == item.name) {
+					switchStageMenu(_stageIndex);
+					return;
 				}
 			}
 			setItemLabel(item);
@@ -82,53 +93,151 @@ package cc.makeblock.mbot.ui.parts
 		
 		private function __onFile(item:NativeMenuItem):void
 		{
-			switch(item.name)
-			{
-				case "New":
-					Main.app.createNewProject();
+			switch(item.name) {
+				case "New":				Main.app.createNewProject();			break;
+				case "Load Project":	Main.app.runtime.selectProjectFile();	break;
+				case "Save Project":	Main.app.saveFile();					break;
+				case "Save Project As":	Main.app.exportProjectToFile();			break;
+			}
+		}
+		
+		private var initConnectMenuItemCount:int = -1;
+
+		private function __onShowConnect(evt:Event):void
+		{
+			var menu:NativeMenu = evt.target as NativeMenu;
+			
+			if(initConnectMenuItemCount < 0){
+				initConnectMenuItemCount = menu.numItems;
+			}
+			while(menu.numItems > initConnectMenuItemCount){
+				menu.removeItemAt(menu.numItems-1);
+			}
+
+			var arr:Array = ConnectionManager.sharedManager().portlist;
+			if(arr.length==0) {
+				var nullItem:NativeMenuItem = new NativeMenuItem(Translator.map("no serial port"));
+				nullItem.enabled = false;
+				nullItem.name = "serial_"+"null";
+				menu.addItem(nullItem);
+			} else {
+				for(var i:int=0;i<arr.length;i++){
+					var item:NativeMenuItem = menu.addItem(new NativeMenuItem(Translator.map("Connect to Robot") + "(" + arr[i] + ")"));
+					item.name = "serial_"+arr[i];
+					
+					item.enabled = true;
+					item.checked = ConnectionManager.sharedManager().selectPort==arr[i] && ConnectionManager.sharedManager().isConnected;
+				}
+			}
+			
+			var connected:Boolean = ConnectionManager.sharedManager().isConnected;
+			MenuUtil.FindItem(getNativeMenu(), "Set Robot to PC connection mode").enabled	= connected;
+			MenuUtil.FindItem(getNativeMenu(), "Reset Default Program").enabled				= connected;
+		}
+
+		private function __onConnect(item:NativeMenuItem):void
+		{
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
+			switch(item.name) {
+				case "Set Robot to PC connection mode":
+					ConnectionManager.sharedManager().upgrade(ext.pcmodeFW + ".cpp.standard.hex");
 					break;
-				case "Load Project":
-					Main.app.runtime.selectProjectFile();
+				case "Reset Default Program":
+					ConnectionManager.sharedManager().upgrade(ext.normalFW + ".cpp.standard.hex");
 					break;
-				case "Save Project":
-					Main.app.saveFile();
-					break;
-				case "Save Project As":
-					Main.app.exportProjectToFile();
+				default:
+					if(item.name.indexOf("serial_")>-1){
+						var port:String = item.name.split("serial_").join("");
+						ConnectionManager.sharedManager().onConnect(port);
+					}
 					break;
 			}
 		}
 		
+		private function __onInitEditMenu(evt:Event):void
+		{
+			var menu:NativeMenu = evt.target as NativeMenu;
+			MenuUtil.setEnable(menu.getItemByName("Undelete"),				Main.app.runtime.canUndelete());
+			MenuUtil.setChecked(menu.getItemByName("Hide stage layout"),	Main.app.stageIsHided);
+//			MenuUtil.setChecked(menu.getItemByName("Small stage layout"),	!Main.app.stageIsHided && Main.app.stageIsContracted);
+//			MenuUtil.setChecked(menu.getItemByName("Turbo mode"),			Main.app.interp.turboMode);
+			MenuUtil.setChecked(menu.getItemByName("Arduino mode"),			Main.app.stageIsArduino);
+		}
+
+		private function __ShowStage(item:NativeMenuItem):void
+		{
+			switchStageMenu(0);
+			Main.app.showStage(true);
+		}
+		private function __Standard(item:NativeMenuItem):void
+		{
+			switchStageMenu(1);
+			Main.app.showStage(false);
+		}
+		private function __Arduino(item:NativeMenuItem):void
+		{
+			switchStageMenu(2);
+			Main.app.showArduino();
+		}
+
+		private var _stageIndex:int = 1;
+		private function switchStageMenu(index:int):void
+		{
+			_stageIndex = index;
+			var menu:NativeMenu = getNativeMenu();
+			var i:int;
+			var offLabels:Array = [" ShowStage ", " Standard ", " Arduino "];
+			var onLabels:Array  = ["[ShowStage]", "[Standard]", "[Arduino]"];
+
+			for(i = 0; i < 3; i++) {
+				var label:String = (i == index) ? onLabels[i]: offLabels[i];
+				menu.getItemByName(offLabels[i]).label = Translator.map(label);
+			}
+		}
+
 		private function __onEdit(item:NativeMenuItem):void
 		{
 			switch(item.name){
-				case "Undelete":
-					Main.app.runtime.undelete();
-					break;
-				case "Hide stage layout":
-					Main.app.toggleHideStage();
-					break;
+				case "Undelete":			Main.app.runtime.undelete();	break;
+				case "Hide stage layout":	Main.app.toggleHideStage();		break;
 /*
-				case "Small stage layout":
-					Main.app.toggleSmallStage();
-					break;
-				case "Turbo mode":
-					Main.app.toggleTurboMode();
-					break;
+				case "Small stage layout":	Main.app.toggleSmallStage();	break;
+				case "Turbo mode":			Main.app.toggleTurboMode();		break;
 */
-				case "Arduino mode":
-					Main.app.changeToArduinoMode();
-					break;
+				case "Arduino mode":		Main.app.changeToArduinoMode();	break;
 			}
 		}
 		
-		private function __onConnect(menuItem:NativeMenuItem):void
+		private var initExtMenuItemCount:int = -1;
+		
+		private function __onInitExtMenu(evt:Event):void
 		{
-			if(menuItem.data){
-				ConnectionManager.sharedManager().onConnect(menuItem.data.@action);
-			}else{
-				ConnectionManager.sharedManager().onConnect(menuItem.name);
+			var item:NativeMenu = evt.target as NativeMenu;
+			var list:Array = Main.app.extensionManager.extensionList;
+			if(list.length==0){
+				Main.app.extensionManager.copyLocalFiles();
+				SharedObjectManager.sharedManager().setObject("first-launch",false);
 			}
+			if(initExtMenuItemCount < 0){
+				initExtMenuItemCount = item.numItems;
+			}
+			while(item.numItems > initExtMenuItemCount){
+				item.removeItemAt(item.numItems-1);
+			}
+			list = Main.app.extensionManager.extensionList;
+			for(var i:int=0;i<list.length;i++){
+				var extName:String = list[i].name;
+				var subMenuItem:NativeMenuItem = item.addItem(new NativeMenuItem(Translator.map(extName)));
+				subMenuItem.name = extName;
+				subMenuItem.label = Translator.map(extName);
+				subMenuItem.checked = Main.app.extensionManager.checkExtensionSelected(extName);
+				register(extName, __onExtensions);
+			}
+		}
+		
+		private function __onExtensions(item:NativeMenuItem):void
+		{
+			Main.app.extensionManager.onSelectExtension(item.name);
 		}
 		
 		private function __onShowLanguage(evt:Event):void
@@ -169,94 +278,11 @@ package cc.makeblock.mbot.ui.parts
 			}
 		}
 		
-		private function __onInitFielMenu(evt:Event):void
+		private function __onHelp(item:NativeMenuItem):void
 		{
-		}
-		
-		private function __onInitEditMenu(evt:Event):void
-		{
-			var menu:NativeMenu = evt.target as NativeMenu;
-			MenuUtil.setEnable(menu.getItemByName("Undelete"),				Main.app.runtime.canUndelete());
-			MenuUtil.setChecked(menu.getItemByName("Hide stage layout"),	Main.app.stageIsHided);
-//			MenuUtil.setChecked(menu.getItemByName("Small stage layout"),	!Main.app.stageIsHided && Main.app.stageIsContracted);
-//			MenuUtil.setChecked(menu.getItemByName("Turbo mode"),			Main.app.interp.turboMode);
-			MenuUtil.setChecked(menu.getItemByName("Arduino mode"),			Main.app.stageIsArduino);
-		}
-		
-		private var initConnectMenuItemCount:int = -1;
-
-		private function __onShowConnect(evt:Event):void
-		{
-			var menu:NativeMenu = evt.target as NativeMenu;
-			
-			if(initConnectMenuItemCount < 0){
-				initConnectMenuItemCount = menu.numItems;
-			}
-			while(menu.numItems > initConnectMenuItemCount){
-				menu.removeItemAt(menu.numItems-1);
-			}
-
-			var arr:Array = ConnectionManager.sharedManager().portlist;
-			if(arr.length==0)
-			{
-				var nullItem:NativeMenuItem = new NativeMenuItem(Translator.map("no serial port"));
-				nullItem.enabled = false;
-				nullItem.name = "serial_"+"null";
-				menu.addItem(nullItem);
-			}
-			else
-			{
-				for(var i:int=0;i<arr.length;i++){
-					var item:NativeMenuItem = menu.addItem(new NativeMenuItem(Translator.map("Connect to Robot") + "(" + arr[i] + ")"));
-					item.name = "serial_"+arr[i];
-					
-					item.enabled = true;
-					item.checked = ConnectionManager.sharedManager().selectPort==arr[i] && ConnectionManager.sharedManager().isConnected;
-				}
-			}
-			
-			var canReset:Boolean = ConnectionManager.sharedManager().isConnected;
-			MenuUtil.FindItem(getNativeMenu(), "Reset Default Program").enabled = canReset;
-			MenuUtil.FindItem(getNativeMenu(), "Upgrade Firmware").enabled = canReset;
-		}
-
-		private var initExtMenuItemCount:int = -1;
-		
-		private function __onInitExtMenu(evt:Event):void
-		{
-			var menuItem:NativeMenu = evt.target as NativeMenu;
-			var list:Array = Main.app.extensionManager.extensionList;
-			if(list.length==0){
-				Main.app.extensionManager.copyLocalFiles();
-				SharedObjectManager.sharedManager().setObject("first-launch",false);
-			}
-			if(initExtMenuItemCount < 0){
-				initExtMenuItemCount = menuItem.numItems;
-			}
-			while(menuItem.numItems > initExtMenuItemCount){
-				menuItem.removeItemAt(menuItem.numItems-1);
-			}
-			list = Main.app.extensionManager.extensionList;
-			for(var i:int=0;i<list.length;i++){
-				var extName:String = list[i].name;
-				var subMenuItem:NativeMenuItem = menuItem.addItem(new NativeMenuItem(Translator.map(extName)));
-				subMenuItem.name = extName;
-				subMenuItem.label = Translator.map(extName);
-				subMenuItem.checked = Main.app.extensionManager.checkExtensionSelected(extName);
-				register(extName, __onExtensions);
-			}
-		}
-		
-		private function __onExtensions(menuItem:NativeMenuItem):void
-		{
-			Main.app.extensionManager.onSelectExtension(menuItem.name);
-		}
-		
-		private function __onHelp(menuItem:NativeMenuItem):void
-		{
-			var url:String = "http://sohta02.web.fc2.com/familyday.html";
-			switch(menuItem.name)
-			{
+		//	var url:String = "http://sohta02.web.fc2.com/familyday.html";
+			var url:String = Main.app.extensionManager.extensionByName().helpURL;
+			switch(item.name) {
 				case "Educators' Content":
 				default:
 					navigateToURL(new URLRequest(url),"_blank");

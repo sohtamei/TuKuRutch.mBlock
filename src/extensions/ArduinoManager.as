@@ -697,7 +697,7 @@ void _loop(){
 		{
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
 		//	var f:File = new File(File.applicationDirectory.nativePath + "/ext/firmware/hex/robot_pcmode/robot_pcmode.ino.template");
-			var f:File = new File(ext.docPath + ext.pcmodeFW + ".ino.template");
+			var f:File = new File(ext.pcmodeFW + ".ino.template");
 			if(f==null || !f.exists)
 				return;
 			var code:String = FileUtil.ReadString(f);
@@ -749,7 +749,7 @@ void _loop(){
 			code = fixTabs(code);
 
 		//	f = new File(File.applicationDirectory.nativePath + "/ext/libraries/robot/robot_pcmode/robot_pcmode.ino");
-			f = new File(url2nativePath(ext.docPath + ext.pcmodeFW + ".ino"));
+			f = new File(url2nativePath(ext.pcmodeFW + ".ino"));
 			FileUtil.WriteString(f, code);
 			return;
 		}
@@ -1008,7 +1008,7 @@ void _loop(){
 			var processArgs:Vector.<String> = new Vector.<String>();
 			var nativeProcessStartupInfo:NativeProcessStartupInfo =new NativeProcessStartupInfo();
 			nativeProcessStartupInfo.executable = file;
-			processArgs.push(url2nativePath(ext.docPath + ext.pcmodeFW + ".ino"));
+			processArgs.push(url2nativePath(ext.pcmodeFW + ".ino"));
 			nativeProcessStartupInfo.arguments = processArgs;
 			process = new NativeProcess();
 			process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA, function(e:ProgressEvent):void{});

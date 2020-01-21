@@ -74,7 +74,7 @@ package extensions
 			}else{
 				_dialog.setText(Translator.map('Upload Failed'));
 			}
-			Main.app.topBarPart.setConnectedTitle(null);
+			Main.app.topBarPart.setConnectedButton(false);
 			//ConnectionManager.sharedManager().reopen();
 		}
 		

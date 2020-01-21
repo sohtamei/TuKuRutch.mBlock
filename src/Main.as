@@ -1,6 +1,4 @@
 package {
-	import com.google.analytics.GATracker;
-	
 	import flash.desktop.NativeApplication;
 	import flash.desktop.NativeProcess;
 	import flash.desktop.NativeProcessStartupInfo;
@@ -35,7 +33,6 @@ package {
 	import cc.makeblock.mbot.util.AppTitleMgr;
 	import cc.makeblock.mbot.util.PopupUtil;
 	import cc.makeblock.menu.MenuBuilder;
-//	import cc.makeblock.updater.AppUpdater;
 	import cc.makeblock.util.FileUtil;
 	import cc.makeblock.util.FlashSprite;
 	import cc.makeblock.util.InvokeMgr;
@@ -143,7 +140,6 @@ package {
 		public var imagesPart:ImagesPart;
 		protected var soundsPart:SoundsPart;
 		protected var stagePart:StagePart;
-//		private var ga:GATracker;
 		private var tabsPart:TabsPart;
 		private var _welcomeView:Loader;
 		private var _currentVer:String = "05.05.001";
@@ -151,11 +147,6 @@ package {
 			app = this;
 			addEventListener(Event.ADDED_TO_STAGE,initStage);
 			loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, __onError);
-//			trace(DESParser.decryptDES("123456","2YNQ6N8ahls0YmQ1NGI3OTkzMWM2OWM5YTczNDUzNGQ="));
-//			trace(DESParser.encryptDES("123456",'05f40ce31c9e4d339c75a77007d479b8'));//face
-//			trace(DESParser.encryptDES("123456",'212ea29742574cae8add9ad79abcfe4a'));//speech
-//			trace(DESParser.encryptDES("123456",'2a71aa9ef2fc478e8e35b13ca65d9e3f'));//emotion
-//			trace(DESParser.encryptDES("123456",'d30bb3fa0e40461eaf1d0b11b609a75a'));//text
 //			SharedObjectManager.sharedManager().loadRemoteConfig();
 		}
 		static private var errorFlag:Boolean;
@@ -172,25 +163,20 @@ package {
 			}
 			errorFlag = true;
 		//	ErrorReportFrame.OpenSendWindow(errorText);
-			if(saveNeeded)
-			{
+			if(saveNeeded) {
 				autoSaveFile();
 			}
-			
 		}
 		
 		private function initStage(evt:Event):void{
 			removeEventListener(Event.ADDED_TO_STAGE,initStage);
-		//	stage.nativeWindow.title += "(" + versionString + ")";
 			AsWingManager.initAsStandard(this);
 			UIManager.setLookAndFeel(new MyLookAndFeel());
 			AppTitleMgr.Instance.init(stage.nativeWindow);
 //			ApplicationManager.sharedManager().isCatVersion = NativeApplication.nativeApplication.applicationDescriptor.toString().indexOf("猫友")>-1;
-		//	ga = new GATracker(this,"UA-54268669-1","AS3",false);
 			track("/app/launch");
 			new InvokeMgr();
 			stage.nativeWindow.addEventListener(Event.CLOSING,onExiting);
-		//	AppUpdater.getInstance().start();
 			stage.align = StageAlign.TOP_LEFT;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			
@@ -207,8 +193,8 @@ package {
 
 			stagePane = new ScratchStage();
 			gh = new GestureHandler(this);
-			initInterpreter();
-			initRuntime();
+			interp = new Interpreter(this);
+			runtime = new ScratchRuntime(this, interp);
 //			try{
 				extensionManager = new ExtensionManager(this);
 				var extensionsPath:File = ApplicationManager.sharedManager().documents.resolvePath("mBlock");
@@ -218,7 +204,6 @@ package {
 					extensionManager.copyLocalFiles();
 				}
 				
-		//		extensionManager.importExtension();
 				addParts();
 				systemMenu = new TopSystemMenu(stage, "assets/menu.xml");
 				Translator.initializeLanguageList();
@@ -239,48 +224,38 @@ package {
 			else runtime.installEmptyProject();
 			
 			fixLayout();
-		//	setTimeout(DeviceManager.sharedManager, 100);
 			if(!SharedObjectManager.sharedManager().getObject("mblock-first-launch",false))
 			{
 				setTimeout(extensionManager.singleSelectExtension, 100);
 				SharedObjectManager.sharedManager().setObject("mblock-first-launch",true);
-			//	ga.trackPageview(ApplicationManager.sharedManager().isCatVersion?"/myh/":"/") + "/mblock-first-launch";
 			}
 			if(!SharedObjectManager.sharedManager().getObject(versionString+".0."+_currentVer,false)){
-				//SharedObjectManager.sharedManager().clear();
 				SharedObjectManager.sharedManager().setObject(versionString+".0."+_currentVer,true);
 				extensionsPath.deleteDirectory(true);
 				extensionManager.copyLocalFiles();
 				SharedObjectManager.sharedManager().setObject("first-launch",true);
-				
-				//SharedObjectManager.sharedManager().setObject("board","mbot_uno");
 			}
-			//VersionManager.sharedManager().start(); //在线更新资源文件
 			if(SharedObjectManager.sharedManager().getObject("first-launch",true)){
 				SharedObjectManager.sharedManager().setObject("first-launch",false);
-				openWelcome();
+				openSwf("welcome.swf");
 			}
-			initExtension();
+//			ClickerManager.sharedManager().update();
+			ConnectionManager.sharedManager().setMain(this);
 			MenuBuilder.BuildMenuList(XMLList(FileUtil.LoadFile("assets/context_menus.xml")));
 			//初始化项目标题
-			setProjectName('Untitled');
+			setProjectName(Translator.map('Untitled'));
 			setTimeout(openAutoProjectFile,1000);
-			
-			
 		}
 		private function openAutoProjectFile():void
 		{
 			autoProjectFile = File.applicationStorageDirectory.resolvePath("autoProjectFile.sb2");
 			if(autoProjectFile.exists)
 			{
-				function reductionFile(value:int):void
+				function reductionFile(value:int):void 
 				{
-					if(value==JOptionPane.YES)
-					{
+					if(value==JOptionPane.YES) {
 						Main.app.runtime.selectedProjectFile(autoProjectFile,deleteAutoProjectFile);
-					}
-					else
-					{
+					} else {
 						autoProjectFile.deleteFileAsync();
 					}
 				}
@@ -290,19 +265,11 @@ package {
 					projectFile = null;
 					saveNeeded = true;
 				}
-				if(autoProjectFile.exists)
-				{
+				if(autoProjectFile.exists) {
 					var panel:JOptionPane = PopupUtil.showConfirm(Translator.map("There is an abnormal exit, restore?"),reductionFile);
 					panel.getFrame().setWidth(350);
 				}
 			}
-		}
-		private function initExtension():void{
-//			ClickerManager.sharedManager().update();
-			ConnectionManager.sharedManager().setMain(this);
-		}
-		private function openWelcome():void{
-			openSwf("welcome.swf");
 		}
 		public function closeWelcome():void{
 			if(_welcomeView && _welcomeView.parent)
@@ -310,14 +277,11 @@ package {
 				this.removeChild(_welcomeView);
 			}
 		}
-		public function openOrion():void{
-			openSwf("orion_buzzer.swf");
-		}
 		private function openSwf(path:String):void
 		{
 			_welcomeView = new Loader();
 			_welcomeView.load(new URLRequest(path));
-			_welcomeView.contentLoaderInfo.addEventListener(Event.COMPLETE,onWelcomeLoaded);
+			_welcomeView.contentLoaderInfo.addEventListener(Event.COMPLETE, onWelcomeLoaded);
 		}
 		private function onWelcomeLoaded(evt:Event):void{
 			var w:uint = stage.stageWidth;
@@ -329,21 +293,6 @@ package {
 		
 		public function track(msg:String):void{
 			LogManager.sharedManager().log(msg);
-		//	ga.trackPageview(
-		//		(ApplicationManager.sharedManager().isCatVersion?"/myh/":"/") + Main.versionString + msg
-		//	);
-		}
-		
-		protected function initTopBarPart():void {
-			topBarPart = new TopBarPart(this);
-		}
-	
-		protected function initInterpreter():void {
-			interp = new Interpreter(this);
-		}
-	
-		protected function initRuntime():void {
-			runtime = new ScratchRuntime(this, interp);
 		}
 	
 		public function showTip(tipName:String):void {}
@@ -370,14 +319,10 @@ package {
 			if(saveNeeded){
 				evt.preventDefault();
 				saveProjectAndThen(quitApp);
-			}
-			else
-			{
+			} else {
 				ConnectionManager.sharedManager().onClose();
 			}
 			Main.app.gh.mouseUp(new MouseEvent(MouseEvent.MOUSE_UP));
-			
-			
 		}
 		
 		public function quitApp():void
@@ -391,34 +336,30 @@ package {
 		public function log(s:String):void {
 			LogManager.sharedManager().log(s);
 		}
-		/*
-		public function logMessage(msg:String, extra_data:Object=null):void {
-			trace(msg);
-		}
-		*/
+
 		public function loadProjectFailed():void {}
 		
-		public function clearCachedBitmaps():void {
+		public function clearCachedBitmaps():void
+		{
 			for(var i:int=0; i<stagePane.numChildren; ++i) {
 				var spr:ScratchSprite = (stagePane.getChildAt(i) as ScratchSprite);
 				if(spr) spr.clearCachedBitmap();
 			}
 			stagePane.clearCachedBitmap();
-	
 			System.gc();
 		}
 	
-		public function viewedObj():ScratchObj { return viewedObject; }
-		public function stageObj():ScratchStage { return stagePane; }
-		public function projectName():String { return stagePart.projectName(); }
-		public function highlightSprites(sprites:Array):void { libraryPart.highlight(sprites); }
+		public function viewedObj():ScratchObj					{ return viewedObject; }
+		public function stageObj():ScratchStage					{ return stagePane; }
+		public function projectName():String					{ return stagePart.projectName(); }
+		public function highlightSprites(sprites:Array):void	{ libraryPart.highlight(sprites); }
 		public function refreshImageTab(fromEditor:Boolean):void { imagesPart.refresh(fromEditor); }
-		public function refreshSoundTab():void { soundsPart.refresh(); }
-		public function selectCostume():void { imagesPart.selectCostume(); }
-		public function selectSound(snd:ScratchSound):void { soundsPart.selectSound(snd); }
-		public function clearTool():void { CursorTool.setTool(null); topBarPart.clearToolButtons(); }
-		public function tabsRight():int { return tabsPart.x + tabsPart.w; }
-		public function enableEditorTools(flag:Boolean):void { imagesPart.editor.enableTools(flag); }
+		public function refreshSoundTab():void					{ soundsPart.refresh(); }
+		public function selectCostume():void					{ imagesPart.selectCostume(); }
+		public function selectSound(snd:ScratchSound):void		{ soundsPart.selectSound(snd); }
+		public function clearTool():void						{ CursorTool.setTool(null); topBarPart.clearToolButtons(); }
+		public function tabsRight():int							{ return tabsPart.x + tabsPart.w; }
+		public function enableEditorTools(flag:Boolean):void	{ imagesPart.editor.enableTools(flag); }
 	
 		public function get usesUserNameBlock():Boolean {
 			return _usesUserNameBlock;
@@ -441,7 +382,7 @@ package {
 			if(file != null){
 				setProjectName(file.name);
 			}else{
-				setProjectName('Untitled');
+				setProjectName(Translator.map('Untitled'));
 			}
 			projectFile = file;
 		}
@@ -449,11 +390,13 @@ package {
 		private function setProjectName(s:String):void {
 			if (s.slice(-3) == '.sb') s = s.slice(0, -3);
 			if (s.slice(-4) == '.sb2') s = s.slice(0, -4);
+			AppTitleMgr.Instance.setProjectName(s+".sb2");
 			stagePart.setProjectName(s);
 		}
 	
 		protected var wasEditing:Boolean;
-		public function setPresentationMode(enterPresentation:Boolean):void {
+		public function setPresentationMode(enterPresentation:Boolean):void
+		{
 			if (enterPresentation) {
 				wasEditing = editMode;
 				if (wasEditing) {
@@ -483,7 +426,8 @@ package {
 			}
 		}
 	
-		private function setSmallStageMode(flag:Boolean):void {
+		private function setSmallStageMode(flag:Boolean):void
+		{
 			stageIsContracted = flag;
 			stagePart.refresh();
 			fixLayout();
@@ -582,9 +526,9 @@ package {
 		}
 	
 		protected function addParts():void {
-			initTopBarPart();
-			stagePart = getStagePart();
-			libraryPart = getLibraryPart();
+			topBarPart = new TopBarPart(this);
+			stagePart = new StagePart(this);
+			libraryPart = new LibraryPart(this);
 			tabsPart = new TabsPart(this);
 			scriptsPart = new ScriptsPart(this);
 			imagesPart = new ImagesPart(this);
@@ -593,14 +537,6 @@ package {
 			addChild(libraryPart);
 			addChild(tabsPart);
 			addChild(topBarPart);
-		}
-	
-		protected function getStagePart():StagePart {
-			return new StagePart(this);
-		}
-	
-		protected function getLibraryPart():LibraryPart {
-			return new LibraryPart(this);
 		}
 	
 		// -----------------------------
@@ -637,7 +573,6 @@ package {
 	
 		private function onResize(e:Event):void {
 			fixLayout();
-			
 		}
 	
 		private function fixLayout():void {
@@ -654,7 +589,8 @@ package {
 			}
 		}
 	
-		protected function updateLayout(w:int, h:int):void {
+		protected function updateLayout(w:int, h:int):void
+		{
 //			topBarPart.x = 0;
 //			topBarPart.y = 0;
 //			topBarPart.setWidthHeight(w, 28);
@@ -745,7 +681,10 @@ package {
 		
 		private function clearProject():void
 		{
-			startNewProject('', '');
+			runtime.installNewProject();
+			projectID = '';
+			loadInProgress = false;
+			saveNeeded = false;
 			setProjectFile(null);
 			topBarPart.refresh();
 			stagePart.refresh();
@@ -753,22 +692,11 @@ package {
 	
 		public function createNewProject(ignore:* = null):void {
 			saveProjectAndThen(clearProject);
-			//AppTitleMgr.Instance.setProjectModifyInfo(true);
+			AppTitleMgr.Instance.setProjectModifyInfo(false);
 		}
 	
-		public function saveProjectAndThen(postSaveAction:Function = null):void {
-			// Give the user a chance to save their project, if needed, then call postSaveAction.
-			/*
-			function doNothing():void {}
-			function cancel():void { d.cancel(); }
-			function proceedWithoutSaving():void { d.cancel(); postSaveAction() }
-			function save():void {
-				d.cancel();
-				exportProjectToFile(false,postSaveAction); // if this succeeds, saveNeeded will become false
-				if (!saveNeeded) postSaveAction();
-			}
-			if (postSaveAction == null) postSaveAction = doNothing;
-			*/
+		public function saveProjectAndThen(postSaveAction:Function = null):void
+		{
 			if(isPanelShowing){
 				return;
 			}
@@ -778,14 +706,7 @@ package {
 				}
 				return;
 			}
-			/*
-			var d:DialogBox = new DialogBox();
-			d.addTitle(Translator.map('Save project') + '?');
-			d.addButton('Save', save);
-			d.addButton('Don\'t save', proceedWithoutSaving);
-			d.addButton('Cancel', cancel);
-			d.showOnStage(stage);
-			*/
+
 			isPanelShowing = true;
 			PopupUtil.showQuitAlert(function(value:int):void{
 				switch(value){
@@ -958,6 +879,25 @@ package {
 			return result;
 		}
 		
+		public function showStage(show:Boolean):void
+		{
+			stageIsArduino = false;
+			stageIsHided = !show;
+			stageIsContracted = false;
+			setSmallStageMode(false);
+			setTab("scripts");
+		}
+
+		public function showArduino():void
+		{
+			stageIsArduino = true;
+			stageIsHided = true;
+			stageIsContracted = false;
+			setSmallStageMode(false);
+			setTab("scripts");
+			scriptsPart.showArduinoCode();
+		}
+
 		public function toggleHideStage():void
 		{
 			stageIsArduino = false;
@@ -983,7 +923,6 @@ package {
 		}
 		public function changeToArduinoMode():void{
 			toggleArduinoMode();
-			
 			if(stageIsArduino)
 				scriptsPart.showArduinoCode();
 		}
@@ -999,8 +938,7 @@ package {
 					scriptsPart.selector.select(Specs.controlCategory);
 				}
 			}
-			
-//			this.scriptsPart.selector.select(stageIsArduino?6:1);
+			//this.scriptsPart.selector.select(stageIsArduino?6:1);
 			//this.tabsPart.soundsTab.visible = !stageIsArduino;
 			//this.tabsPart.imagesTab.visible = !stageIsArduino;
 			setTab("scripts");
@@ -1041,14 +979,6 @@ package {
 				
 			}
 		}
-		public function startNewProject(newOwner:String, newID:String):void {
-			runtime.installNewProject();
-//			projectOwner = newOwner;
-			projectID = newID;
-//			projectIsPrivate = true;
-			loadInProgress = false;
-			saveNeeded = true;
-		}
 	
 		// -----------------------------
 		// Save status
@@ -1060,9 +990,8 @@ package {
 			return _saveNeeded;
 		}
 		private function set saveNeeded(value:Boolean):void{
-			if(_saveNeeded == value){
+			if(_saveNeeded == value)
 				return;
-			}
 			_saveNeeded = value;
 			AppTitleMgr.Instance.setProjectModifyInfo(_saveNeeded);
 		}

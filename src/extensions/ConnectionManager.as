@@ -12,7 +12,6 @@ package extensions
 	import flash.utils.Timer;
 	import flash.utils.setTimeout;
 	import cc.makeblock.interpreter.BlockInterpreter;
-	import cc.makeblock.mbot.util.AppTitleMgr;
 //	import cc.makeblock.util.UploadSizeInfo;
 	
 	import translation.Translator;
@@ -103,32 +102,14 @@ package extensions
 		// 5. open(115200, deviceOpened)
 		// 6. deviceOpened (robot.js)			- set_receive_handler(processData)
 
-		public function onConnect(name:String):void{
-			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
-			switch(name){
-				case "upgrade_firmware":{
-					upgrade(ext.docPath + ext.pcmodeFW + ".cpp.standard.hex");
-					break;
-				}
-				case "reset_program":{
-					upgrade(ext.docPath + ext.normalFW + ".cpp.standard.hex");
-					break;
-				}
-				default:{
-					BlockInterpreter.Instance.stopAllThreads();
-					if(name.indexOf("serial_")>-1){
-						var port:String = name.split("serial_").join("");
-
-						if(selectPort==port && _serial.isConnected){
-							onClose();
-						}else{
-							if(_serial.isConnected){
-								onClose();
-							}
-							setTimeout(onOpen, 100, port);
-						}
-					}
-				}
+		public function onConnect(port:String):void{
+			BlockInterpreter.Instance.stopAllThreads();
+			if(selectPort==port && _serial.isConnected){
+				onClose();
+			}else{
+				if(_serial.isConnected)
+					onClose();
+				setTimeout(onOpen, 100, port);
 			}
 		}
 
@@ -145,7 +126,7 @@ package extensions
 			var r:uint = _serial.open(selectPort,baud);
 			ArduinoManager.sharedManager().isUploading = false;
 			if(r==0){
-				Main.app.topBarPart.setConnectedTitle("Connect");
+				Main.app.topBarPart.setConnectedButton(true);
 				openedHandle(this);
 				removeEventListener(Event.CHANGE,_onReceived);
 				addEventListener(Event.CHANGE,_onReceived);
@@ -169,12 +150,7 @@ package extensions
 		}
 
 		public function update():void{
-			if(!_serial.isConnected){
-				Main.app.topBarPart.setDisconnectedTitle();
-				return;
-			}else{
-				Main.app.topBarPart.setConnectedTitle("Connect");
-			}
+			Main.app.topBarPart.setConnectedButton(_serial.isConnected);
 		}
 
 		// close
@@ -191,7 +167,7 @@ package extensions
 				_serial.removeEventListener(Event.CHANGE, onChanged);
 				_serial.close();
 				_receiveHandler = null;
-				Main.app.topBarPart.setDisconnectedTitle();
+				Main.app.topBarPart.setConnectedButton(false);
 				this.dispatchEvent(new Event(Event.CLOSE));
 			}
 		}
@@ -276,7 +252,7 @@ package extensions
 		// update
 
 		private var _isInitUpgrade:Boolean = false;
-		private function upgrade(hexFile:String=""):void{
+		public function upgrade(hexFile:String=""):void{
 			if(!isConnected){
 				return;
 			}
@@ -296,7 +272,7 @@ package extensions
 
 			var f:File = new File(hexFile);
 			_hexToDownload = f.nativePath;
-			Main.app.topBarPart.setConnectedTitle(AppTitleMgr.Uploading);
+			Main.app.topBarPart.setConnectedButton(false);
 			ArduinoManager.sharedManager().isUploading = false;
 			_serial.close();
 			upgradeFirmware();
@@ -333,7 +309,7 @@ package extensions
 				Main.app.track("upgrade fail!");
 				return;
 			}
-			Main.app.topBarPart.setConnectedTitle(AppTitleMgr.Uploading);
+			Main.app.topBarPart.setConnectedButton(false);
 			var tf:File;
 		//	var currentDevice:String = DeviceManager.sharedManager().currentDevice;
 			var nativeProcessStartupInfo:NativeProcessStartupInfo =new NativeProcessStartupInfo();

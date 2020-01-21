@@ -223,7 +223,7 @@ package extensions
 			Main.app.track(msg);
 		}
 		static private function updateDevName(name:String):void{
-			Main.app.topBarPart.offlineNotice.text = name;
+			Main.app.topBarPart.versionText.text = name;
 		}
 		static private const tempBytes:ByteArray = new ByteArray();
 		tempBytes.endian = Endian.LITTLE_ENDIAN;
