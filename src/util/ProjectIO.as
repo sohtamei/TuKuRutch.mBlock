@@ -164,26 +164,17 @@ public class ProjectIO {
 			if (fName.slice(-5) == '.json') jsonData = contents.readUTFBytes(contents.length);
 		}
 		if (jsonData == null) return null;
-		jsonData = fixForNewExtension(jsonData);
-		if(jsonData.indexOf("FamilyDay")>-1){
-			if(!Main.app.extensionManager.checkExtensionSelected("FamilyDay")){
-				Main.app.extensionManager.onSelectExtension("FamilyDay");
-			}
-		}
+	//	jsonData = fixForNewExtension(jsonData);
 		var jsonObj:Object = util.JSON.parse(jsonData);
 		//先处理兼容性问题
 		fixManager(jsonObj);
 		trace(util.JSON.stringify(jsonObj));
-/*
 		if(jsonObj['info']){
 			if(jsonObj['info']['boardVersion']){
-				DeviceManager.sharedManager().onSelectBoard(jsonObj['info']['boardVersion']);
-			}else{
-				DeviceManager.sharedManager().onSelectBoard("remoconRobo");
+				Main.app.extensionManager.onSelectExtension(jsonObj['info']['boardVersion']);
 			}
 		}
-*/		if (jsonObj['children']) { // project JSON
-			
+		if (jsonObj['children']) { // project JSON
 			var proj:ScratchStage = new ScratchStage();
 			proj.readJSON(jsonObj);
 			if (proj.penLayerID >= 0) proj.penLayerPNG = images[proj.penLayerID]
@@ -212,7 +203,7 @@ public class ProjectIO {
 		{
 			board = "";
 		}
-		
+
 		var childs:Array = obj["children"];
 		if(!childs)return;
 		for each(var sc:Object in childs)
@@ -234,7 +225,6 @@ public class ProjectIO {
 				fixCategoryRecursion(blocks,["|", "??", "??"],["||","??","??"]);
 				fixCategoryRecursion(blocks,["||||", "??", "??"],["||","??","??"]);
 			}
-			
 		}
 	}
 	
@@ -344,6 +334,7 @@ public class ProjectIO {
 		/*,
 		['["mBot.runLed", "all",','["mBot.runLed", "led on board","all",']*/
 	];
+/*
 	private function fixForNewExtension(json:String):String{
 		trace(json);
 		for(var i:uint=0;i<fixList.length;i++){
@@ -351,6 +342,7 @@ public class ProjectIO {
 		}
 		return json.split("arduino\\/main").join("runArduino");
 	}
+*/
 	private function integerName(s:String):String {
 		// Return the substring of digits preceding the last '.' in the given string.
 		// For example integerName('123.jpg') -> '123'.

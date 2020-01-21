@@ -452,7 +452,7 @@ package extensions
 					var obj:Object = objs[objs.length-1];	// spec[1]:"play tone ..", spec[0]:"w", extensionsCategory:20, prefix+spec[2]:"remoconRobo.runBuzzerJ2", spec.slice(3):(初期値+obj)
 					obj = obj[obj.length-1];				// 初期値, .. obj
 					if(typeof obj=="object"){
-						var ext:ScratchExtension = Main.app.extensionManager.extensionByName(blk[0].split(".")[0]);
+						var ext:ScratchExtension = Main.app.extensionManager.extensionByName();//blk[0].split(".")[0]);
 						var codeObj:Object = {code:{setup:substitute(getProp(obj,'setup'), blk as Array, ext),
 													func :substitute(getProp(obj,'func'),  blk as Array, ext)}};
 						if(!availableBlock(codeObj)){	// 重複チェック
@@ -676,7 +676,7 @@ void _loop(){
 			}
 			var ccode_func:String = ccode_func=buildFunctions();
 		//	ccode_setup = hackVaribleWithPinMode(ccode_setup);
-			var ext:ScratchExtension = Main.app.extensionManager.extensionByName("RobotExt");
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
 			var retcode:String = codeTemplate
 									.replace("// HEADER", getProp(ext, "header"))
 									.replace("// DEFINE", ccode_def)
@@ -695,7 +695,7 @@ void _loop(){
 		
 		public function jsonToCpp2():void
 		{
-			var ext:ScratchExtension = Main.app.extensionManager.extensionByName("RobotExt");
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
 		//	var f:File = new File(File.applicationDirectory.nativePath + "/ext/firmware/hex/robot_pcmode/robot_pcmode.ino.template");
 			var f:File = new File(ext.docPath + ext.pcmodeFW + ".ino.template");
 			if(f==null || !f.exists)
@@ -725,7 +725,7 @@ void _loop(){
 					case "L": getcmds[j] = "getLong("+offset.toString()+")";   offset+=4; setcmd="sendLong"; break;
 					case "F": getcmds[j] = "getFloat("+offset.toString()+")";  offset+=4; setcmd="sendFloat"; break;
 					case "D": getcmds[j] = "getDouble("+offset.toString()+")"; offset+=8; setcmd="sendDouble"; break;
-				//	case "s":
+					case "s": getcmds[j] = "getString("+offset.toString()+")"; offset+=8; setcmd="sendString"; break;
 					}
 				}
 				var tmp:String = obj.func;
@@ -998,7 +998,7 @@ void _loop(){
 		{
 			jsonToCpp2();
 
-			var ext:ScratchExtension = Main.app.extensionManager.extensionByName("RobotExt");
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
 			var file:File;
 			if(ApplicationManager.sharedManager().system==ApplicationManager.WINDOWS){
 				file = new File(arduinoInstallPath+"/arduino.exe");

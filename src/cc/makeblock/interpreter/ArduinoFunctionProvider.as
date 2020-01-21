@@ -33,7 +33,7 @@ package cc.makeblock.interpreter
 			}
 			var extName:String = name.slice(0, index);
 			var opName:String = name.slice(index+1);
-			var ext:ScratchExtension = Main.app.extensionManager.extensionByName(extName);
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();//extName);
 			if(null == ext){
 				thread.interrupt();
 				return;

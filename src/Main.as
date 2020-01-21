@@ -240,9 +240,9 @@ package {
 			
 			fixLayout();
 		//	setTimeout(DeviceManager.sharedManager, 100);
-			setTimeout(extensionManager.singleSelectExtension, 100, "RobotExt");
 			if(!SharedObjectManager.sharedManager().getObject("mblock-first-launch",false))
 			{
+				setTimeout(extensionManager.singleSelectExtension, 100);
 				SharedObjectManager.sharedManager().setObject("mblock-first-launch",true);
 			//	ga.trackPageview(ApplicationManager.sharedManager().isCatVersion?"/myh/":"/") + "/mblock-first-launch";
 			}

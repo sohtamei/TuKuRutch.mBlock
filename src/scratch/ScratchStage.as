@@ -689,19 +689,21 @@ public class ScratchStage extends ScratchObj {
 		info.scriptCount = scriptCount();
 		info.spriteCount = spriteCount();
 		info.flashVersion = Capabilities.version;
-		info.boardVersion = "RobotExt";
+		info.boardVersion = Main.app.extensionManager.extensionByName().name;
 		if (Main.app.projectID != '') info.projectID = Main.app.projectID;
 		info.videoOn = isVideoOn();
 		info.swfVersion = Main.versionString;
 
 		delete info.loadInProgress;
 		if (Main.app.loadInProgress) info.loadInProgress = true; // log flag for debugging
-
 		if (this == Main.app.stagePane) {
+			delete info.savedExtensions;
+	/*
 			// If this is the active stage pane, record the current extensions.
 			var extensionsToSave:Array = Main.app.extensionManager.extensionsToSave();
 			if (extensionsToSave.length == 0) delete info.savedExtensions;
 			else info.savedExtensions = extensionsToSave;
+	*/
 		}
 	}
 

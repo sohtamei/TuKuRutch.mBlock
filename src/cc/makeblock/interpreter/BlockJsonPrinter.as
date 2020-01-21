@@ -159,7 +159,12 @@ package cc.makeblock.interpreter
 					}
 					return SyntaxTreeFactory.NewNumber(value);
 				}else if(StringChecker.IsNumber(item.argValue)){
-					return SyntaxTreeFactory.NewNumber(parseFloat(item.argValue));
+					var num:Number;
+					if(item.argValue.slice(0,2)=="0x")
+						num = parseInt(item.argValue,16);
+					else
+						num = parseFloat(item.argValue);
+					return SyntaxTreeFactory.NewNumber(num);
 				}
 				return SyntaxTreeFactory.NewString(item.argValue);
 			}

@@ -81,19 +81,23 @@ package cc.makeblock.interpreter
 			if(obj1==null) return;
 
 			var i:int;
-			for(i = 0; i < param.length; i++) {
-				if(typeof param[i]=="string")
-					param[i] = ext.values[param[i]];
-			}
-
 			var obj2:Object = obj1[obj1.length-1];
 			if(obj2.hasOwnProperty("enum")) {
+				if(typeof param[0]=="string")
+					param[0] = ext.values[param[0]];
 				thread.push(param[0]);
 			//	onPacketRecv2(val);
 				return;
 			}
 
 			if(obj2.hasOwnProperty("remote")) {
+				for(i = 0; i < param.length; i++) {
+					if(obj2.remote.length <= i || obj2.remote[i]!="s") {
+						if(typeof param[i]=="string")
+							param[i] = ext.values[param[i]];
+					}
+				}
+
 				var cmd:ByteArray = new ByteArray();
 				cmd.endian = Endian.LITTLE_ENDIAN;
 				var tmp:Array = [0xff, 0x55, 0x00, index];
@@ -108,6 +112,7 @@ package cc.makeblock.interpreter
 					case "L": cmd.writeInt(param[i]);    break;
 					case "F": cmd.writeFloat(param[i]);  break;
 					case "D": cmd.writeDouble(param[i]); break;
+					case "s": cmd.writeUTFBytes(param[i]); cmd.writeByte(0); break;
 					}
 				}
 				cmd[2] = cmd.length-3;
@@ -116,6 +121,13 @@ package cc.makeblock.interpreter
 				Main.app.scriptsPart.onSerialSend(cmd);	// debug
 				ConnectionManager.sharedManager().sendBytes(cmd);
 			} else if(obj2.hasOwnProperty("custom")) {
+				for(i = 0; i < param.length; i++) {
+					if(obj2.custom.length <= i || obj2.custom[i]!="s") {
+						if(typeof param[i]=="string")
+							param[i] = ext.values[param[i]];
+					}
+				}
+
 				thread.suspend();
 				requestList.push(arguments);
 				ext.js.call(method, param, null);	// runBuzzerJ2, [ド4, Half]

@@ -27,7 +27,6 @@ package extensions
 	{
 		private static var _instance:ConnectionManager;
 		private var _serial:AIRSerial;
-	//	public var extensionName:String = "";
 
 		public var selectPort:String = "";		// 選択中の "COMx"
 		private var _receiveHandler:Function=null;
@@ -105,7 +104,7 @@ package extensions
 		// 6. deviceOpened (robot.js)			- set_receive_handler(processData)
 
 		public function onConnect(name:String):void{
-			var ext:ScratchExtension = Main.app.extensionManager.extensionByName("RobotExt");
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
 			switch(name){
 				case "upgrade_firmware":{
 					upgrade(ext.docPath + ext.pcmodeFW + ".cpp.standard.hex");

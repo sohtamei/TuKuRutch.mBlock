@@ -261,7 +261,7 @@ public class Watcher extends Sprite implements DragClient {
 		if(index >= 0){
 			var extName:String = cmd.slice(0, index);
 			var opName:String = cmd.slice(index+1);
-			var ext:ScratchExtension = Main.app.extensionManager.extensionByName(extName);
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();//extName);
 			if(ext != null && !ext.useSerial){
 				return ext.getStateVar(opName);
 			}

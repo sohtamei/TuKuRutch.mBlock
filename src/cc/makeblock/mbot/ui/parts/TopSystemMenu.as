@@ -238,7 +238,7 @@ package cc.makeblock.mbot.ui.parts
 			}
 			list = Main.app.extensionManager.extensionList;
 			for(var i:int=0;i<list.length;i++){
-				var extName:String = list[i].extensionName;
+				var extName:String = list[i].name;
 				var subMenuItem:NativeMenuItem = menuItem.addItem(new NativeMenuItem(Translator.map(extName)));
 				subMenuItem.name = extName;
 				subMenuItem.label = Translator.map(extName);
