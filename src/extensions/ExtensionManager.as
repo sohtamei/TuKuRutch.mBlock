@@ -64,7 +64,7 @@ public class ExtensionManager {
 	// spec[1]:"play tone ..", spec[0]:"w", extensionsCategory:20, prefix+spec[2]:"remoconRobo.runBuzzerJ2", spec.slice(3):(初期値+obj)
 	public function specForCmd(op:String):Array {
 		// Return a command spec array for the given operation or null.
-		var prefix:String = ext.useScratchPrimitives ? '' : 'robot.';
+		var prefix:String = extensionDict.useScratchPrimitives ? '' : 'robot.';
 		for each (var spec:Array in extensionDict.blockSpecs) {
 			if(spec.length < 3)
 				continue;
