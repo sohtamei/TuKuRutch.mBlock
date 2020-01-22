@@ -115,7 +115,7 @@ package ui.parts {
 			}
 		}
 
-		private function selectTool2():void {
+		private function selectTool2(b:IconButton):void {
 			connectButton.turnOff();
 			if(ConnectionManager.sharedManager().isConnected) {
 				ConnectionManager.sharedManager().onClose();
