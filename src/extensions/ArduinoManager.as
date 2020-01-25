@@ -631,7 +631,7 @@ package extensions
 // FUNCTION
 void setup(){
 // SETUP1
-Serial.println("Normal: " mVersion);
+Serial.println("Arduino: " mVersion);
 // SETUP2
 }
 

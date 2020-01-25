@@ -173,6 +173,8 @@
 {"name": "Watermelon", "md5": "ca05b21f0f5f78a5a0a1babe195de11f.json", "type": "sprite", "tags": ["things", "vector", "drawing"], "info": [0, 3, 1]},
 {"name": "Wizard Hat", "md5": "c34383c3bba5df3161a3403338f6dd25.json", "type": "sprite", "tags": ["things", "castle", "drawing", "vector"], "info": [0, 1, 1]},
 
+{"name": "mei1-a","md5":"mei1-a.svg","type":"costume","tags":["people", "drawing", "walking", "vector"],"info":[]},
+{"name": "mei1-b","md5":"mei1-b.svg","type":"costume","tags":["people", "drawing", "walking", "vector"],"info":[]},
 {"name": "cat-a","md5":"b2ea43be1b1c00cb2b3dc20bf337f96e.svg","type":"costume","tags":["animals", "drawing", "walking", "vector"],"info":[]},
 {"name": "cat-b","md5":"41ab45d91d43a4be11748e7c15fc6615.svg","type":"costume","tags":["animals", "drawing", "walking", "vector"],"info":[]},
 {"name": "amon","md5":"8d508770c1991fe05959c9b3b5167036.gif","type":"costume","tags":["people", "flying", "photo", "bitmap"],"info":[]},
@@ -559,6 +561,8 @@
 {"name":"ya","md5":"30987bbe464eb8db1e4c781dc238f81c.wav","type":"sound","tags":["vocals"],"info":[0.516]},
 {"name":"zoop","md5":"01f5372ddac43001a2db4c82d71f37bb.wav","type":"sound","tags":["electronic", "effects"],"info":[0.251]},
 
+{"name":"xy-grid","md5":"xy-grid.png","type":"backdrop","tags":["other"],"info":[]},
+{"name":"xy-grid2","md5":"c7170e868695b784217edac305bb791d.gif","type":"backdrop","tags":["other"],"info":[]},
 {"name":"atom playground","md5":"dd85f581a3ba8d590543bd6e87d6fd14.jpg","type":"backdrop","tags":["outdoors", "city", "sports"],"info":[]},
 {"name":"beach malibu","md5":"fd66e7be2200f27f6475b8673c8214ab.jpg","type":"backdrop","tags":["nature", "underwater", "sports"],"info":[]},
 {"name":"bedroom1","md5":"4230e474051a8ec30fa766871489e330.gif","type":"backdrop","tags":["indoors"],"info":[]},
@@ -640,5 +644,4 @@
 {"name":"winter-lights","md5":"381f471693238611a1b54da4e771637a.svg","type":"backdrop","tags": ["holiday"],"info": []},
 {"name":"woods and bench","md5":"10cdd2d4cf5359debb2b4d4bd6edd5a1.jpg","type":"backdrop","tags":["nature"],"info":[]},
 {"name":"woods","md5":"82a2fd67a3e7449bd9e9d2a9757119fa.gif","type":"backdrop","tags":["nature"],"info":[]},
-{"name":"xy-grid","md5":"c7170e868695b784217edac305bb791d.gif","type":"backdrop","tags":["other"],"info":[]}
 ]

@@ -34,6 +34,8 @@ package ui.parts {
 	import assets.Resources;
 	
 	import extensions.ConnectionManager;
+	import extensions.ExtensionManager;
+	import extensions.ScratchExtension;
 	
 	import translation.Translator;
 	
@@ -86,7 +88,8 @@ package ui.parts {
 
 		private function onClickVersion(evt:MouseEvent):void
 		{
-			ConnectionManager.sharedManager().onConnect("upgrade_firmware");
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
+			ConnectionManager.sharedManager().upgrade(ext.pcmodeFW + ".cpp.standard.hex");
 		}
 	
 		private function makeToolButton(iconName:String, fcn:Function):IconButton
