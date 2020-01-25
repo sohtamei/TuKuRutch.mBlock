@@ -357,7 +357,7 @@ package {
 		public function refreshSoundTab():void					{ soundsPart.refresh(); }
 		public function selectCostume():void					{ imagesPart.selectCostume(); }
 		public function selectSound(snd:ScratchSound):void		{ soundsPart.selectSound(snd); }
-		public function clearTool():void						{ CursorTool.setTool(null); topBarPart.clearToolButtons(); }
+		public function clearTool():void						{ topBarPart.clearTool(); }
 		public function tabsRight():int							{ return tabsPart.x + tabsPart.w; }
 		public function enableEditorTools(flag:Boolean):void	{ imagesPart.editor.enableTools(flag); }
 	
@@ -767,7 +767,6 @@ package {
 					if(postSaveAction!=null){
 						postSaveAction();
 					}
-					
 				}else{
 					var defaultName:String = (projectName().length > 1) ? projectName() + '.sb2' : 'project.sb2';
 					showMessage("defaultName="+defaultName);
@@ -818,7 +817,7 @@ package {
 			return;
 			if(!messegePanel)
 			{
-				function closeHandler():void
+				function closeHandler():void 
 				{
 					messegePanel.parent.removeChild(messegePanel);
 				}
@@ -897,7 +896,7 @@ package {
 			setTab("scripts");
 			scriptsPart.showArduinoCode();
 		}
-
+/*
 		public function toggleHideStage():void
 		{
 			stageIsArduino = false;
@@ -905,7 +904,7 @@ package {
 			stageIsContracted = false;
 			setSmallStageMode(stageIsContracted);
 		}
-	
+*/
 		public function toggleSmallStage():void {
 			stageIsArduino = false;
 			if(stageIsHided){
@@ -915,18 +914,19 @@ package {
 				setSmallStageMode(!stageIsContracted);
 			}
 		}
-	
+
 		public function toggleTurboMode():void {
 			Thread.REDRAW_FLAG = interp.turboMode;
 			interp.turboMode = !interp.turboMode;
 			stagePart.refresh();
 		}
+
 		public function changeToArduinoMode():void{
 			toggleArduinoMode();
 			if(stageIsArduino)
 				scriptsPart.showArduinoCode();
 		}
-		
+
 		public function toggleArduinoMode():void {
 			stageIsArduino = !stageIsArduino;
 			stageIsHided = stageIsArduino;
@@ -943,7 +943,7 @@ package {
 			//this.tabsPart.imagesTab.visible = !stageIsArduino;
 			setTab("scripts");
 		}
-	
+
 		public function showBubble(text:String, x:* = null, y:* = null, width:Number = 0):void {
 			if (x == null) x = stage.mouseX;
 			if (y == null) y = stage.mouseY;

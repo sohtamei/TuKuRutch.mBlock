@@ -57,7 +57,7 @@ package ui.parts {
 
 			addChild(versionSprite);
 			versionSprite.addChild(versionText);
-			versionSprite.addEventListener(MouseEvent.CLICK, onClickLink); 
+			versionSprite.addEventListener(MouseEvent.CLICK, onClickVersion); 
 			versionSprite.buttonMode = true;
 			versionSprite.useHandCursor = true;
 			versionSprite.mouseChildren = false;
@@ -73,7 +73,7 @@ package ui.parts {
 			addChild(growTool		= makeToolButton('growTool', selectTool));
 			addChild(shrinkTool		= makeToolButton('shrinkTool', selectTool));
 
-			addChild(connectButton	= new IconButton(selectTool2, 'connect'));
+			addChild(connectButton	= new IconButton(__Connect, 'connect'));
 	
 			SimpleTooltips.add(copyTool,    {text: 'Duplicate', direction: 'bottom'});
 			SimpleTooltips.add(cutTool,     {text: 'Delete',    direction: 'bottom'});
@@ -84,7 +84,7 @@ package ui.parts {
 			refresh();
 		}
 
-		private function onClickLink(evt:MouseEvent):void
+		private function onClickVersion(evt:MouseEvent):void
 		{
 			ConnectionManager.sharedManager().onConnect("upgrade_firmware");
 		}
@@ -92,6 +92,7 @@ package ui.parts {
 		private function makeToolButton(iconName:String, fcn:Function):IconButton
 		{
 			function mouseDown(evt:MouseEvent):void { activeTool = CursorTool.tool }
+
 			var onImage:Sprite = toolButtonImage(iconName, 0xcfefff, 1);
 			var offImage:Sprite = toolButtonImage(iconName, 0, 0);
 			var b:IconButton = new IconButton(fcn, onImage, offImage);
@@ -107,15 +108,14 @@ package ui.parts {
 			if (b == growTool) newTool = 'grow';
 			if (b == shrinkTool) newTool = 'shrink';
 			if (newTool == activeTool) {
-				clearToolButtons();
-				CursorTool.setTool(null);
+				clearTool();
 			} else {
 				clearToolButtonsExcept(b);
 				CursorTool.setTool(newTool);
 			}
 		}
 
-		private function selectTool2(b:IconButton):void {
+		private function __Connect(b:IconButton):void {
 			connectButton.turnOff();
 			if(ConnectionManager.sharedManager().isConnected) {
 				ConnectionManager.sharedManager().onClose();
@@ -167,7 +167,11 @@ package ui.parts {
 			refresh();
 		}
 	
-		public function clearToolButtons():void { clearToolButtonsExcept(null) }
+		public function clearTool():void
+		{
+			clearToolButtonsExcept(null)
+			CursorTool.setTool(null);
+		}
 	
 		private function clearToolButtonsExcept(activeButton: IconButton):void
 		{

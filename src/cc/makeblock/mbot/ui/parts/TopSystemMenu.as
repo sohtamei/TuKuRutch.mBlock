@@ -29,20 +29,23 @@ package cc.makeblock.mbot.ui.parts
 			super(stage, path);
 			var menu:NativeMenu = getNativeMenu();
 
+			menu.getItemByName("File").submenu.addEventListener(Event.DISPLAYING, clearTool);
 			register("File", __onFile);
 
 			menu.getItemByName("Connect").submenu.addEventListener(Event.DISPLAYING, __onShowConnect);
 			register("Connect", __onConnect);
 
-		//	menu.getItemByName("Edit").submenu.addEventListener(Event.DISPLAYING, __onInitEditMenu);
+		//	menu.getItemByName("Edit").submenu.addEventListener(Event.DISPLAYING, __onShowEditMenu);
 		//	register("Edit", __onEdit);
 
-			menu.getItemByName("Robots").submenu.addEventListener(Event.DISPLAYING, __onInitExtMenu);
+			menu.getItemByName("Robots").submenu.addEventListener(Event.DISPLAYING, __onShowExtMenu);
+			register("Clear Cache", ArduinoManager.sharedManager().clearTempFiles);
+			register("Convert robot.json to PC mode firmware", ArduinoManager.sharedManager().openArduinoIDE2);
+
 			menu.getItemByName("Language").submenu.addEventListener(Event.DISPLAYING, __onShowLanguage);
 
+			menu.getItemByName("Help").submenu.addEventListener(Event.DISPLAYING, clearTool);
 			register("Help", __onHelp);
-			register("Clear Cache", ArduinoManager.sharedManager().clearTempFiles);
-			register("Convert robot.s2e to PC mode firmware", ArduinoManager.sharedManager().openArduinoIDE2);
 
 			register(" ShowStage ", __ShowStage);
 			register(" Standard ", __Standard);
@@ -91,6 +94,11 @@ package cc.makeblock.mbot.ui.parts
 			}
 		}
 		
+		private function clearTool(evt:Event):void
+		{
+			Main.app.clearTool();
+		}
+
 		private function __onFile(item:NativeMenuItem):void
 		{
 			switch(item.name) {
@@ -105,6 +113,7 @@ package cc.makeblock.mbot.ui.parts
 
 		private function __onShowConnect(evt:Event):void
 		{
+			Main.app.clearTool();
 			var menu:NativeMenu = evt.target as NativeMenu;
 			
 			if(initConnectMenuItemCount < 0){
@@ -153,8 +162,8 @@ package cc.makeblock.mbot.ui.parts
 					break;
 			}
 		}
-		
-		private function __onInitEditMenu(evt:Event):void
+/*
+		private function __onShowEditMenu(evt:Event):void
 		{
 			var menu:NativeMenu = evt.target as NativeMenu;
 			MenuUtil.setEnable(menu.getItemByName("Undelete"),				Main.app.runtime.canUndelete());
@@ -163,7 +172,7 @@ package cc.makeblock.mbot.ui.parts
 //			MenuUtil.setChecked(menu.getItemByName("Turbo mode"),			Main.app.interp.turboMode);
 			MenuUtil.setChecked(menu.getItemByName("Arduino mode"),			Main.app.stageIsArduino);
 		}
-
+*/
 		private function __ShowStage(item:NativeMenuItem):void
 		{
 			switchStageMenu(0);
@@ -183,6 +192,7 @@ package cc.makeblock.mbot.ui.parts
 		private var _stageIndex:int = 1;
 		private function switchStageMenu(index:int):void
 		{
+			Main.app.clearTool();
 			_stageIndex = index;
 			var menu:NativeMenu = getNativeMenu();
 			var i:int;
@@ -194,24 +204,23 @@ package cc.makeblock.mbot.ui.parts
 				menu.getItemByName(offLabels[i]).label = Translator.map(label);
 			}
 		}
-
+/*
 		private function __onEdit(item:NativeMenuItem):void
 		{
 			switch(item.name){
 				case "Undelete":			Main.app.runtime.undelete();	break;
 				case "Hide stage layout":	Main.app.toggleHideStage();		break;
-/*
 				case "Small stage layout":	Main.app.toggleSmallStage();	break;
 				case "Turbo mode":			Main.app.toggleTurboMode();		break;
-*/
 				case "Arduino mode":		Main.app.changeToArduinoMode();	break;
 			}
 		}
-		
+*/
 		private var initExtMenuItemCount:int = -1;
 		
-		private function __onInitExtMenu(evt:Event):void
+		private function __onShowExtMenu(evt:Event):void
 		{
+			Main.app.clearTool();
 			var item:NativeMenu = evt.target as NativeMenu;
 			var list:Array = Main.app.extensionManager.extensionList;
 			if(list.length==0){
@@ -242,6 +251,7 @@ package cc.makeblock.mbot.ui.parts
 		
 		private function __onShowLanguage(evt:Event):void
 		{
+			Main.app.clearTool();
 			var languageMenu:NativeMenu = evt.target as NativeMenu;
 			if(languageMenu.numItems <= 2){
 				for each (var entry:Array in Translator.languages) {
