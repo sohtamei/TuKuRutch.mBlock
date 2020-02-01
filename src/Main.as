@@ -40,6 +40,7 @@ package {
 //	import extensions.DeviceManager;
 	import extensions.ExtensionManager;
 	import extensions.ConnectionManager;
+	import extensions.ScratchExtension;
 	
 	import interpreter.Interpreter;
 	
@@ -277,7 +278,7 @@ package {
 				this.removeChild(_welcomeView);
 			}
 		}
-		private function openSwf(path:String):void
+		public function openSwf(path:String):void
 		{
 			_welcomeView = new Loader();
 			_welcomeView.load(new URLRequest(path));
@@ -772,7 +773,9 @@ package {
 					showMessage("defaultName="+defaultName);
 					var path:String = fixFileName(defaultName);
 					showMessage("path="+path);
-					file = File.desktopDirectory.resolvePath(path);
+					var ext:ScratchExtension = extensionManager.extensionByName();
+					file = File.applicationDirectory.resolvePath(ext.sampleDir);
+				//	file = File.desktopDirectory.resolvePath(path);
 					showMessage("file.url0="+file.url);
 					file.addEventListener(Event.SELECT, fileSaved);
 					file.browseForSave(Translator.map("please choose file location"));

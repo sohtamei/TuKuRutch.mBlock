@@ -50,6 +50,8 @@
 	</subMenu>
 	<subMenu name="Help" label="帮助">
 		<item name="Support Site"/>
+		<item name="Robot/Board Information"/>
+		<item name="About TuKuRutch"/>
 	</subMenu>
 	<subMenu name=" ShowStage "/>
 	<subMenu name=" Standard "/>

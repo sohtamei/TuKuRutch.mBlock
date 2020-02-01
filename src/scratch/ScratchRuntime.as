@@ -49,6 +49,7 @@ package scratch {
 	
 	import extensions.ConnectionManager;
 //	import extensions.ParseManager;
+	import extensions.ScratchExtension;
 	
 	import interpreter.Interpreter;
 	import interpreter.RobotHelper;
@@ -382,7 +383,8 @@ package scratch {
 			}
 			
 			stopAll();
-			var file:File = new File();
+			var ext:ScratchExtension = app.extensionManager.extensionByName();
+			var file:File = File.applicationDirectory.resolvePath(ext.sampleDir);
 			file.addEventListener(Event.SELECT, fileSelected);
 			file.browseForOpen("choose file to open", fileFilters);
 		}

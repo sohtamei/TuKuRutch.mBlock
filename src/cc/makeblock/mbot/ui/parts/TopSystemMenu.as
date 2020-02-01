@@ -290,12 +290,15 @@ package cc.makeblock.mbot.ui.parts
 		
 		private function __onHelp(item:NativeMenuItem):void
 		{
-		//	var url:String = "http://sohta02.web.fc2.com/familyday.html";
-			var url:String = Main.app.extensionManager.extensionByName().helpURL;
 			switch(item.name) {
-				case "Educators' Content":
-				default:
-					navigateToURL(new URLRequest(url),"_blank");
+				case "Support Site":
+					navigateToURL(new URLRequest(Main.app.extensionManager.extensionByName().helpURL),"_blank");
+					break;
+				case "Robot/Board Information":
+					navigateToURL(new URLRequest(Main.app.extensionManager.extensionByName().productInfoURL),"_blank");
+					break;
+				case "About TuKuRutch":
+					Main.app.openSwf("welcome.swf");
 					break;
 			}
 		}

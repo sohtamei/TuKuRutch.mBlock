@@ -218,6 +218,8 @@ public class ExtensionManager {
 									ext.javascriptURL = extObj.javascriptURL;		// LoadJS
 		if(extObj.sort)				ext.sort = extObj.sort;
 		if(extObj.helpURL)			ext.helpURL = extObj.helpURL;
+		if(extObj.productInfoURL)	ext.productInfoURL = extObj.productInfoURL;
+		if(extObj.sampleDir)		ext.sampleDir = extObj.sampleDir;
 		if(extObj.normalFW)			ext.normalFW = extObj.docPath + extObj.normalFW;
 		if(extObj.pcmodeFW)			ext.pcmodeFW = extObj.docPath + extObj.pcmodeFW;
 		if(extObj.header)			ext.header = extObj.header;
