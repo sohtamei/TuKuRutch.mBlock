@@ -774,7 +774,7 @@ package {
 					var path:String = fixFileName(defaultName);
 					showMessage("path="+path);
 					var ext:ScratchExtension = extensionManager.extensionByName();
-					file = File.applicationDirectory.resolvePath(ext.sampleDir);
+					file = File.applicationDirectory.resolvePath(ext.sampleDir+'/'+path);
 				//	file = File.desktopDirectory.resolvePath(path);
 					showMessage("file.url0="+file.url);
 					file.addEventListener(Event.SELECT, fileSaved);
