@@ -83,7 +83,7 @@ public class ScriptsPart extends UIPart {
 	private var yReadout:TextField;
 	private var lastX:int = -10000000; // impossible value to force initial update
 	private var lastY:int = -10000000; // impossible value to force initial update
-	private var backBt:Button = new Button(Translator.map("Back"));
+//	private var backBt:Button = new Button(Translator.map("Back"));
 	private var uploadBt:Button = new Button(Translator.map("Upload to Arduino"));
 	private var openBt:Button = new Button(Translator.map("Open with Arduino IDE"));
 	
@@ -120,11 +120,12 @@ public class ScriptsPart extends UIPart {
 //		arduinoTextPane.type = TextFieldType.INPUT;
 		var ft:TextFormat = new TextFormat("Arial",14,0x00325a);
 		ft.blockIndent = 5;
-
+/*
 		backBt.x = 10;
 		backBt.y = 10;
 		backBt.addEventListener(MouseEvent.CLICK,onHideArduino);
 		arduinoFrame.addChild(backBt);
+*/
 		uploadBt.x = 70;
 		uploadBt.y = 10;
 		uploadBt.addEventListener(MouseEvent.CLICK,onCompileArduino);
@@ -373,7 +374,7 @@ public class ScriptsPart extends UIPart {
 		selector.select(selector.selectedCategory);
 	}
 	public function updateTranslation():void{
-		backBt.setLabel(Translator.map("Back"));
+	//	backBt.setLabel(Translator.map("Back"));
 		uploadBt.setLabel(Translator.map("Upload to Arduino"));
 		openBt.setLabel(Translator.map("Edit with Arduino IDE"));
 		if(htmlLoader.loaded){
