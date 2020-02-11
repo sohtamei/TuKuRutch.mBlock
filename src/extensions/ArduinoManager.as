@@ -24,6 +24,7 @@ package extensions
 	import util.ApplicationManager;
 	import util.JSON;
 	import util.LogManager;
+	import uiwidgets.DialogBox;
 
 	public class ArduinoManager extends EventDispatcher
 	{
@@ -693,13 +694,14 @@ void _loop(){
 			return (retcode);
 		}
 		
-		public function jsonToCpp2():void
+		private var _dialog:DialogBox;
+		public function jsonToCpp2():Boolean
 		{
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
 		//	var f:File = new File(File.applicationDirectory.nativePath + "/ext/firmware/hex/robot_pcmode/robot_pcmode.ino.template");
 			var f:File = new File(ext.pcmodeFW + ".ino.template");
 			if(f==null || !f.exists)
-				return;
+				return false;
 			var code:String = FileUtil.ReadString(f);
 
 			code = code.replace("// HEADER", getProp(ext, "header"))
@@ -714,10 +716,28 @@ void _loop(){
 				}
 				var obj:Object = spec[spec.length-1];
 				if(!obj.hasOwnProperty("remote")) continue;
-				var getcmds:Array = [];
-				var setcmd:String;
 				var offset:int=0;
 				var j:int;
+
+				for(j=0; ; j++) {
+					offset = spec[1].indexOf('%', offset+1);
+					if(offset<0) break;
+				}
+
+				var num:int = obj.remote.length;
+				if(spec[0] == 'R' || spec[0] == 'B') num--;
+				if(spec.length-4 != num || j != num) {
+					_dialog  = new DialogBox();
+					_dialog.addTitle(Translator.map('Error in json file'));
+					_dialog.addButton(Translator.map('Close'), _dialog.cancel);
+					_dialog.setText("error in argument num of \""+spec[2]+"\": BlockSpec="+j+", init="+(spec.length-4)+", remote="+num);
+					_dialog.showOnStage(Main.app.stage);
+					return false;
+				}
+
+				offset = 0;
+				var getcmds:Array = [];
+				var setcmd:String;
 				for(j=0; j<obj.remote.length; j++) {
 					switch(obj.remote[j]) {
 					case "B": getcmds[j] = "getByte("+offset.toString()+")";   offset+=1; setcmd="sendByte"; break;
@@ -751,7 +771,7 @@ void _loop(){
 		//	f = new File(File.applicationDirectory.nativePath + "/ext/libraries/robot/robot_pcmode/robot_pcmode.ino");
 			f = new File(url2nativePath(ext.pcmodeFW + ".ino"));
 			FileUtil.WriteString(f, code);
-			return;
+			return true;
 		}
 
 		// HACK: In Arduino mode, if you define a variable, set a variable, and perform IO operations on it，
@@ -996,7 +1016,7 @@ void _loop(){
 		}
 		public function openArduinoIDE2():void
 		{
-			jsonToCpp2();
+			if(!jsonToCpp2()) return;
 
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
 			var file:File;

@@ -33,6 +33,7 @@ import cc.makeblock.util.FileUtil;
 import translation.Translator;
 
 import uiwidgets.IndicatorLight;
+import uiwidgets.DialogBox;
 
 import util.JSON;
 import util.SharedObjectManager;
@@ -160,6 +161,8 @@ public class ExtensionManager {
 		var toFile:File   = File.applicationStorageDirectory.resolvePath("mBlock").resolvePath(dirName);
 		fromFile.copyTo(toFile, true);
 	}
+
+	private var _dialog:DialogBox = new DialogBox();
 	public function importExtension():void
 	{
 		_extensionList = [];
@@ -173,14 +176,21 @@ public class ExtensionManager {
 			var fs:Array = doc.getDirectoryListing();
 			for each(var f:File in fs){
 				if(f.extension=="s2e"||f.extension=="json"){
-					var extObj:Object = util.JSON.parse(FileUtil.ReadString(f));
-					extObj.docPath = f.url;
-					var srcArr:Array = extObj.docPath.split("/");
-					extObj.docPath = extObj.docPath.split(srcArr[srcArr.length-1]).join("");
+					try{
+						var extObj:Object = util.JSON.parse(FileUtil.ReadString(f));
+						extObj.docPath = f.url;
+						var srcArr:Array = extObj.docPath.split("/");
+						extObj.docPath = extObj.docPath.split(srcArr[srcArr.length-1]).join("");
 
-					_extensionList.push(extObj);
-					if(checkExtensionSelected(extObj.name)){
-						loadRawExtension(extObj);
+						_extensionList.push(extObj);
+						if(checkExtensionSelected(extObj.name)){
+							loadRawExtension(extObj);
+						}
+					}catch(e:*){
+						_dialog.addTitle(Translator.map('Error in json file'));
+						_dialog.addButton(Translator.map('Close'), _dialog.cancel);
+						_dialog.setText(e.toString());
+						_dialog.showOnStage(Main.app.stage);
 					}
 				}
 			}

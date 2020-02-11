@@ -33,6 +33,7 @@ package util {
 public class JSON {
 
 	private var src:ReadStream;
+	private var str:String;
 	private var buf:String = "";
 	private var tabs:String = "";
 	private var needsComma:Boolean = false;
@@ -50,6 +51,7 @@ public class JSON {
 		// Parse the JSON string and return the resulting object.
 		var json:util.JSON = new util.JSON();
 		json.src = new ReadStream(s);
+		json.str = s;
 		return json.readValue();
 	}
 
@@ -256,7 +258,20 @@ public class JSON {
 	}
 
 	private function error(msg:String):* {
-		throw new Error(msg + " [pos=" + src.pos()) + "]"; return null
+		var lineCnt:int = 1;
+		var start:int = 0;
+		var end:int;
+		while(true) {
+			end = str.indexOf('\n', start);
+			if(end < 0) {
+				end = str.length;
+				break;
+			}
+			if(end > src.pos()) break;
+			lineCnt++;
+			start = end+1;
+		}
+		throw new Error(msg + " (line=" + lineCnt + ", count=" + (src.pos()-start) + "): " + str.substr(start, end-1-start)); return null
 	}
 
 	//----------------------------
