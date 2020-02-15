@@ -720,8 +720,9 @@ void _loop(){
 				var j:int;
 
 				for(j=0; ; j++) {
-					offset = spec[1].indexOf('%', offset+1);
+					offset = spec[1].indexOf('%', offset);
 					if(offset<0) break;
+					offset++;
 				}
 
 				var num:int = obj.remote.length;
