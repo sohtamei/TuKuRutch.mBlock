@@ -15,7 +15,7 @@ package cc.makeblock.interpreter
 		static public const Instance:RemoteCallMgr = new RemoteCallMgr();
 		
 		private const requestList:Array = [];
-		private var timerId:uint;
+		private var timerId:uint = uint(-1);
 		private var oldValue:Object=0;
 		public function RemoteCallMgr()
 		{
@@ -23,9 +23,18 @@ package cc.makeblock.interpreter
 		public function init():void
 		{
 		}
+
+		private function log(mes:String):void
+		{
+			mes += ":"+requestList.length;
+			if(requestList.length)
+				mes += "-"+requestList[0][1];
+			Main.app.track(mes);
+		}
 	
 		public function interruptThread():void
 		{
+			log("interruptThread");
 			if(requestList.length <= 0){
 				return;
 			}
@@ -48,6 +57,7 @@ package cc.makeblock.interpreter
 
 		public function onPacketRecv(value:Object=null):void
 		{
+			log("onPacketRecv");
 			if(requestList.length <= 0){
 				return;
 			}
@@ -57,6 +67,7 @@ package cc.makeblock.interpreter
 				if(info[4] > 0){
 					if(arguments.length > 0){
 						thread.push(value);
+						Main.app.track("ret="+value);
 					}else{
 						thread.push(0);
 					}
@@ -70,6 +81,7 @@ package cc.makeblock.interpreter
 		
 		public function call(thread:Thread, method:String, param:Array, ext:ScratchExtension, retCount:int):void
 		{
+			log("call");
 			var index:int;
 			var obj1:Array;
 			for(index = 0; index<ext.blockSpecs.length; index++) {
@@ -79,6 +91,7 @@ package cc.makeblock.interpreter
 				}
 			}
 			if(obj1==null) return;
+			if(timerId != uint(-1)) clearTimeout(timerId);
 
 			var i:int;
 			var obj2:Object = obj1[obj1.length-1];
@@ -86,7 +99,6 @@ package cc.makeblock.interpreter
 				if(typeof param[0]=="string")
 					param[0] = ext.values[param[0]];
 				thread.push(param[0]);
-			//	onPacketRecv2(val);
 				return;
 			}
 
@@ -135,12 +147,13 @@ package cc.makeblock.interpreter
 			if(method.slice(0,6) == "Buzzer") {
 				timerId = setTimeout(onTimeout, 5000);
 			} else {
-				timerId = setTimeout(onTimeout, 500);
+				timerId = setTimeout(onTimeout, 2000);
 			}
 		}
 		
 		private function onTimeout():void
 		{
+			log("onTimeout");
 			if(requestList.length <= 0){
 				return;
 			}

@@ -40,7 +40,7 @@ package cc.makeblock.interpreter
 			}
 			if(!ext.useSerial){
 				thread.push(ext.getStateVar(opName));
-			}else if(ConnectionManager.sharedManager().isConnected){
+			}else if(ConnectionManager.sharedManager().isConnected){	// debug
 				RemoteCallMgr.Instance.call(thread, opName, argList, ext, retCount);
 			}else if(retCount > 0){
 				thread.push(0);

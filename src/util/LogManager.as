@@ -14,7 +14,7 @@ package util
 		public function LogManager()
 		{
 			if(_isDebug){
-				file = new File(File.desktopDirectory.nativePath+"\\log.txt");
+				file = new File(File.applicationDirectory.nativePath+"\\log.txt");
 				stream.openAsync(file,FileMode.APPEND);
 			}
 		}

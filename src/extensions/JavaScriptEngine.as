@@ -45,9 +45,8 @@ package extensions
 			return "Disconnected";
 		}
 		public function call(method:String,param:Array,ext:ScratchExtension):void{
-			if(!connected){
-				return;
-			}
+			if(!connected) return;	// debug
+
 			var handler:Function = _ext[method];
 			if(null == handler){
 				trace(method + " not provide!");

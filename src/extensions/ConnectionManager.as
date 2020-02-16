@@ -180,8 +180,8 @@ package extensions
 
 		// 0.								- Event.CHANGE (_serial)
 		// 1. onChanged						- Event.CHANGE
-		// 2. _onReceived					- _receiveHandler(_receivedBytes)
-		// 3. processData (robot.js)	
+		// 2. _onReceived					- _receiveHandler = processData(_receivedBytes)
+		// 3. processData (robot.js)		- responseValue(JavaScriptEngine) - onPacketRecv(RemoteCallMgr) - thread.push&thread.resume
 
 		private var _bytes:ByteArray;
 		private function onChanged(evt:Event):void{

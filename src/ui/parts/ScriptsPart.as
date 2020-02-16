@@ -205,13 +205,15 @@ public class ScriptsPart extends UIPart {
 	
 	public function onSerialSend(bytes:ByteArray):void
 	{
+		var str:String;
 		if(isByteInputMode){
-			appendMsgWithTimestamp(HexUtil.bytesToString(bytes), true);
+			str = HexUtil.bytesToString(bytes);
 		}else{
 			bytes.position = 0;
-			var str:String = bytes.readUTFBytes(bytes.length);
-			appendMsgWithTimestamp(str, true);
+			str = bytes.readUTFBytes(bytes.length);
 		}
+		appendMsgWithTimestamp(str, true);
+		Main.app.track(str);
 	}
 	
 	public function appendMsgWithTimestamp(msg:String, isOut:Boolean):void
@@ -238,13 +240,15 @@ public class ScriptsPart extends UIPart {
 	}
 	
 	public function onSerialDataReceived(bytes:ByteArray):void{
+		var str:String;
 		if(htmlLoader.window.isRecvBinaryMode()){
-			appendMsgWithTimestamp(HexUtil.bytesToString(bytes), false);
+			str = HexUtil.bytesToString(bytes);
 		}else{
 			bytes.position = 0;
-			var str:String = bytes.readUTFBytes(bytes.length);
-			appendMsgWithTimestamp(str, false);
+			str = bytes.readUTFBytes(bytes.length);
 		}
+		appendMsgWithTimestamp(str, false);
+		Main.app.track(str);
 		/*
 		return;
 		var date:Date = new Date;
