@@ -321,8 +321,18 @@ public class ScriptsPart extends UIPart {
 		}catch(e:*){
 			return false;
 		}
+
+		switch(Main.app.extensionManager.extensionByName().boardType) {
+		case "atmega328p":
+		default:
+			uploadBt.visible = !ArduinoManager.sharedManager().hasUnknownCode;
+			break;
+		case "esp32":
+			uploadBt.visible = false;
+			break;
+		}
+
 		var formatCode:String = ArduinoManager.sharedManager().jsonToCpp(retcode);
-		uploadBt.visible = !ArduinoManager.sharedManager().hasUnknownCode;
 		if(formatCode==null){
 			return false;
 		}

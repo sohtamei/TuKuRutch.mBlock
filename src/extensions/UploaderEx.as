@@ -18,10 +18,10 @@ package extensions
 		
 		static private function getArduino():File
 		{
-			if(ApplicationManager.sharedManager().system == ApplicationManager.MAC_OS){
+			if(ApplicationManager.sharedManager().system == ApplicationManager.MAC_OS)
 				return File.applicationDirectory.resolvePath("Arduino/Arduino.app/Contents/MacOS/Arduino");
-			}
-			return File.applicationDirectory.resolvePath("Arduino/arduino_debug.exe");
+			else
+				return File.applicationDirectory.resolvePath("Arduino/arduino_debug.exe");
 		}
 		
 		private var _dialog:DialogBox = new DialogBox();
@@ -44,6 +44,7 @@ package extensions
 			updateDialog();
 			var info:NativeProcessStartupInfo = new NativeProcessStartupInfo();
 			info.executable = getArduino();
+		//	var args:String = "--upload --board "+getBoardInfo()+" --port "+ConnectionManager.sharedManager().selectPort+" --verbose --preserve-temp-files "+filePath;
 			var argList:Vector.<String> = new Vector.<String>();
 			argList.push("--upload");
 			argList.push("--board", getBoardInfo());
@@ -51,6 +52,7 @@ package extensions
 			argList.push("--verbose", "--preserve-temp-files");
 			argList.push(filePath);
 			
+			Main.app.track(getArduino().nativePath + " " + argList.join(" "));
 			Main.app.scriptsPart.appendMessage(getArduino().nativePath + " " + argList.join(" "));
 			
 			info.arguments = argList;

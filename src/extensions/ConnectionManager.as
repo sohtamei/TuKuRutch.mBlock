@@ -33,7 +33,6 @@ package extensions
 		private var _mBlock:Main;
 		private var _upgradeBytesTotal:Number = 0;
 		private var _dialog:DialogBox = new DialogBox();
-		private var _hexToDownload:String = ""
 			
 //		private var _isMacOs:Boolean = ApplicationManager.sharedManager().system==ApplicationManager.MAC_OS;
 //		private var _avrdude:String = "";
@@ -94,13 +93,13 @@ package extensions
 
 		// open
 
-		// 0. 									- addEventListener(Event.CONNECT, onConnected)
-		// 1. onConnect("serial_COM3")			- setTimeout(onOpen, 100, "COM3")
-		// 2. onOpen("COM3)						- Event.CONNECT
+		// 0. 										- addEventListener(Event.CONNECT, onConnected)
+		// 1. onConnect("serial_COM3")				- setTimeout(onOpen, 100, "COM3")
+		// 2. onOpen("COM3)							- Event.CONNECT
 		// 3. onConnected (JavaScriptEngine.as)
 		// 4. _deviceConnected (robot.js)
 		// 5. open(115200, deviceOpened)
-		// 6. deviceOpened (robot.js)			- set_receive_handler(processData)
+		// 6. deviceOpened (robot.js, checkDevName)	- set_receive_handler(processData)
 
 		public function onConnect(port:String):void{
 			BlockInterpreter.Instance.stopAllThreads();
@@ -127,7 +126,18 @@ package extensions
 			ArduinoManager.sharedManager().isUploading = false;
 			if(r==0){
 				Main.app.topBarPart.setConnectedButton(true);
-				openedHandle(this);
+
+				var checkDevName:Boolean = true;
+				switch(Main.app.extensionManager.extensionByName().boardType) {
+				case "atmega328p":
+				default:
+					checkDevName = true;
+					break;
+				case "esp32":
+					checkDevName = false;
+					break;
+				}
+				openedHandle(this, checkDevName);
 				removeEventListener(Event.CHANGE,_onReceived);
 				addEventListener(Event.CHANGE,_onReceived);
 			}else{
@@ -252,11 +262,75 @@ package extensions
 		// update
 
 		private var _isInitUpgrade:Boolean = false;
-		public function upgrade(hexFile:String=""):void{
+		public function upgrade(hexFile:String):void
+		{
 			if(!isConnected){
 				return;
 			}
 			Main.app.track("/OpenSerial/Upgrade");
+
+			var cmd:String;
+			var args:String;
+			switch(Main.app.extensionManager.extensionByName().boardType) {
+			case "atmega328p":
+			default:
+				var hardwareDir:String;
+				var extStr:String = "";
+				if(ApplicationManager.sharedManager().system == ApplicationManager.MAC_OS) {
+					hardwareDir = "Arduino/Arduino.app/Contents/Java";
+				} else {
+					hardwareDir = "Arduino";
+					extStr = ".exe";
+				}
+				hardwareDir = File.applicationDirectory.resolvePath(hardwareDir).nativePath;
+
+				hexFile = File.applicationDirectory.resolvePath(hexFile).nativePath;
+				if(File.applicationDirectory.resolvePath(hexFile+".ino.standard.hex").exists){
+					hexFile+=".ino.standard.hex";
+				} else if(File.applicationDirectory.resolvePath(hexFile+".cpp.standard.hex").exists){
+					hexFile+=".cpp.standard.hex";
+				} else {
+					Main.app.track("upgrade fail!");
+					return;
+				}
+				args = "-C"+hardwareDir+"/hardware/tools/avr/etc/avrdude.conf -v -patmega328p -carduino -P"+selectPort+" -b115200 -D -V -Uflash:w:"+hexFile+":i";
+				cmd = hardwareDir+"/hardware/tools/avr/bin/avrdude"+extStr;
+				break;
+
+			case "esp32":
+				cmd = "Arduino/portable/packages/esp32/tools/esptool_py/2.6.1/esptool.exe";
+				cmd = File.applicationDirectory.resolvePath(cmd).nativePath;
+
+				var tmpArray:Array = hexFile.split("/");
+				tmpArray.removeAt(tmpArray.length-1);
+				var fList:Array = File.applicationDirectory.resolvePath(tmpArray.join("/")).getDirectoryListing();
+
+				// robot_pcmode/robot_pcmode.ino.*.bin
+				var tmp:String;
+				var i:int;
+				hexFile += ".ino.";
+				for(i = 0; i < fList.length; i++) {
+					tmp = fList[i].url;
+					if(tmp.substr(0, hexFile.length) == hexFile && tmp.substr(tmp.length-4) == ".bin")
+						break;
+				}
+				if(i == fList.length) {
+					Main.app.track("upgrade fail!");
+					return;
+				}
+
+				args = "--chip esp32 --port "+selectPort+" --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
+					+" 0xe000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/partitions/boot_app0.bin"
+					+" 0x1000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/sdk/bin/bootloader_qio_80m.bin"
+					+" 0x10000 "+File.applicationDirectory.resolvePath(tmp).nativePath
+					+" 0x8000 ext/libraries/esp32/partition/default.bin";
+				break;
+			}
+
+			if(!File.applicationDirectory.resolvePath(cmd).exists){
+				Main.app.track("upgrade fail!");
+				return;
+			}
 
 			if(!_isInitUpgrade){
 				_isInitUpgrade = true;
@@ -270,12 +344,11 @@ package extensions
 			_dialog.setText(Translator.map('Executing'));
 			_dialog.showOnStage(_mBlock.stage);
 
-			var f:File = new File(hexFile);
-			_hexToDownload = f.nativePath;
 			Main.app.topBarPart.setConnectedButton(false);
 			ArduinoManager.sharedManager().isUploading = false;
 			_serial.close();
-			upgradeFirmware();
+
+			upgradeFirmware(cmd, args);
 		}
 /*
 		public function reconnectSerial():void{
@@ -287,48 +360,10 @@ package extensions
 		}
 */
 		private var process:NativeProcess;
-		static private function getAvrDude():File
+		private function upgradeFirmware(cmd:String, args:String):void
 		{
-			if(ApplicationManager.sharedManager().system == ApplicationManager.MAC_OS){
-				return File.applicationDirectory.resolvePath("Arduino/Arduino.app/Contents/Java/hardware/tools/avr/bin/avrdude");
-			}
-			return File.applicationDirectory.resolvePath("Arduino/hardware/tools/avr/bin/avrdude.exe");
-		}
-		
-		static private function getAvrDudeConfig():File
-		{
-			if(ApplicationManager.sharedManager().system == ApplicationManager.MAC_OS){
-				return File.applicationDirectory.resolvePath("Arduino/Arduino.app/Contents/Java/hardware/tools/avr/etc/avrdude.conf");
-			}
-			return File.applicationDirectory.resolvePath("Arduino/hardware/tools/avr/etc/avrdude.conf");
-		}
-		
-		private function upgradeFirmware(hexfile:String=""):void{
-			var file:File = getAvrDude();//外部程序名
-			if(!file.exists){
-				Main.app.track("upgrade fail!");
-				return;
-			}
-			Main.app.topBarPart.setConnectedButton(false);
+/*
 			var tf:File;
-		//	var currentDevice:String = DeviceManager.sharedManager().currentDevice;
-			var nativeProcessStartupInfo:NativeProcessStartupInfo =new NativeProcessStartupInfo();
-			nativeProcessStartupInfo.executable = file;
-			var v:Vector.<String> = new Vector.<String>();//外部应用程序需要的参数
-			v.push("-C");
-			v.push(getAvrDudeConfig().nativePath)
-			v.push("-v");
-			v.push("-v");
-			v.push("-v");
-			v.push("-v");
-			v.push("-patmega328p");
-			v.push("-carduino"); 
-			v.push("-P"+selectPort); //this.port);
-			v.push("-b115200");
-			v.push("-D");
-			v.push("-V");
-			v.push("-U");
-			v.push("flash:w:"+_hexToDownload+":i");
 			tf = new File(_hexToDownload);
 			if(tf!=null && tf.exists){
 				_upgradeBytesTotal = tf.size;
@@ -336,7 +371,12 @@ package extensions
 			}else{
 				_upgradeBytesTotal = 0;
 			}
-			nativeProcessStartupInfo.arguments = v;
+*/
+			Main.app.track(cmd + " " + args);
+
+			var nativeProcessStartupInfo:NativeProcessStartupInfo =new NativeProcessStartupInfo();
+			nativeProcessStartupInfo.executable = File.applicationDirectory.resolvePath(cmd);
+			nativeProcessStartupInfo.arguments = Vector.<String>(args.split(" "));
 			process = new NativeProcess();
 			process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA,onStandardOutputData);
 			process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, onErrorData);
@@ -346,7 +386,7 @@ package extensions
 			process.start(nativeProcessStartupInfo);
 //			sizeInfo.reset();
 			Main.app.scriptsPart.clearInfo();
-			Main.app.scriptsPart.appendMessage(nativeProcessStartupInfo.executable.nativePath + " " + v.join(" "));
+			Main.app.scriptsPart.appendMessage(cmd + " " + args);
 			ArduinoManager.sharedManager().isUploading = true;
 		}
 		

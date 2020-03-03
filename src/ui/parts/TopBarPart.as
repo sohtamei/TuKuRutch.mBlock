@@ -89,7 +89,7 @@ package ui.parts {
 		private function onClickVersion(evt:MouseEvent):void
 		{
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
-			ConnectionManager.sharedManager().upgrade(ext.pcmodeFW + ".cpp.standard.hex");
+			ConnectionManager.sharedManager().upgrade(ext.pcmodeFW);
 		}
 	
 		private function makeToolButton(iconName:String, fcn:Function):IconButton

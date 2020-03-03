@@ -149,10 +149,10 @@ package cc.makeblock.mbot.ui.parts
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
 			switch(item.name) {
 				case "Set Robot to PC connection mode":
-					ConnectionManager.sharedManager().upgrade(ext.pcmodeFW + ".cpp.standard.hex");
+					ConnectionManager.sharedManager().upgrade(ext.pcmodeFW);
 					break;
 				case "Reset Default Program":
-					ConnectionManager.sharedManager().upgrade(ext.normalFW + ".cpp.standard.hex");
+					ConnectionManager.sharedManager().upgrade(ext.normalFW);
 					break;
 				default:
 					if(item.name.indexOf("serial_")>-1){
