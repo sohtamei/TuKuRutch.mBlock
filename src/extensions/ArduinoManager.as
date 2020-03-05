@@ -1127,7 +1127,7 @@ void _loop(){
 				extensionSrc = buildPath+"/build/"+fileName+extensionSrc;
 				extensionDes = buildPath+"/"      +fileName+extensionDes;
 				Main.app.track("copy "+extensionSrc+" to "+extensionDes);
-				var desFile:File = new File(getNativePath(extensionDes));
+				var desFile:File = new File(getNativePath(extensionDes));	// for security error
 				File.applicationDirectory.resolvePath(extensionSrc).copyTo(desFile, true);
 			}else{
 				_dialog.setText(Translator.map('Build Failed'));
@@ -1161,7 +1161,7 @@ void _loop(){
 			outStream.writeUTFBytes(ccode);
 			outStream.close();
 			ConnectionManager.sharedManager().onClose();
-			uploadFW(projCpp.nativePath);
+			uploadFW(projCpp.url);
 			isUploading = true;
 			return "";
 		}
@@ -1177,15 +1177,19 @@ void _loop(){
 		//	_dialog.setButton(('Close'));
 			_dialog.fixLayout();
 
+			var tmps:Array = filePath.split("/");
+			tmps.pop();
+			var buildPath:String = tmps.join("/");
+
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
 			var argList:Vector.<String> = Vector.<String>([
 				"--upload", "--board", ext.boardType,
 				"--port", ConnectionManager.sharedManager().selectPort,
 				"--verbose-upload",	//	"--verbose", 
-				"--pref", "build.path="+getNativePath(ext.docPath+"/arduinoBuild")]);
+				"--pref", "build.path="+getNativePath(buildPath+"/build")]);
 			for(var i:int = 0; i < ext.prefs.length; i++)
 				argList.push("--pref", ext.prefs[i]);
-			argList.push(filePath);
+			argList.push(getNativePath(filePath));
 
 			Main.app.scriptsPart.appendMessage(getArduinoDebug().nativePath + " " + argList.join(" "));
 			
