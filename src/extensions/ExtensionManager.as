@@ -191,6 +191,7 @@ public class ExtensionManager {
 						_dialog.addButton(Translator.map('Close'), _dialog.cancel);
 						_dialog.setText(e.toString());
 						_dialog.showOnStage(Main.app.stage);
+						Main.app.scriptsPart.appendMessage(e.toString());
 					}
 				}
 			}
@@ -234,7 +235,7 @@ public class ExtensionManager {
 									ext.javascriptURL = extObj.javascriptURL;		// LoadJS
 		if(extObj.normalFW)			ext.normalFW = extObj.docPath + extObj.normalFW;
 		if(extObj.pcmodeFW)			ext.pcmodeFW = extObj.docPath + extObj.pcmodeFW;
-		if(extObj.partition)		ext.partition = extObj.partition;
+		if(extObj.prefs)			ext.prefs = extObj.prefs;
 
 		if(extObj.header)			ext.header = extObj.header;
 		if(extObj.setup)			ext.setup = extObj.setup;

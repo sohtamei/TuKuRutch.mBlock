@@ -55,7 +55,7 @@ public class ScratchExtension {
 	private var _javascriptURL:String = ''; // URL to load a javascript extension
 	public var normalFW:String = "";
 	public var pcmodeFW:String = "";
-	public var partition:String = "";
+	public var prefs:Array = [];
 
 	public var blockSpecs:Array = [];
 	public var menus:Object = {};

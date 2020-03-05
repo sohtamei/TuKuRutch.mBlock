@@ -19,6 +19,7 @@ package cc.makeblock.mbot.ui.parts
 	import translation.Translator;
 	
 	import util.SharedObjectManager;
+	import util.LogManager;
 
 	import cc.makeblock.mbot.util.PopupUtil;
 
@@ -40,7 +41,10 @@ package cc.makeblock.mbot.ui.parts
 
 			menu.getItemByName("Robots").submenu.addEventListener(Event.DISPLAYING, __onShowExtMenu);
 			register("Clear Cache", ArduinoManager.sharedManager().clearTempFiles);
-			register("Convert robot.json to PC mode firmware", ArduinoManager.sharedManager().openArduinoIDE2);
+			register("Build PC mode firmware", ArduinoManager.sharedManager().buildPcmode);
+			register("Open PC mode firmware", ArduinoManager.sharedManager().openPcmode);
+			register("Build Normal firmware", ArduinoManager.sharedManager().buildNormal);
+			register("Open Normal firmware", ArduinoManager.sharedManager().openNormal);
 
 			menu.getItemByName("Language").submenu.addEventListener(Event.DISPLAYING, __onShowLanguage);
 
@@ -149,10 +153,10 @@ package cc.makeblock.mbot.ui.parts
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
 			switch(item.name) {
 				case "Set Robot to PC connection mode":
-					ConnectionManager.sharedManager().upgrade(ext.pcmodeFW);
+					ConnectionManager.sharedManager().burnFW(ext.pcmodeFW);
 					break;
 				case "Reset Default Program":
-					ConnectionManager.sharedManager().upgrade(ext.normalFW);
+					ConnectionManager.sharedManager().burnFW(ext.normalFW);
 					break;
 				default:
 					if(item.name.indexOf("serial_")>-1){
@@ -299,6 +303,10 @@ package cc.makeblock.mbot.ui.parts
 					break;
 				case "About TuKuRutch":
 					Main.app.openSwf("welcome.swf");
+					break;
+				case "Enable Log":
+					item.checked = !item.checked;
+					LogManager.sharedManager().enableDebug(item.checked);
 					break;
 			}
 		}

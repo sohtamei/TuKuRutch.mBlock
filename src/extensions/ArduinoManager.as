@@ -31,8 +31,6 @@ package extensions
 		private static var _instance:ArduinoManager;
 		public var _scratch:Main;
 		
-		public var isUploading:Boolean = false;
-		
 		private var process:NativeProcess;
 		public var hasUnknownCode:Boolean = false;
 		private var ccode_setup:String = "";
@@ -50,8 +48,6 @@ package extensions
 		public var unknownBlocks:Array = [];
 		
 		// maintance of project and arduino path
-		private var arduinoPath:String;
-		private var projectPath:String = "";
 		
 		public var mainX:int = 0;
 		public var mainY:int = 0;
@@ -698,7 +694,6 @@ void _loop(){
 		public function jsonToCpp2():Boolean
 		{
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
-		//	var f:File = new File(File.applicationDirectory.nativePath + "/ext/firmware/hex/robot_pcmode/robot_pcmode.ino.template");
 			var f:File = new File(ext.pcmodeFW + ".ino.template");
 			if(f==null || !f.exists)
 				return false;
@@ -728,11 +723,14 @@ void _loop(){
 				var num:int = obj.remote.length;
 				if(spec[0] == 'R' || spec[0] == 'B') num--;
 				if(spec.length-4 != num || j != num) {
-					_dialog  = new DialogBox();
+					var msg:String = "error in argument num of \""+spec[2]+"\": BlockSpec="+j+", init="+(spec.length-4)+", remote="+num;
+
+					_dialog = new DialogBox();
 					_dialog.addTitle(Translator.map('Error in json file'));
 					_dialog.addButton(Translator.map('Close'), _dialog.cancel);
-					_dialog.setText("error in argument num of \""+spec[2]+"\": BlockSpec="+j+", init="+(spec.length-4)+", remote="+num);
+					_dialog.setText(msg);
 					_dialog.showOnStage(Main.app.stage);
+					Main.app.scriptsPart.appendMessage(msg);
 					return false;
 				}
 
@@ -769,8 +767,7 @@ void _loop(){
 			code = code.replace("// WORK\n", work);
 			code = fixTabs(code);
 
-		//	f = new File(File.applicationDirectory.nativePath + "/ext/libraries/robot/robot_pcmode/robot_pcmode.ino");
-			f = new File(url2nativePath(ext.pcmodeFW + ".ino"));
+			f = new File(getNativePath(ext.pcmodeFW + ".ino"));
 			FileUtil.WriteString(f, code);
 			return true;
 		}
@@ -820,10 +817,9 @@ void _loop(){
 			return joinedLines;
 		}
 */
-		private function url2nativePath(url:String):String
+		private function getNativePath(url:String):String
 		{
-			var f:File = new File(url);
-			return f.nativePath;
+			return File.applicationDirectory.resolvePath(url).nativePath;
 		}
 		private function parseScripts(scripts:Object):Boolean
 		{
@@ -928,7 +924,15 @@ void _loop(){
 		 * compiler ralated functions 
 		 * **********************************/
 		
-	//	private var numOfSuccess:uint = 0;
+		// Open Arduino
+
+		private var projectPath:String = "";
+		public function openArduinoIDE(ccode:String):void
+		{
+			prepareProjectDir(ccode);
+			openFW(projectPath+"/"+projectDocumentName+".ino");
+		}
+		
 		private function prepareProjectDir(ccode:String):void{
 			
 			// get building direcotry ready
@@ -942,13 +946,13 @@ void _loop(){
 			// copy firmware directory
 			workdir = workdir.resolvePath(projectDocumentName);
 			var projCpp:File = File.applicationStorageDirectory.resolvePath("scratchTemp/"+projectDocumentName+"/"+projectDocumentName+".ino")
-			LogManager.sharedManager().log("projCpp:"+projCpp.nativePath);
+			Main.app.track("projCpp:"+projCpp.nativePath);
 			var outStream:FileStream = new FileStream();
 			outStream.open(projCpp, FileMode.WRITE);
 			outStream.writeUTFBytes(ccode);
 			outStream.close();
-			projectPath = workdir.nativePath;
-			LogManager.sharedManager().log("projectPath:"+projectPath);
+			projectPath = workdir.url;
+			Main.app.track("projectPath:"+projectPath);
 		}
 		
 		private var compileErr:Boolean = false;
@@ -965,7 +969,177 @@ void _loop(){
 			}
 			return _projectDocumentName;
 		}
-		public function buildAll(ccode:String):String
+
+		public function buildPcmode():void
+		{
+			if(!jsonToCpp2()) return;
+			buildFW(Main.app.extensionManager.extensionByName().pcmodeFW + ".ino");
+		}
+
+		public function openPcmode():void
+		{
+			if(!jsonToCpp2()) return;
+			openFW(Main.app.extensionManager.extensionByName().pcmodeFW + ".ino");
+		}
+
+		public function buildNormal():void
+		{
+			buildFW(Main.app.extensionManager.extensionByName().normalFW + ".ino");
+		}
+
+		public function openNormal():void
+		{
+			openFW(Main.app.extensionManager.extensionByName().normalFW + ".ino");
+		}
+
+		private function getArduino():File
+		{
+			if(ApplicationManager.sharedManager().system == ApplicationManager.MAC_OS)
+				return File.applicationDirectory.resolvePath("Arduino/Arduino.app/Contents/MacOS/Arduino");
+			else
+				return File.applicationDirectory.resolvePath("Arduino/arduino.exe");
+		}
+
+		private function getArduinoDebug():File
+		{
+			if(ApplicationManager.sharedManager().system == ApplicationManager.MAC_OS)
+				return File.applicationDirectory.resolvePath("Arduino/Arduino.app/Contents/MacOS/Arduino");
+			else
+				return File.applicationDirectory.resolvePath("Arduino/arduino_debug.exe");
+		}
+
+		private var openFilePath:String = "";
+		private function openFW(filePath:String):void
+		{
+			openFilePath = filePath;
+
+			var tmps:Array = filePath.split("/");
+			tmps.pop();
+			var buildPath:String = tmps.join("/");
+
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
+			var argList:Vector.<String> = Vector.<String>([
+				"--board", ext.boardType,
+				"--port", ConnectionManager.sharedManager().selectPort,
+				"--pref", "build.path="+getNativePath(buildPath+"/build")]);
+			for(var i:int = 0; i < ext.prefs.length; i++)
+				argList.push("--pref", ext.prefs[i]);
+			argList.push("--save-prefs");
+
+			Main.app.scriptsPart.appendMessage(getArduinoDebug().nativePath + " " + argList.join(" "));
+			
+			var info:NativeProcessStartupInfo = new NativeProcessStartupInfo();
+			info.executable = getArduinoDebug();
+			info.arguments = argList;
+
+			var process:NativeProcess = new NativeProcess();
+			process.addEventListener(NativeProcessExitEvent.EXIT, __onSetupExit);
+			process.start(info);
+		}
+
+		private function __onSetupExit(event:NativeProcessExitEvent):void
+		{
+			Main.app.track("Process exited with "+event.exitCode);
+			if(event.exitCode != 0) return;
+
+			var info:NativeProcessStartupInfo =new NativeProcessStartupInfo();
+			info.executable = getArduino();
+			info.arguments = Vector.<String>([getNativePath(openFilePath)]);
+
+			process = new NativeProcess();
+			process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA, function(e:ProgressEvent):void{});
+			process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, function(e:ProgressEvent):void{});
+			process.addEventListener(NativeProcessExitEvent.EXIT, function(e:NativeProcessExitEvent):void{});
+			process.start(info);
+			return;
+		}
+		
+		// build firmware
+
+		private var buildFilePath:String = null;
+		private function buildFW(filePath:String):void
+		{
+			buildFilePath = filePath;
+
+ 			_dialog = new DialogBox();
+ 			_dialog.addTitle(Translator.map('Start Building'));
+			_dialog.addButton(Translator.map('Close'), _dialog.cancel);
+			_dialog.setText(Translator.map('Building'));
+			_dialog.showOnStage(Main.app.stage);
+		//	_dialog.setTitle(('Start Uploading'));
+		//	_dialog.setButton(('Close'));
+			_dialog.fixLayout();
+
+			var tmps:Array = filePath.split("/");
+			tmps.pop();
+			var buildPath:String = tmps.join("/");
+
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
+			var argList:Vector.<String> = Vector.<String>([
+				"--verify", "--board", ext.boardType,
+			//	"--port", ConnectionManager.sharedManager().selectPort,
+				"--verbose-upload",	//	"--verbose", 
+				"--pref", "build.path="+getNativePath(buildPath+"/build")]);
+			for(var i:int = 0; i < ext.prefs.length; i++)
+				argList.push("--pref", ext.prefs[i]);
+			argList.push(getNativePath(filePath));
+
+			Main.app.scriptsPart.appendMessage(getArduinoDebug().nativePath + " " + argList.join(" "));
+			
+			var info:NativeProcessStartupInfo = new NativeProcessStartupInfo();
+			info.executable = getArduinoDebug();
+			info.arguments = argList;
+
+			var process:NativeProcess = new NativeProcess();
+			process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA, __onData);
+			process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, __onErrorData);
+			process.addEventListener(NativeProcessExitEvent.EXIT, __onBuildExit);
+			process.start(info);
+		}
+
+		private function __onBuildExit(event:NativeProcessExitEvent):void
+		{
+			isUploading = false;
+			if(event.exitCode == 0){
+				_dialog.setText(Translator.map('Build Finish'));
+
+				var extensionDes:String = null;
+				var extensionSrc:String = null;
+
+				var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
+				var boards:Array = ext.boardType.split(":");
+				switch(boards[1]) {
+				case "avr":
+				default:
+					extensionSrc = ".hex";
+					extensionDes = ".standard.hex";
+					break;
+				case "esp32":
+					extensionSrc = ".bin";
+					var reg:RegExp = /-/g;
+					extensionDes = "."+boards[2].replace(reg,"_")+".bin";
+					break;
+				}
+				var tmps:Array = buildFilePath.split("/");
+				var fileName:String = tmps.pop();
+				var buildPath:String = tmps.join("/");
+
+				extensionSrc = buildPath+"/build/"+fileName+extensionSrc;
+				extensionDes = buildPath+"/"      +fileName+extensionDes;
+				Main.app.track("copy "+extensionSrc+" to "+extensionDes);
+				var desFile:File = new File(getNativePath(extensionDes));
+				File.applicationDirectory.resolvePath(extensionSrc).copyTo(desFile, true);
+			}else{
+				_dialog.setText(Translator.map('Build Failed'));
+			}
+			Main.app.topBarPart.setConnectedButton(false);
+			//ConnectionManager.sharedManager().reopen();
+		}
+
+		// Upload to Arduino
+		
+		public var isUploading:Boolean = false;
+		public function UploadToArduino(ccode:String):String
 		{
 			if(isUploading){
 				return "uploading";
@@ -987,66 +1161,88 @@ void _loop(){
 			outStream.writeUTFBytes(ccode);
 			outStream.close();
 			ConnectionManager.sharedManager().onClose();
-			UploaderEx.Instance.upload(projCpp.nativePath);
+			uploadFW(projCpp.nativePath);
 			isUploading = true;
 			return "";
 		}
-		
-		
-		public function openArduinoIDE(ccode:String):String{
-			prepareProjectDir(ccode);
-			var file:File;
-			if(ApplicationManager.sharedManager().system==ApplicationManager.WINDOWS){
-				file = new File(arduinoInstallPath+"/arduino.exe");
-			}else{
-				file = new File(arduinoInstallPath+"/../MacOS/Arduino");
-			}
-			
-			var processArgs:Vector.<String> = new Vector.<String>();
-			//trace(contents[i].name, contents[i].size);
-			var nativeProcessStartupInfo:NativeProcessStartupInfo =new NativeProcessStartupInfo();
-			nativeProcessStartupInfo.executable = file;
-			processArgs.push(projectPath+"/"+projectDocumentName+".ino");
-			nativeProcessStartupInfo.arguments = processArgs;
-			process = new NativeProcess();
-			process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA, function(e:ProgressEvent):void{});
-			process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, function(e:ProgressEvent):void{});
-			process.addEventListener(NativeProcessExitEvent.EXIT, function(e:NativeProcessExitEvent):void{});
-			process.start(nativeProcessStartupInfo);
-			return "";
-		}
-		public function openArduinoIDE2():void
+
+		private function uploadFW(filePath:String):void
 		{
-			if(!jsonToCpp2()) return;
+ 			_dialog = new DialogBox();
+ 			_dialog.addTitle(Translator.map('Start Uploading'));
+			_dialog.addButton(Translator.map('Close'), _dialog.cancel);
+			_dialog.setText(Translator.map('Uploading'));
+			_dialog.showOnStage(Main.app.stage);
+		//	_dialog.setTitle(('Start Uploading'));
+		//	_dialog.setButton(('Close'));
+			_dialog.fixLayout();
 
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
-			var file:File;
-			if(ApplicationManager.sharedManager().system==ApplicationManager.WINDOWS){
-				file = new File(arduinoInstallPath+"/arduino.exe");
-			}else{
-				file = new File(arduinoInstallPath+"/../MacOS/Arduino");
-			}
-			var processArgs:Vector.<String> = new Vector.<String>();
-			var nativeProcessStartupInfo:NativeProcessStartupInfo =new NativeProcessStartupInfo();
-			nativeProcessStartupInfo.executable = file;
-			processArgs.push(url2nativePath(ext.pcmodeFW + ".ino"));
-			nativeProcessStartupInfo.arguments = processArgs;
-			process = new NativeProcess();
-			process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA, function(e:ProgressEvent):void{});
-			process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, function(e:ProgressEvent):void{});
-			process.addEventListener(NativeProcessExitEvent.EXIT, function(e:NativeProcessExitEvent):void{});
-			process.start(nativeProcessStartupInfo);
-			return;
+			var argList:Vector.<String> = Vector.<String>([
+				"--upload", "--board", ext.boardType,
+				"--port", ConnectionManager.sharedManager().selectPort,
+				"--verbose-upload",	//	"--verbose", 
+				"--pref", "build.path="+getNativePath(ext.docPath+"/arduinoBuild")]);
+			for(var i:int = 0; i < ext.prefs.length; i++)
+				argList.push("--pref", ext.prefs[i]);
+			argList.push(filePath);
+
+			Main.app.scriptsPart.appendMessage(getArduinoDebug().nativePath + " " + argList.join(" "));
+			
+			var info:NativeProcessStartupInfo = new NativeProcessStartupInfo();
+			info.executable = getArduinoDebug();
+			info.arguments = argList;
+
+			var process:NativeProcess = new NativeProcess();
+			process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA, __onData);
+			process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, __onErrorData);
+			process.addEventListener(NativeProcessExitEvent.EXIT, __onUploadExit);
+			process.start(info);
 		}
-		private function get arduinoInstallPath():String{
-			if(null == arduinoPath){
-				if(Capabilities.os.indexOf("Windows") == 0){
-					arduinoPath = File.applicationDirectory.resolvePath("Arduino").nativePath;
-				}else{
-					arduinoPath = File.applicationDirectory.resolvePath("Arduino/Arduino.app/Contents/Java").nativePath;
-				}
+		
+		private function __onUploadExit(event:NativeProcessExitEvent):void
+		{
+			//ext.docPath+"/arduinoBuild
+			isUploading = false;
+			if(event.exitCode == 0){
+				_dialog.setText(Translator.map('Upload Finish'));
+			}else{
+				_dialog.setText(Translator.map('Upload Failed'));
 			}
-			return arduinoPath;
+			Main.app.topBarPart.setConnectedButton(false);
+			//ConnectionManager.sharedManager().reopen();
+		}
+		
+		private function __appendRawMessage(info:String):void
+		{
+			var i:int;
+			i = info.indexOf("DEBUG StatusLogger ");
+			if(i == 0) return;
+			if(i > 0) info = info.substr(0,i);
+
+			i = info.indexOf("TRACE StatusLogger ");
+			if(i == 0) return;
+			if(i > 0) info = info.substr(0,i);
+
+			i = info.indexOf("INFO StatusLogger ");
+			if(i == 0) return;
+			if(i > 0) info = info.substr(0,i);
+
+			Main.app.scriptsPart.appendRawMessage(info);
+		}
+		
+		private function __onData(event:ProgressEvent):void
+		{
+			var process:NativeProcess = event.target as NativeProcess;
+			var info:String = process.standardOutput.readMultiByte(process.standardOutput.bytesAvailable, "utf-8");//"gb2312");
+			__appendRawMessage(info);
+		}
+		
+		private function __onErrorData(event:ProgressEvent):void
+		{
+			var process:NativeProcess = event.target as NativeProcess;
+			var info:String = process.standardError.readMultiByte(process.standardError.bytesAvailable, "utf-8");//"gb2312");
+			__appendRawMessage(info);
 		}
 	}
 }

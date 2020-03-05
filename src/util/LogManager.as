@@ -45,5 +45,13 @@ package util
 			dialog.addButton("OK",onCancel);
 			dialog.showOnStage(Main.app.stage);
 		}
+		public function enableDebug(enabled:Boolean):void
+		{
+			_isDebug = enabled;
+			if(enabled && !file) {
+				file = new File(File.applicationDirectory.nativePath+"\\log.txt");
+				stream.openAsync(file,FileMode.APPEND);
+			}
+		}
 	}
 }

@@ -31,7 +31,6 @@ package extensions
 		private var _receiveHandler:Function=null;
 
 		private var _mBlock:Main;
-		private var _upgradeBytesTotal:Number = 0;
 		private var _dialog:DialogBox = new DialogBox();
 			
 //		private var _isMacOs:Boolean = ApplicationManager.sharedManager().system==ApplicationManager.MAC_OS;
@@ -128,11 +127,13 @@ package extensions
 				Main.app.topBarPart.setConnectedButton(true);
 
 				var checkDevName:Boolean = true;
-				switch(Main.app.extensionManager.extensionByName().boardType) {
-				case "atmega328p":
+				var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
+				switch(boards[1]) {
+				case "avr":
 				default:
 					checkDevName = true;
 					break;
+
 				case "esp32":
 					checkDevName = false;
 					break;
@@ -258,11 +259,19 @@ package extensions
 		public function get isConnected():Boolean{
 			return _serial.isConnected;
 		}
-
+/*
+		public function reconnectSerial():void{
+			if(_serial.isConnected){
+				_serial.close();
+				setTimeout(function():void{connect(currentPort);},50);
+				//setTimeout(function():void{_serial.close();},1000);
+			}
+		}
+*/
 		// update
 
 		private var _isInitUpgrade:Boolean = false;
-		public function upgrade(hexFile:String):void
+		public function burnFW(hexFile:String):void
 		{
 			if(!isConnected){
 				return;
@@ -271,8 +280,9 @@ package extensions
 
 			var cmd:String;
 			var args:String;
-			switch(Main.app.extensionManager.extensionByName().boardType) {
-			case "atmega328p":
+			var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
+			switch(boards[1]) {
+			case "avr":
 			default:
 				var hardwareDir:String;
 				var extStr:String = "";
@@ -284,7 +294,6 @@ package extensions
 				}
 				hardwareDir = File.applicationDirectory.resolvePath(hardwareDir).nativePath;
 
-				hexFile = File.applicationDirectory.resolvePath(hexFile).nativePath;
 				if(File.applicationDirectory.resolvePath(hexFile+".ino.standard.hex").exists){
 					hexFile+=".ino.standard.hex";
 				} else if(File.applicationDirectory.resolvePath(hexFile+".cpp.standard.hex").exists){
@@ -293,6 +302,7 @@ package extensions
 					Main.app.track("upgrade fail!");
 					return;
 				}
+				hexFile = File.applicationDirectory.resolvePath(hexFile).nativePath;
 				args = "-C"+hardwareDir+"/hardware/tools/avr/etc/avrdude.conf -v -patmega328p -carduino -P"+selectPort+" -b115200 -D -V -Uflash:w:"+hexFile+":i";
 				cmd = hardwareDir+"/hardware/tools/avr/bin/avrdude"+extStr;
 				break;
@@ -300,30 +310,19 @@ package extensions
 			case "esp32":
 				cmd = "Arduino/portable/packages/esp32/tools/esptool_py/2.6.1/esptool.exe";
 				cmd = File.applicationDirectory.resolvePath(cmd).nativePath;
+				var partFile:String = hexFile+".ino.partitions.bin";
 
-				var tmpArray:Array = hexFile.split("/");
-				tmpArray.removeAt(tmpArray.length-1);
-				var fList:Array = File.applicationDirectory.resolvePath(tmpArray.join("/")).getDirectoryListing();
-
-				// robot_pcmode/robot_pcmode.ino.*.bin
-				var tmp:String;
-				var i:int;
-				hexFile += ".ino.";
-				for(i = 0; i < fList.length; i++) {
-					tmp = fList[i].url;
-					if(tmp.substr(0, hexFile.length) == hexFile && tmp.substr(tmp.length-4) == ".bin")
-						break;
-				}
-				if(i == fList.length) {
+				var reg:RegExp = /-/g;
+				hexFile += ".ino."+boards[2].replace(reg,"_")+".bin";
+				if(!File.applicationDirectory.resolvePath(hexFile).exists){
 					Main.app.track("upgrade fail!");
 					return;
 				}
-
 				args = "--chip esp32 --port "+selectPort+" --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
 					+" 0xe000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/partitions/boot_app0.bin"
 					+" 0x1000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/sdk/bin/bootloader_qio_80m.bin"
-					+" 0x10000 "+File.applicationDirectory.resolvePath(tmp).nativePath
-					+" 0x8000 ext/libraries/esp32/partition/default.bin";
+					+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath
+					+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath;
 				break;
 			}
 
@@ -350,63 +349,38 @@ package extensions
 
 			upgradeFirmware(cmd, args);
 		}
-/*
-		public function reconnectSerial():void{
-			if(_serial.isConnected){
-				_serial.close();
-				setTimeout(function():void{connect(currentPort);},50);
-				//setTimeout(function():void{_serial.close();},1000);
-			}
-		}
-*/
-		private var process:NativeProcess;
+
 		private function upgradeFirmware(cmd:String, args:String):void
 		{
-/*
-			var tf:File;
-			tf = new File(_hexToDownload);
-			if(tf!=null && tf.exists){
-				_upgradeBytesTotal = tf.size;
-//				Main.app.track("total:",_upgradeBytesTotal);
-			}else{
-				_upgradeBytesTotal = 0;
-			}
-*/
-			Main.app.track(cmd + " " + args);
+			Main.app.scriptsPart.clearInfo();
+			Main.app.scriptsPart.appendMessage(cmd + " " + args);
 
-			var nativeProcessStartupInfo:NativeProcessStartupInfo =new NativeProcessStartupInfo();
-			nativeProcessStartupInfo.executable = File.applicationDirectory.resolvePath(cmd);
-			nativeProcessStartupInfo.arguments = Vector.<String>(args.split(" "));
-			process = new NativeProcess();
+			var info:NativeProcessStartupInfo =new NativeProcessStartupInfo();
+			info.executable = File.applicationDirectory.resolvePath(cmd);
+			info.arguments = Vector.<String>(args.split(" "));
+
+			var process:NativeProcess = new NativeProcess();
 			process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA,onStandardOutputData);
 			process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, onErrorData);
 			process.addEventListener(NativeProcessExitEvent.EXIT, onExit);
-//			process.addEventListener(IOErrorEvent.STANDARD_OUTPUT_IO_ERROR, onIOError);
-//			process.addEventListener(IOErrorEvent.STANDARD_ERROR_IO_ERROR, onIOError);
-			process.start(nativeProcessStartupInfo);
-//			sizeInfo.reset();
-			Main.app.scriptsPart.clearInfo();
-			Main.app.scriptsPart.appendMessage(cmd + " " + args);
+			process.start(info);
 			ArduinoManager.sharedManager().isUploading = true;
 		}
 		
-		private var errorText:String;
-//		private var sizeInfo:UploadSizeInfo = new UploadSizeInfo();
 		private function onStandardOutputData(event:ProgressEvent):void
 		{
-			var msg:String = process.standardError.readUTFBytes(process.standardError.bytesAvailable);
+			var process:NativeProcess = event.target as NativeProcess;
+			var msg:String = process.standardOutput.readUTFBytes(process.standardOutput.bytesAvailable);
 			Main.app.scriptsPart.appendRawMessage(msg);
+			_dialog.setText(Translator.map('Uploading') + " ... " + "0%");
 		}
+
 		private function onErrorData(event:ProgressEvent):void
 		{
+			var process:NativeProcess = event.target as NativeProcess;
 			var msg:String = process.standardError.readUTFBytes(process.standardError.bytesAvailable);
-			if(null == errorText){
-				errorText = msg;
-			}else{
-				errorText += msg;
-			}
 			Main.app.scriptsPart.appendRawMessage(msg);
-			_dialog.setText(Translator.map('Uploading') + " ... " + "0%");// + sizeInfo.update(msg) + "%");
+			_dialog.setText(Translator.map('Uploading') + " ... " + "0%");
 		}
 		
 		private function onExit(event:NativeProcessExitEvent):void
@@ -415,20 +389,11 @@ package extensions
 			Main.app.track("Process exited with "+event.exitCode);
 			if(event.exitCode > 0){
 				_dialog.setText(Translator.map('Upload Failed'));
-				Main.app.track(errorText);
-				Main.app.scriptsPart.appendMsgWithTimestamp(errorText, true);
 			}else{
 				_dialog.setText(Translator.map('Upload Finish'));
 			}
 			setTimeout(onOpen, 2000, selectPort);
-			errorText = null;
 			//setTimeout(_dialog.cancel,2000);
 		}
-	/*
-		public function reopen():void
-		{
-			_open(selectPort);
-		}
-	*/
 	}
 }

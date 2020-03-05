@@ -197,6 +197,7 @@ public class ScriptsPart extends UIPart {
 	}
 	public function appendRawMessage(msg:String):void{
 		htmlLoader.window.appendInfo(msg);
+		Main.app.track(msg.replace("\r","").replace("\n",""));
 	}
 	public function clearInfo():void
 	{
@@ -213,7 +214,6 @@ public class ScriptsPart extends UIPart {
 			str = bytes.readUTFBytes(bytes.length);
 		}
 		appendMsgWithTimestamp(str, true);
-		Main.app.track(str);
 	}
 	
 	public function appendMsgWithTimestamp(msg:String, isOut:Boolean):void
@@ -248,7 +248,6 @@ public class ScriptsPart extends UIPart {
 			str = bytes.readUTFBytes(bytes.length);
 		}
 		appendMsgWithTimestamp(str, false);
-		Main.app.track(str);
 		/*
 		return;
 		var date:Date = new Date;
@@ -289,7 +288,7 @@ public class ScriptsPart extends UIPart {
 			if(ArduinoManager.sharedManager().isUploading==false){
 				htmlLoader.window.clearInfo();
 				if(showArduinoCode()){
-					htmlLoader.window.appendInfo(ArduinoManager.sharedManager().buildAll(arduinoCodeText));
+					htmlLoader.window.appendInfo(ArduinoManager.sharedManager().UploadToArduino(arduinoCodeText));
 					ConnectionManager.sharedManager().onClose();
 					Main.app.topBarPart.setConnectedButton(false);
 				}
@@ -322,20 +321,12 @@ public class ScriptsPart extends UIPart {
 			return false;
 		}
 
-		switch(Main.app.extensionManager.extensionByName().boardType) {
-		case "atmega328p":
-		default:
-			uploadBt.visible = !ArduinoManager.sharedManager().hasUnknownCode;
-			break;
-		case "esp32":
-			uploadBt.visible = false;
-			break;
-		}
-
 		var formatCode:String = ArduinoManager.sharedManager().jsonToCpp(retcode);
 		if(formatCode==null){
 			return false;
 		}
+		uploadBt.visible = !ArduinoManager.sharedManager().hasUnknownCode;
+
 		if(!app.stageIsArduino){
 			app.toggleArduinoMode();
 		}
