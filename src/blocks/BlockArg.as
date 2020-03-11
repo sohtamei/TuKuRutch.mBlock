@@ -148,7 +148,7 @@ public class BlockArg extends Sprite {
 			if ((type == 'm') && !editable) field.textColor = 0xFFFFFF;
 			else base.setWidthAndTopHeight(30, Block.argTextFormat.size + 5); // 14 for normal arg font
 			field.text = isNumber ? '10' : '';
-			if (isNumber) field.restrict = '0-9e.\\-'; // restrict to numeric characters
+			if (isNumber) field.restrict = '0-9a-fx.\\-'; // restrict to numeric characters
 			if (editable) {
 				base.setColor(0xFFFFFF); // if editable, set color to white
 				_isEditable = true;

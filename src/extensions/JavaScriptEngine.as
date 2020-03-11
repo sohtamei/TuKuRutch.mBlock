@@ -25,12 +25,9 @@ package extensions
 			_ext = ext;
 			if(_ext._getStatus().msg.indexOf("disconnected")>-1 && ConnectionManager.sharedManager().isConnected)
 			{
-				//尝试连接
 				onConnected(null);
 			}
-			trace("registed:"+_ext._getStatus().msg);
-			//trace(ConnectionManager.sharedManager().list());
-			//_timer.start();
+			Main.app.track("registed:"+_ext._getStatus().msg);
 		}
 		public function get connected():Boolean{
 			if(_ext){
@@ -49,7 +46,7 @@ package extensions
 
 			var handler:Function = _ext[method];
 			if(null == handler){
-				trace(method + " not provide!");
+				Main.app.track(method + " not provide!");
 				responseValue();
 				return;
 			}
@@ -60,7 +57,7 @@ package extensions
 					handler.apply(null, param);
 				}
 			}catch(error:Error) {
-				trace(error.getStackTrace());
+				Main.app.track(error.getStackTrace());
 			}
 		}
 		/*
@@ -89,14 +86,14 @@ package extensions
 			if(_ext){
 				var dev:ConnectionManager = ConnectionManager.sharedManager();
 				_ext._deviceConnected(dev);
-				trace("register:"+_name);
+				Main.app.track("register:"+_name);
 			}
 		}
 		private function onClosed(evt:Event):void{
 			if(_ext){
 				var dev:ConnectionManager = ConnectionManager.sharedManager();
 				_ext._deviceRemoved(dev);
-				trace("unregister:"+_name);
+				Main.app.track("unregister:"+_name);
 			}
 		}
 		private function onRemoved(evt:Event):void{

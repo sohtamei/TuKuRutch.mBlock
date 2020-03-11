@@ -370,16 +370,14 @@ package extensions
 		private function onStandardOutputData(event:ProgressEvent):void
 		{
 			var process:NativeProcess = event.target as NativeProcess;
-			var msg:String = process.standardOutput.readUTFBytes(process.standardOutput.bytesAvailable);
-			Main.app.scriptsPart.appendRawMessage(msg);
+			Main.app.scriptsPart.appendRawMessage(process.standardOutput.readUTFBytes(process.standardOutput.bytesAvailable));
 			_dialog.setText(Translator.map('Uploading') + " ... " + "0%");
 		}
 
 		private function onErrorData(event:ProgressEvent):void
 		{
 			var process:NativeProcess = event.target as NativeProcess;
-			var msg:String = process.standardError.readUTFBytes(process.standardError.bytesAvailable);
-			Main.app.scriptsPart.appendRawMessage(msg);
+			Main.app.scriptsPart.appendRawMessage(process.standardError.readUTFBytes(process.standardError.bytesAvailable));
 			_dialog.setText(Translator.map('Uploading') + " ... " + "0%");
 		}
 		

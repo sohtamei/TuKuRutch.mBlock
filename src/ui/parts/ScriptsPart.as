@@ -63,29 +63,21 @@ package ui.parts {
 	import util.JSON;
 
 public class ScriptsPart extends UIPart {
-	private var htmlLoader:HTMLLoader;
 	
 	private var shape:Shape;
 	public var selector:PaletteSelector;
 	private var spriteWatermark:Bitmap;
+
 	private var paletteFrame:ScrollFrame;
+	private var paletteIndex:int;
+
 	private var scriptsFrame:ScrollFrame;
-	private var arduinoFrame:ScrollFrame;
 	private var zoomWidget:ZoomWidget;
 
-	private const readoutLabelFormat:TextFormat = new TextFormat(CSS.font, 12, CSS.textColor, true);
-	private const readoutFormat:TextFormat = new TextFormat(CSS.font, 12, CSS.textColor);
-
-	private var xyDisplay:Sprite;
-	private var xLabel:TextField;
-	private var yLabel:TextField;
-	private var xReadout:TextField;
-	private var yReadout:TextField;
-	private var lastX:int = -10000000; // impossible value to force initial update
-	private var lastY:int = -10000000; // impossible value to force initial update
-//	private var backBt:Button = new Button(Translator.map("Back"));
+	private var arduinoFrame:ScrollFrame;
 	private var uploadBt:Button = new Button(Translator.map("Upload to Arduino"));
 	private var openBt:Button = new Button(Translator.map("Open with Arduino IDE"));
+	private var htmlLoader:HTMLLoader;
 	
 	private var arduinoCodeText:String = "";
 	
@@ -103,71 +95,40 @@ public class ScriptsPart extends UIPart {
 		paletteFrame.allowHorizontalScrollbar = false;
 		paletteFrame.setContents(palette);
 		addChild(paletteFrame);
+		paletteFrame.addEventListener(MouseEvent.ROLL_OVER, __onMouseOver);
+		paletteFrame.addEventListener(MouseEvent.ROLL_OUT, __onMouseOut);
+		paletteIndex = getChildIndex(paletteFrame);
 
 		var scriptsPane:ScriptsPane = new ScriptsPane(app);
 		scriptsFrame = new ScrollFrame(true);
 		scriptsFrame.setContents(scriptsPane);
 		addChild(scriptsFrame);
-		
 		app.palette = palette;
 		app.scriptsPane = scriptsPane;
-
 		addChild(zoomWidget = new ZoomWidget(scriptsPane));
 		
+		// arduinoFrame / uploadBt / openBt / htmlLoader
 		arduinoFrame = new ScrollFrame(false);
 		arduinoFrame.visible = false;
-		
-//		arduinoTextPane.type = TextFieldType.INPUT;
-		var ft:TextFormat = new TextFormat("Arial",14,0x00325a);
-		ft.blockIndent = 5;
-/*
-		backBt.x = 10;
-		backBt.y = 10;
-		backBt.addEventListener(MouseEvent.CLICK,onHideArduino);
-		arduinoFrame.addChild(backBt);
-*/
 		uploadBt.x = 70;
 		uploadBt.y = 10;
 		uploadBt.addEventListener(MouseEvent.CLICK,onCompileArduino);
 		arduinoFrame.addChild(uploadBt);
-		
+
 		openBt.y = 10;
 		openBt.addEventListener(MouseEvent.CLICK,onOpenArduinoIDE);
-		
-//		sendBt.addEventListener(MouseEvent.CLICK,onSendSerial);
-//		displayModeBtn.addEventListener(MouseEvent.CLICK,onDisplayModeChange);
-//		inputModeBtn.addEventListener(MouseEvent.CLICK,onInputModeChange);
-		
 		arduinoFrame.addChild(openBt);
-//		arduinoFrame.addChild(sendTextPane);
-//		arduinoFrame.addChild(sendBt);
-//		arduinoFrame.addChild(displayModeBtn);
-//		arduinoFrame.addChild(inputModeBtn);
 		addChild(arduinoFrame);
-		
-		paletteFrame.addEventListener(MouseEvent.ROLL_OVER, __onMouseOver);
-		paletteFrame.addEventListener(MouseEvent.ROLL_OUT, __onMouseOut);
-		paletteIndex = getChildIndex(paletteFrame);
-		
+
 		htmlLoader = new HTMLLoader();
 		htmlLoader.placeLoadStringContentInApplicationSandbox = true;
 		htmlLoader.runtimeApplicationDomain = ApplicationDomain.currentDomain;
-		htmlLoader.window.trace = trace;
-		htmlLoader.window.onSendSerial = onSendSerial;
-		htmlLoader.window.onRecvModeChanged = onRecvModeChanged;
 		htmlLoader.load(new URLRequest("assets/html/index.html"));
 		addChild(htmlLoader);
 	}
 	
-	private var paletteIndex:int;
 	private var maskWidth:int;
-	private var _isRecvBinaryMode:Boolean = true;
-	
-	private function onRecvModeChanged():void
-	{
-		_isRecvBinaryMode = htmlLoader.window.isRecvBinaryMode();
-	}
-	
+
 	private function __onMouseOver(event:MouseEvent):void
 	{
 		setChildIndex(paletteFrame, numChildren-1);
@@ -193,11 +154,12 @@ public class ScriptsPart extends UIPart {
 		setChildIndex(paletteFrame, paletteIndex);
 	}
 	public function appendMessage(msg:String):void{
-		appendRawMessage(msg+"\n");
+		htmlLoader.window.appendInfo(msg+"\n");
+		Main.app.track(msg);
 	}
 	public function appendRawMessage(msg:String):void{
 		htmlLoader.window.appendInfo(msg);
-		Main.app.track(msg.replace("\r","").replace("\n",""));
+		Main.app.track(msg);//.replace("\r","").replace("\n",""));
 	}
 	public function clearInfo():void
 	{
@@ -206,14 +168,11 @@ public class ScriptsPart extends UIPart {
 	
 	public function onSerialSend(bytes:ByteArray):void
 	{
-		var str:String;
-		if(isByteInputMode){
-			str = HexUtil.bytesToString(bytes);
-		}else{
-			bytes.position = 0;
-			str = bytes.readUTFBytes(bytes.length);
-		}
-		appendMsgWithTimestamp(str, true);
+		appendMsgWithTimestamp(HexUtil.bytesToString(bytes), true);
+	}
+
+	public function onSerialDataReceived(bytes:ByteArray):void{
+		appendMsgWithTimestamp(HexUtil.bytesToString(bytes), false);
 	}
 	
 	public function appendMsgWithTimestamp(msg:String, isOut:Boolean):void
@@ -237,47 +196,6 @@ public class ScriptsPart extends UIPart {
 			str = "0" + str;
 		}
 		return str;
-	}
-	
-	public function onSerialDataReceived(bytes:ByteArray):void{
-		var str:String;
-		if(htmlLoader.window.isRecvBinaryMode()){
-			str = HexUtil.bytesToString(bytes);
-		}else{
-			bytes.position = 0;
-			str = bytes.readUTFBytes(bytes.length);
-		}
-		appendMsgWithTimestamp(str, false);
-		/*
-		return;
-		var date:Date = new Date;
-		var s:String = SerialManager.sharedManager().asciiString;
-		if(s.charCodeAt(0)==20){
-			return;
-		}
-		appendMessage(""+(date.month+1)+"-"+date.date+" "+date.hours+":"+date.minutes+":"+(date.seconds+date.milliseconds/1000)+" < "+SerialManager.sharedManager().asciiString.split("\r\n").join("")+"\n");
-		*/
-	}
-	private function onSendSerial(str:String):void{
-		if(!ConnectionManager.sharedManager().isConnected){
-			return;
-		}
-		if(str.length <= 0){
-			return;
-		}
-		var bytes:ByteArray;
-		if(isByteInputMode){
-			bytes = HexUtil.stringToBytes(str);
-		}else{
-			bytes = new ByteArray();
-			bytes.writeUTFBytes(str + "\n");
-		}
-		onSerialSend(bytes);
-		ConnectionManager.sharedManager().sendBytes(bytes);
-//		var date:Date = new Date;
-//		messageTextPane.append(""+(date.month+1)+"-"+date.date+" "+date.hours+":"+date.minutes+":"+(date.seconds+date.milliseconds/1000)+" > "+sendTextPane.textField.text+"\n");
-		
-//		messageTextPane.textField.scrollV = messageTextPane.textField.maxScrollV-1;
 	}
 	public function get isArduinoMode():Boolean{
 		return arduinoFrame.visible;
@@ -304,15 +222,14 @@ public class ScriptsPart extends UIPart {
 			dialog.showOnStage(app.stage);
 		}
 	}
-	private function onHideArduino(evt:MouseEvent):void{
-		app.toggleArduinoMode();
-	}
+
 	private function onOpenArduinoIDE(evt:MouseEvent):void{
 		if(showArduinoCode()){
 			ArduinoManager.sharedManager().openArduinoIDE(arduinoCodeText);
 		}
 	}
 	
+	static private var isDialogBoxShowing:Boolean;
 	public function showArduinoCode(arg:String=""):Boolean{
 		var retcode:String = "";
 		try{
@@ -366,8 +283,9 @@ public class ScriptsPart extends UIPart {
 		htmlLoader.visible = arduinoFrame.visible;
 		return true;
 	}
-	static private var isDialogBoxShowing:Boolean;
-	public function resetCategory():void { selector.select(Specs.motionCategory) }
+	public function resetCategory():void {
+		selector.select(Specs.motionCategory)
+	}
 
 	public function updatePalette():void {
 		selector.updateTranslation();
@@ -378,21 +296,12 @@ public class ScriptsPart extends UIPart {
 		}
 		selector.select(selector.selectedCategory);
 	}
+
 	public function updateTranslation():void{
-	//	backBt.setLabel(Translator.map("Back"));
 		uploadBt.setLabel(Translator.map("Upload to Arduino"));
 		openBt.setLabel(Translator.map("Edit with Arduino IDE"));
-		if(htmlLoader.loaded){
-			htmlLoader.window.updateTranslation();
-		}
-//		sendBt.setLabel(Translator.map("Send"));
-//		displayModeBtn.setLabel(Translator.map(isByteDisplayMode ? "binary mode" :  "char mode"));
-//		inputModeBtn.setLabel(Translator.map(isByteInputMode ? "binary mode" :  "char mode"));
 	}
-	private function get isByteInputMode():Boolean
-	{
-		return htmlLoader.window.isSendBinaryMode();
-	}
+
 	public function updateSpriteWatermark():void {
 		var target:ScratchObj = app.viewedObj();
 		if (target && !target.isStage) {
@@ -402,6 +311,13 @@ public class ScriptsPart extends UIPart {
 		}
 	}
 
+	private var xyDisplay:Sprite;
+	private var xLabel:TextField;
+	private var yLabel:TextField;
+	private var xReadout:TextField;
+	private var yReadout:TextField;
+	private var lastX:int = -10000000; // impossible value to force initial update
+	private var lastY:int = -10000000; // impossible value to force initial update
 	public function step():void {
 		// Update the mouse reaadouts. Do nothing if they are up-to-date (to minimize CPU load).
 		var target:ScratchObj = app.viewedObj();
@@ -450,6 +366,7 @@ public class ScriptsPart extends UIPart {
 		paletteFrame.setWidthHeight(selector.width + 1, h - paletteFrame.y - 2); // 模块滚动区域宽度
 		scriptsFrame.x = selector.x + selector.width + 2;
 		scriptsFrame.y = selector.y + 1;
+
 		var arduinoWidth:uint = app.stageIsArduino?(w/2-150):0;
 		var arduinoHeight:uint = h - 10;
 		arduinoFrame.visible = app.stageIsArduino;
@@ -501,6 +418,8 @@ public class ScriptsPart extends UIPart {
 		g.lineTo(x + w, y);
 	}
 
+	private const readoutLabelFormat:TextFormat = new TextFormat(CSS.font, 12, CSS.textColor, true);
+	private const readoutFormat:TextFormat = new TextFormat(CSS.font, 12, CSS.textColor);
 	private function addXYDisplay():void {
 		xyDisplay = new Sprite();
 		xyDisplay.addChild(xLabel = makeLabel('x:', readoutLabelFormat, 0, 0));
@@ -509,5 +428,4 @@ public class ScriptsPart extends UIPart {
 		xyDisplay.addChild(yReadout = makeLabel('-888', readoutFormat, 15, 13));
 		addChild(xyDisplay);
 	}
-
 }}

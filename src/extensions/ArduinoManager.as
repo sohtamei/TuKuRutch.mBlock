@@ -703,27 +703,30 @@ void _loop(){
 						.replace("// SETUP", getProp(ext, "setup"))
 						.replace("// LOOP", getProp(ext, "loop"));
 
+			var argTbl:String = "";
 			var work:String = "";
 			for(var i:int=0; i<ext.blockSpecs.length; i++) {
 				var spec:Array = ext.blockSpecs[i];
 				if(spec.length < 3){
+					argTbl += "  {},\n";
 					continue;
 				}
 				var obj:Object = spec[spec.length-1];
-				if(!obj.hasOwnProperty("remote")) continue;
+				if(!obj.hasOwnProperty("remote")) {
+					argTbl += "  {},\n";
+					continue;
+				}
 				var offset:int=0;
 				var j:int;
-
 				for(j=0; ; j++) {
 					offset = spec[1].indexOf('%', offset);
 					if(offset<0) break;
 					offset++;
 				}
 
-				var num:int = obj.remote.length;
-				if(spec[0] == 'R' || spec[0] == 'B') num--;
-				if(spec.length-4 != num || j != num) {
-					var msg:String = "error in argument num of \""+spec[2]+"\": BlockSpec="+j+", init="+(spec.length-4)+", remote="+num;
+				var argNum:int = obj.remote.length + ((spec[0]=='R' || spec[0]=='B') ? -1 : 0);
+				if(spec.length-4 != argNum || j != argNum) {
+					var msg:String = "error in argument num of \""+spec[2]+"\": BlockSpec="+j+", init="+(spec.length-4)+", remote="+argNum;
 
 					_dialog = new DialogBox();
 					_dialog.addTitle(Translator.map('Error in json file'));
@@ -734,36 +737,50 @@ void _loop(){
 					return false;
 				}
 
-				offset = 0;
-				var getcmds:Array = [];
-				var setcmd:String;
-				for(j=0; j<obj.remote.length; j++) {
+				argTbl += "  {";
+				work += "case "+i.toString()+": ";
+
+				var func:String = obj.func;
+				for(j = 0; j<argNum; j++) {
+					var getcmd:String;
 					switch(obj.remote[j]) {
-					case "B": getcmds[j] = "getByte("+offset.toString()+")";   offset+=1; setcmd="sendByte"; break;
-					case "S": getcmds[j] = "getShort("+offset.toString()+")";  offset+=2; setcmd="sendShort"; break;
-					case "L": getcmds[j] = "getLong("+offset.toString()+")";   offset+=4; setcmd="sendLong"; break;
-					case "F": getcmds[j] = "getFloat("+offset.toString()+")";  offset+=4; setcmd="sendFloat"; break;
-					case "D": getcmds[j] = "getDouble("+offset.toString()+")"; offset+=8; setcmd="sendDouble"; break;
-					case "s": getcmds[j] = "getString("+offset.toString()+")"; offset+=8; setcmd="sendString"; break;
+					case "B": getcmd = "getByte"; break;
+					case "S": getcmd = "getShort"; break;
+					case "L": getcmd = "getLong"; break;
+					case "F": getcmd = "getFloat"; break;
+					case "D": getcmd = "getDouble"; break;
+					case "s": getcmd = "getString"; break;
+					case "b": getcmd = "getBytes"; break;
 					}
+					argTbl += "'"+obj.remote[j]+"',";
+					func = func.replace(new RegExp("\\{"+j+"\\}", "g"), getcmd+"("+j.toString()+")");
 				}
-				var tmp:String = obj.func;
+
 				switch(spec[0]) {
 				case "w":
-				//	case CMD_ROBOT: remoconRobo_setRobot(getByte(0), getShort(1)); callOK(); break;
-					for(j = 0; j<obj.remote.length; j++)
-						tmp = tmp.replace(new RegExp("\\{"+j+"\\}", "g"), getcmds[j]);
-					work += "case " + i.toString() + ": " + tmp + "; callOK(); break;\n";
+				//	case 1: remoconRobo_setRobot(getByte(0), getShort(1)); callOK(); break;
+					work += func+"; callOK();";
 					break;
 				case "B":
 				case "R":
-				//	case CMD_DIGITAL: sendByte(pinMode(getByte(0), INPUT), digitalRead(getByte(0))); break;
-					for(j = 0; j<obj.remote.length-1; j++)
-						tmp = tmp.replace(new RegExp("\\{"+j+"\\}", "g"), getcmds[j]);
-					work += "case " + i.toString() + ": " + setcmd + "((" + tmp + ")); break;\n";
+				//	case 2: sendByte(pinMode(getByte(0), INPUT), digitalRead(getByte(0))); break;
+					var setcmd:String;
+					switch(obj.remote[obj.remote.length-1]) {
+					case "B": setcmd = "sendByte"; break;
+					case "S": setcmd = "sendShort"; break;
+					case "L": setcmd = "sendLong"; break;
+					case "F": setcmd = "sendFloat"; break;
+					case "D": setcmd = "sendDouble"; break;
+					case "s": setcmd = "sendString"; break;
+					case "b": setcmd = "sendString"; break;
+					}
+					work += setcmd+"(("+func+"));";
 					break;
 				}
+				argTbl += "},\n";
+				work += " break;\n";
 			}
+			code = code.replace("// ARG_TYPES_TBL\n", argTbl);
 			code = code.replace("// WORK\n", work);
 			code = fixTabs(code);
 
@@ -1231,6 +1248,12 @@ void _loop(){
 			i = info.indexOf("INFO StatusLogger ");
 			if(i == 0) return;
 			if(i > 0) info = info.substr(0,i);
+
+			i = info.indexOf(" INFO c.a.u.");
+			if(i >= 0) return;
+
+			i = info.indexOf(" WARN p.a.h.");
+			if(i >= 0) return;
 
 			Main.app.scriptsPart.appendRawMessage(info);
 		}
