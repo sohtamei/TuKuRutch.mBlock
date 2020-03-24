@@ -1120,21 +1120,12 @@ void _loop(){
 			if(event.exitCode == 0){
 				_dialog.setText(Translator.map('Build Finish'));
 
-				var extensionDes:String = null;
-				var extensionSrc:String = null;
-
-				var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
-				var boards:Array = ext.boardType.split(":");
+				var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
+				var extensionDes:String = getHexFilename(boards);
+				var extensionSrc:String = ".hex";
 				switch(boards[1]) {
-				case "avr":
-				default:
-					extensionSrc = ".hex";
-					extensionDes = ".standard.hex";
-					break;
 				case "esp32":
 					extensionSrc = ".bin";
-					var reg:RegExp = /-/g;
-					extensionDes = "."+boards[2].replace(reg,"_")+".bin";
 					break;
 				}
 				var tmps:Array = buildFilePath.split("/");
@@ -1151,6 +1142,20 @@ void _loop(){
 			}
 			Main.app.topBarPart.setConnectedButton(false);
 			//ConnectionManager.sharedManager().reopen();
+		}
+
+		public function getHexFilename(boards:Array):String
+		{
+			switch(boards[1]) {
+			case "avr":
+			default:
+				return ".standard.hex";
+			case "samd":	// board=mzero_bl
+				return ".arduino_mzero.hex";
+			case "esp32":
+				var reg:RegExp = /-/g;
+				return "."+boards[2].replace(reg,"_")+".bin";		// m5stack-core-esp32 -> m5stack_core_esp32
+			}
 		}
 
 		// Upload to Arduino

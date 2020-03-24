@@ -49,16 +49,19 @@ package extensions
 			_serial = new AIRSerial();
 //			_avrdude = _isMacOs?"avrdude":"avrdude.exe";
 //			_avrdudeConfig = _isMacOs?"avrdude_mac.conf":"avrdude.conf";
-			
+
 			var timer:Timer = new Timer(4000);
 			timer.addEventListener(TimerEvent.TIMER, onTimerCheck);
 			timer.start();
+
+			function cancel():void { _dialog.cancel(); }
+			_dialog.addTitle(Translator.map('Start Uploading'));
+			_dialog.addButton(Translator.map('Close'), cancel);
 		}
 		private function onTimerCheck(evt:TimerEvent):void{
 			if(_serial.isConnected){
-				if(this.portlist.indexOf(selectPort) == -1){
+				if(this.portlist.indexOf(selectPort) == -1)
 					onClose();
-				}
 			}
 		}
 		public function setMain(mBlock:Main):void{
@@ -68,7 +71,7 @@ package extensions
 		// list
 
 		public function get portlist():Array{
-			var _currentList:Array = [];	// portlist, 
+			var _currentList:Array = [];
 			try{
 				_currentList = formatArray(_serial.list().split(",").sort());
 				var emptyIndex:int = _currentList.indexOf("");
@@ -76,7 +79,6 @@ package extensions
 					_currentList.splice(emptyIndex, emptyIndex+1);
 				}
 			}catch(e:*){
-				
 			}
 			return _currentList;
 		}
@@ -129,11 +131,7 @@ package extensions
 				var checkDevName:Boolean = true;
 				var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
 				switch(boards[1]) {
-				case "avr":
-				default:
-					checkDevName = true;
-					break;
-
+				case "samd":
 				case "esp32":
 					checkDevName = false;
 					break;
@@ -155,9 +153,8 @@ package extensions
 		}
 
 		public function onReOpen():void{
-			if(selectPort != ""){
+			if(selectPort != "")
 				this.dispatchEvent(new Event(Event.CONNECT));
-			}
 		}
 
 		public function update():void{
@@ -205,7 +202,6 @@ package extensions
 			return;
 		}
 
-	//	public const dataRecvSignal:Signal = new Signal(Array);
 		private function _onReceived(evt:Event):void
 		{
 			var _receivedBytes:Array = [];
@@ -215,9 +211,6 @@ package extensions
 			}
 			_bytes.clear();
 
-			if(_receivedBytes.length > 0){
-	//			dataRecvSignal.notify(_receivedBytes);		// RemoteCallMgr
-			}
 			if(_receiveHandler != null && _receivedBytes.length > 0){
 				try{
 					_receiveHandler(_receivedBytes);
@@ -270,54 +263,81 @@ package extensions
 */
 		// update
 
-		private var _isInitUpgrade:Boolean = false;
 		public function burnFW(hexFile:String):void
 		{
-			if(!isConnected){
+			if(!isConnected)
+				return;
+			Main.app.track("/burnFW");
+			Main.app.scriptsPart.clearInfo();
+
+			var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
+			if(boards[1] == "samd") {
+				_serial.close();
+				_serial.open(selectPort,1200);
+			//	var start:uint = getTimer();
+			//	while(getTimer() - start < 100){}
+				_serial.close();
+
+				setTimeout(_burnFW2, 3000, hexFile);
+				_dialog.setText(Translator.map('Executing'));
+				_dialog.showOnStage(_mBlock.stage);
+			} else {
+				_burnFW2(null);
+			}
+		}
+
+		private function _burnFW2(hexFile:String):void
+		{
+			Main.app.track("/burnFW2");
+
+			var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
+
+			var partFile:String = hexFile+".ino.partitions.bin";
+			hexFile = hexFile+".ino"+ArduinoManager.sharedManager().getHexFilename(boards);
+			if(!File.applicationDirectory.resolvePath(hexFile).exists){
+				Main.app.track("upgrade fail!");
 				return;
 			}
-			Main.app.track("/OpenSerial/Upgrade");
+
+			var hardwareDir:String;
+			var extStr:String = "";
+			if(ApplicationManager.sharedManager().system == ApplicationManager.MAC_OS) {
+				hardwareDir = "Arduino/Arduino.app/Contents/Java";
+			} else {
+				hardwareDir = "Arduino";
+				extStr = ".exe";
+			}
+			hardwareDir = File.applicationDirectory.resolvePath(hardwareDir).nativePath;
 
 			var cmd:String;
 			var args:String;
-			var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
 			switch(boards[1]) {
 			case "avr":
 			default:
-				var hardwareDir:String;
-				var extStr:String = "";
-				if(ApplicationManager.sharedManager().system == ApplicationManager.MAC_OS) {
-					hardwareDir = "Arduino/Arduino.app/Contents/Java";
-				} else {
-					hardwareDir = "Arduino";
-					extStr = ".exe";
-				}
-				hardwareDir = File.applicationDirectory.resolvePath(hardwareDir).nativePath;
+				args = "-C"+hardwareDir+"/hardware/tools/avr/etc/avrdude.conf -v -patmega328p -carduino -P"+selectPort+" -b115200 -D -V"
+					+" -Uflash:w:"+File.applicationDirectory.resolvePath(hexFile).nativePath+":i";
+				cmd = hardwareDir+"/hardware/tools/avr/bin/avrdude"+extStr;
+				break;
 
-				if(File.applicationDirectory.resolvePath(hexFile+".ino.standard.hex").exists){
-					hexFile+=".ino.standard.hex";
-				} else if(File.applicationDirectory.resolvePath(hexFile+".cpp.standard.hex").exists){
-					hexFile+=".cpp.standard.hex";
-				} else {
+			case "samd":	// board=mzero_bl
+				var list:Array = this.portlist;
+				if(list.length == 0) {
 					Main.app.track("upgrade fail!");
 					return;
 				}
-				hexFile = File.applicationDirectory.resolvePath(hexFile).nativePath;
-				args = "-C"+hardwareDir+"/hardware/tools/avr/etc/avrdude.conf -v -patmega328p -carduino -P"+selectPort+" -b115200 -D -V -Uflash:w:"+hexFile+":i";
+				var burnPort:String = list[list.length-1];
+				Main.app.track(selectPort+"->"+burnPort);
+				Main.app.scriptsPart.appendMessage(selectPort+"->"+burnPort);
+
+				args = "-C"+hardwareDir+"/hardware/tools/avr/etc/avrdude.conf -v -patmega2560 -cstk500v2 -P"+burnPort+" -b57600"
+					+" -Uflash:w:"+File.applicationDirectory.resolvePath(hexFile).nativePath+":i";
 				cmd = hardwareDir+"/hardware/tools/avr/bin/avrdude"+extStr;
 				break;
 
 			case "esp32":
 				cmd = "Arduino/portable/packages/esp32/tools/esptool_py/2.6.1/esptool.exe";
 				cmd = File.applicationDirectory.resolvePath(cmd).nativePath;
-				var partFile:String = hexFile+".ino.partitions.bin";
 
-				var reg:RegExp = /-/g;
-				hexFile += ".ino."+boards[2].replace(reg,"_")+".bin";
-				if(!File.applicationDirectory.resolvePath(hexFile).exists){
-					Main.app.track("upgrade fail!");
-					return;
-				}
 				args = "--chip esp32 --port "+selectPort+" --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
 					+" 0xe000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/partitions/boot_app0.bin"
 					+" 0x1000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/sdk/bin/bootloader_qio_80m.bin"
@@ -331,15 +351,6 @@ package extensions
 				return;
 			}
 
-			if(!_isInitUpgrade){
-				_isInitUpgrade = true;
-				function cancel():void { _dialog.cancel(); }
-				_dialog.addTitle(Translator.map('Start Uploading'));
-				_dialog.addButton(Translator.map('Close'), cancel);
-			}else{
-				_dialog.setTitle(('Start Uploading'));
-				_dialog.setButton(('Close'));
-			}
 			_dialog.setText(Translator.map('Executing'));
 			_dialog.showOnStage(_mBlock.stage);
 
@@ -352,7 +363,6 @@ package extensions
 
 		private function upgradeFirmware(cmd:String, args:String):void
 		{
-			Main.app.scriptsPart.clearInfo();
 			Main.app.scriptsPart.appendMessage(cmd + " " + args);
 
 			var info:NativeProcessStartupInfo =new NativeProcessStartupInfo();

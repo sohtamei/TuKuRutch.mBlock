@@ -48,6 +48,7 @@
 		<item name="Support Site"/>
 		<item name="Robot/Board Information"/>
 		<item name="About TuKuRutch"/>
+		<item isSeparator="true" />
 		<item name="Enable Log"/>
 	</subMenu>
 	<subMenu name=" ShowStage "/>
