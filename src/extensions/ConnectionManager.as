@@ -282,7 +282,7 @@ package extensions
 				_dialog.setText(Translator.map('Executing'));
 				_dialog.showOnStage(_mBlock.stage);
 			} else {
-				_burnFW2(null);
+				_burnFW2(hexFile);
 			}
 		}
 
