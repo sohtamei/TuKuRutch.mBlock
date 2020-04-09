@@ -173,10 +173,10 @@ package extensions
 				BlockInterpreter.Instance.stopAllThreads();
 				ArduinoManager.sharedManager().isUploading = false;
 				_serial.removeEventListener(Event.CHANGE, onChanged);
-				_serial.close();
 				_receiveHandler = null;
+				this.dispatchEvent(new Event(Event.CLOSE));		// send "reset"(samd,esp32)
+				_serial.close();
 				Main.app.topBarPart.setConnectedButton(false);
-				this.dispatchEvent(new Event(Event.CLOSE));
 			}
 		}
 /*
