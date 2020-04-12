@@ -101,7 +101,7 @@ public class Block extends Sprite {
 	private var suppressLayout:Boolean; // used to avoid extra layouts during block initialization
 	public var labelsAndArgs:Array = [];
 	private const oldArgValues:Array = [];
-	private var argTypes:Array = [];
+	public var argTypes:Array = [];
 //	public var nextID:Array = [];
 	private var elseLabel:TextField;
 

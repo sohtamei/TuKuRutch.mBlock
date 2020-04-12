@@ -152,7 +152,10 @@ package cc.makeblock.interpreter
 		{
 			var item:* = block.args[index];
 			if(item is BlockArg){
-				if(item.isNumber){
+				var argType:String = block.argTypes[2+index];
+				if(argType == "%s" || argType == "%m") {
+					;
+				} else if(item.isNumber){
 					var value:* = Number(item.argValue);
 					if(isNaN(value)){
 						value = item.argValue;

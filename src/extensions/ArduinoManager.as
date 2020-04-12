@@ -136,24 +136,24 @@ package extensions
 						varStringList.push(varName);
 					}
 				}
-				return (StringUtil.substitute("{0} = {1};\n",castVarName(varName),varValue.type=="obj"?varValue.code.code:varValue.code));
+				return (StringUtil.substitute("{0} = {1};\n", castVarName(varName), varValue.type=="obj"?varValue.code.code: varValue.code));
 			}else{
-				return (StringUtil.substitute("{0} = {1};\n",castVarName(varName),varValue is CodeObj?varValue.code:varValue));
+				return (StringUtil.substitute("{0} = {1};\n", castVarName(varName), varValue is CodeObj?varValue.code: varValue));
 			}
 		}
 		private function parseDelay(fun:Object):String{
 			var cBlk:CodeBlock=getCodeBlock(fun[1]);
-			var funcode:String=(StringUtil.substitute("_delay({0});\n",cBlk.type=="obj"?cBlk.code.code:cBlk.code));
+			var funcode:String=(StringUtil.substitute("_delay({0});\n", cBlk.type=="obj"?cBlk.code.code: cBlk.code));
 			return funcode;
 		}
 		private function parseDoRepeat(blk:Object):String{
 			var initCode:CodeBlock = getCodeBlock(blk[1]);
-			var repeatCode:String=StringUtil.substitute("for(int __i__=0;__i__<{0};++__i__)\n{\n",initCode.type=="obj"?initCode.code.code:initCode.code);
+			var repeatCode:String=StringUtil.substitute("for(int __i__=0;__i__<{0};++__i__)\n{\n", initCode.type=="obj"?initCode.code.code: initCode.code);
 			if(blk[2]!=null){
 				for(var i:int=0;i<blk[2].length;i++){
 					var b:Object = blk[2][i];
 					var cBlk:CodeBlock=getCodeBlock(b);
-					repeatCode+=cBlk.type=="obj"?cBlk.code.code:cBlk.code;
+					repeatCode+=cBlk.type=="obj"?cBlk.code.code: cBlk.code;
 				}
 			}
 			repeatCode+="}\n";
@@ -161,17 +161,17 @@ package extensions
 		}
 		private function parseDoWaitUntil(blk:Object):String{
 			var initCode:CodeBlock = getCodeBlock(blk[1]);
-			var untilCode:String=StringUtil.substitute("while(!({0}))\n{\n_loop();\n}\n",initCode.type=="obj"?initCode.code.code:initCode.code);
+			var untilCode:String=StringUtil.substitute("while(!({0}))\n{\n_loop();\n}\n", initCode.type=="obj"?initCode.code.code: initCode.code);
 			return (untilCode);
 		}
 		private function parseDoUntil(blk:Object):String{
 			var initCode:CodeBlock = getCodeBlock(blk[1]);
-			var untilCode:String=StringUtil.substitute("while(!({0}))\n{\n_loop();\n",initCode.type=="obj"?initCode.code.code:initCode.code);
+			var untilCode:String=StringUtil.substitute("while(!({0}))\n{\n_loop();\n", initCode.type=="obj"?initCode.code.code: initCode.code);
 			if(blk[2]!=null){
 				for(var i:int=0;i<blk[2].length;i++){
 					var b:Object = blk[2][i];
 					var cBlk:CodeBlock=getCodeBlock(b);
-					untilCode+=cBlk.type=="obj"?cBlk.code.code:cBlk.code;
+					untilCode+=cBlk.type=="obj"?cBlk.code.code: cBlk.code;
 				}
 			}
 			untilCode+="}\n";
@@ -236,7 +236,10 @@ package extensions
 			params = tmp;
 			var vars:String = "";
 			for(i = 1;i<params.length;i++){
-				vars += (params[i]=='n'?("double"):(params[i]=='s'?"String":(params[i]=='b'?"boolean":"")))+" "+castVarName(blks[0][2][i-1].split(" ").join("_"))+(i<params.length-1?", ":"");
+				vars += (params[i]=='n'?"double":
+						(params[i]=='s'?"String":
+						(params[i]=='b'?"boolean":"")))
+						+" "+castVarName(blks[0][2][i-1].split(" ").join("_"))+(i<params.length-1?", ":"");
 			}
 			var defFunc:String = "void "+castVarName(params[0], true)+"("+vars+");\n";
 			if(ccode_def.indexOf(defFunc)==-1){
@@ -246,8 +249,8 @@ package extensions
 			for(i=0;i<blks.length;i++){
 				if(i>0){
 					
-					var b:CodeBlock = getCodeBlock(blks[i],blks[0][2]);
-					var code:String = (b.type=="obj"?b.code.code:b.code);
+					var b:CodeBlock = getCodeBlock(blks[i]);//,blks[0][2]);
+					var code:String = (b.type=="obj"?b.code.code: b.code);
 					funcCode+=code+"\n";
 				}
 			}
@@ -257,11 +260,11 @@ package extensions
 		private function parseIfElse(blk:Object):String{
 			var codeIfElse:String = "";
 			var logiccode:CodeBlock = getCodeBlock(blk[1]);
-			codeIfElse+=StringUtil.substitute("if({0}){\n",logiccode.type=="obj"?logiccode.code.code:logiccode.code);
+			codeIfElse+=StringUtil.substitute("if({0}){\n", logiccode.type=="obj"?logiccode.code.code: logiccode.code);
 			if(blk[2]!=null){
 				for(var i:int=0;i<blk[2].length;i++){
 					var b:CodeBlock = getCodeBlock(blk[2][i]);
-					var ifcode:String=(b.type=="obj"?b.code.code:b.code)+"";
+					var ifcode:String=(b.type=="obj"?b.code.code: b.code)+"";
 					codeIfElse+=ifcode
 				}
 			}
@@ -269,7 +272,7 @@ package extensions
 			if(blk[3]!=null){
 				for(i=0;i<blk[3].length;i++){
 					b = getCodeBlock(blk[3][i]);
-					var elsecode:String=(b.type=="obj"?b.code.code:b.code)+"";
+					var elsecode:String=(b.type=="obj"?b.code.code: b.code)+"";
 					codeIfElse+=elsecode;
 				}
 			}
@@ -286,7 +289,7 @@ package extensions
 					if(blk[2]!=null){
 						for(var i:int=0;i<blk[2].length;i++){
 							var b:CodeBlock = getCodeBlock(blk[2][i]);
-							var ifcode:String=(b.type=="obj"?b.code.code:b.code)+"";
+							var ifcode:String=(b.type=="obj"?b.code.code: b.code)+"";
 							codeIf+=ifcode;
 						}
 					}
@@ -298,25 +301,23 @@ package extensions
 		
 		private function parseComputeFunction(blk:Object):String{
 			var cBlk:CodeBlock = getCodeBlock(blk[2]);
-			if(blk[1]=="10 ^"){
-				return StringUtil.substitute("pow(10,{0})",cBlk.code);
-			}else if(blk[1]=="e ^"){
-				return StringUtil.substitute("exp({0})",cBlk.code);
-			}else if(blk[1]=="ceiling"){
-				return StringUtil.substitute("ceil({0})",cBlk.code);
-			}else if(blk[1]=="log"){
-				return StringUtil.substitute("log10({0})",cBlk.code);
-			}else if(blk[1]=="ln"){
-				return StringUtil.substitute("log({0})",cBlk.code);
+			switch(blk[1]){
+			case "10 ^":	return StringUtil.substitute("pow(10,{0})", cBlk.code);
+			case "e ^":		return StringUtil.substitute("exp({0})",    cBlk.code);
+			case "ceiling":	return StringUtil.substitute("ceil({0})",   cBlk.code);
+			case "log":		return StringUtil.substitute("log10({0})",  cBlk.code);
+			case "ln":		return StringUtil.substitute("log({0})",    cBlk.code);
 			}
-			
-			return StringUtil.substitute("{0}({1})",getCodeBlock(blk[1]).code,cBlk.code).split("sin(").join("sin(angle_rad*").split("cos(").join("cos(angle_rad*").split("tan(").join("tan(angle_rad*");
+			return StringUtil.substitute("{0}({1})", getCodeBlock(blk[1]).code, cBlk.code)
+											.split("sin(").join("sin(angle_rad*")
+											.split("cos(").join("cos(angle_rad*")
+											.split("tan(").join("tan(angle_rad*");
 		}
 		private function appendFun(funcode:*):void{
 			//			if (c!="\n" && c!="}")
 			//funcode+=";\n"
 			var allowAdd:Boolean = funcode is CodeObj;
-			funcode = funcode is CodeObj?funcode.code:funcode;
+			funcode = funcode is CodeObj?funcode.code: funcode;
 			
 			if(funcode==null) return;
 			if(funcode.length==0) return;
@@ -330,7 +331,7 @@ package extensions
 			}
 		}
 		
-		private function getCodeBlock(blk:Object,params:Array=null):CodeBlock{
+		private function getCodeBlock(blk:Object):CodeBlock{
 			var code:CodeObj;
 			var codeBlock:CodeBlock = new CodeBlock;
 			if(blk==null||blk==""){
@@ -338,209 +339,213 @@ package extensions
 				codeBlock.code = "0";
 				return codeBlock;
 			}
-			if(!(blk is Array)){
+			else if(!(blk is Array)){
 				codeBlock.code = ""+blk;
 				codeBlock.type = isNaN(Number(blk))?"string":"number";
 				return codeBlock;
 			}
-			if(blk.length==0){
+			else if(blk.length==0){
 				codeBlock.type = "string";
 				codeBlock.code = "";
 				return codeBlock;
-			}else if(blk.length==16){
+			}
+			else if(blk.length==16){				// ?
 				codeBlock.type = "array";
 				codeBlock.code = blk;
 				return codeBlock;
 			}
-			if(mathOp.indexOf(blk[0])>=0){
+			else if(mathOp.indexOf(blk[0])>=0){		// + - * / % > = < & && | || ! not rounded
 				codeBlock.type = "obj";
 				codeBlock.code = parseMath(blk);
 				return codeBlock;
 			}
-			else if(blk[0]=="readVariable"){
+			else if(blk[0]=="readVariable"){		// GET_VAR
 				codeBlock.type = "obj";
 				codeBlock.code = parseVarRead(blk);
 				return codeBlock;
 			}
-			else if(blk[0]=="initVar:to:"){
+			/*else if(blk[0]=="initVar:to:"){		// 
 				codeBlock.type = "obj";
 				codeBlock.code = null;
 				var tmpCodeBlock:Object = {code:{setup:parseVarSet(blk)}};
 				moduleList.push(tmpCodeBlock);
 				return codeBlock;
-			}
-			else if(blk[0]=="setVar:to:"){
+			}*/
+			else if(blk[0]=="setVar:to:"){			// SET_VAR, set %m.var to %s
 				codeBlock.type = "string";
 				codeBlock.code = parseVarSet(blk);
 				return codeBlock;
 			}
-			else if(blk[0]=="wait:elapsed:from:"){
+			else if(blk[0]=="wait:elapsed:from:"){	// wait %n secs
 				codeBlock.type = "string";
 				codeBlock.code = parseDelay(blk);
 				return codeBlock;
 			}
-			else if(blk[0]=="doIfElse"){
+			else if(blk[0]=="doIfElse"){			// if %b then .. else
 				codeBlock.type = "string";
 				codeBlock.code = parseIfElse(blk);
 				return codeBlock;
 			}
-			else if(blk[0]=="doIf"){
+			else if(blk[0]=="doIf"){				// if %b then
 				codeBlock.type = "string";
 				codeBlock.code = parseIf(blk);
 				return codeBlock;
 			}
-			else if(blk[0]=="doRepeat"){
+			else if(blk[0]=="doRepeat"){			// repeat %n
 				codeBlock.type = "string";
 				codeBlock.code = parseDoRepeat(blk);
 				return codeBlock;
-			}/*else if(blk[0]=="doForever"){
+			}
+			/*else if(blk[0]=="doForever"){			// forever
 				codeBlock.type = "string";
 				codeBlock.code = parseForever(blk);
 				return codeBlock;
-			}*/else if(blk[0]=="doWaitUntil"){
+			}*/
+			else if(blk[0]=="doWaitUntil"){			// wait until %b
 				codeBlock.type = "string";
 				codeBlock.code = parseDoWaitUntil(blk);
 				return codeBlock;
-			}else if(blk[0]=="doUntil"){
+			}
+			else if(blk[0]=="doUntil"){				// repeat until %b
 				codeBlock.type = "string";
 				codeBlock.code = parseDoUntil(blk);
 				return codeBlock;
-			}else if(blk[0]=="call"){
+			}
+			else if(blk[0]=="call"){				// CALL
 				codeBlock.type = "obj";//修复新建的模块指令函数，无法重复调用
 				codeBlock.code = new CodeObj(parseCall(blk));
 				return codeBlock;
-			}else if(blk[0]=="randomFrom:to:"){
+			}
+			else if(blk[0]=="randomFrom:to:"){		// pick random %n to %n
 				codeBlock.type = "number";
 				//as same as scratch, include max value
 				codeBlock.code = StringUtil.substitute("random({0},({1})+1)", getCodeBlock(blk[1]).code, getCodeBlock(blk[2]).code);
 				return codeBlock;
-			}else if(blk[0]=="computeFunction:of:"){
+			}
+			else if(blk[0]=="computeFunction:of:"){	// %m.mathOp of %n
 				codeBlock.type = "number";
 				codeBlock.code = parseComputeFunction(blk);
 				return codeBlock;
-			}else if(blk[0]=="concatenate:with:"){
+			}
+			else if(blk[0]=="concatenate:with:"){	// join %s %s
 				var s1:CodeBlock = getCodeBlock(blk[1]);
 				var s2:CodeBlock = getCodeBlock(blk[2]);
 				codeBlock.type = "obj";
-				codeBlock.code = new CodeObj(StringUtil.substitute("{0}+{1}", (s1.type=="obj")?s1.code.code:"String(\""+s1.code+"\")", (s2.type=="obj")?s2.code.code:"String(\""+s2.code+"\")"));
+				codeBlock.code = new CodeObj(StringUtil.substitute("{0}+{1}",
+															(s1.type=="obj")?s1.code.code: 'String("'+s1.code+'")',
+															(s2.type=="obj")?s2.code.code: 'String("'+s2.code+'")'));
 				return codeBlock;
-			}else if(blk[0]=="letter:of:"){
+			}
+			else if(blk[0]=="letter:of:"){			// letter %n of %s
 				s2 = getCodeBlock(blk[2]);
 				codeBlock.type = "obj";
-				codeBlock.code = new CodeObj(StringUtil.substitute("{1}.charAt({0}-1)", getCodeBlock(blk[1]).code, (s2.type=="obj")?"String("+s2.code.code+")":"String(\""+s2.code+"\")"));
+				codeBlock.code = new CodeObj(StringUtil.substitute("({1}).charAt({0}-1)",
+															getCodeBlock(blk[1]).code,
+															(s2.type=="obj")?s2.code.code: 'String("'+s2.code+'")'));
 				return codeBlock;
-			}else if(blk[0]=="castDigitToString:"){
+			}
+			else if(blk[0]=="castDigitToString:"){	// cast %n to string
 				codeBlock.type = "obj";
-				codeBlock.code = new CodeObj(StringUtil.substitute('String({0})', getCodeBlock(blk[1]).code));
+				codeBlock.code = new CodeObj(StringUtil.substitute('String({0})',
+															getCodeBlock(blk[1]).code));
 				return codeBlock;
-			}else if(blk[0]=="stringLength:"){
+			}
+			else if(blk[0]=="stringLength:"){		// length of %s
 				s1 = getCodeBlock(blk[1]);
 				codeBlock.type = "obj";
-				codeBlock.code = new CodeObj(StringUtil.substitute("String({0}).length()", (s1.type != "obj")?"\""+s1.code+"\"":s1.code.code));
-				return codeBlock;
-			}else if(blk[0]=="changeVar:by:"){
-				codeBlock.type = "string";
-				codeBlock.code = StringUtil.substitute("{0} += {1};\n", getCodeBlock(castVarName(blk[1])).code, getCodeBlock(blk[2]).code);
+				codeBlock.code = new CodeObj(StringUtil.substitute("({0}).length()",
+															(s1.type=="obj")?s1.code.code: 'String("'+s1.code+'")'));
 				return codeBlock;
 			}
-			else{
-				var objs:Array = Main.app.extensionManager.specForCmd(blk[0]);
-				if(objs!=null){
-					var obj:Object = objs[objs.length-1];	// spec[1]:"play tone ..", spec[0]:"w", extensionsCategory:20, prefix+spec[2]:"remoconRobo.runBuzzerJ2", spec.slice(3):(初期値+obj)
-					obj = obj[obj.length-1];				// 初期値, .. obj
-					if(typeof obj=="object"){
-						var ext:ScratchExtension = Main.app.extensionManager.extensionByName();//blk[0].split(".")[0]);
-						var codeObj:Object = {code:{setup:substitute(getProp(obj,'setup'), blk as Array, ext),
-													func :substitute(getProp(obj,'func'),  blk as Array, ext)}};
-						if(!availableBlock(codeObj)){	// 重複チェック
-							moduleList.push(codeObj);
-						}
-						codeBlock.type = "obj";
-						codeBlock.code = new CodeObj(codeObj.code.func);
-						if(codeBlock.code.code.charAt(codeBlock.code.code.length-1) == ";")
-							codeBlock.code.code+="\n";
-						return codeBlock;
+			else if(blk[0]=="changeVar:by:"){		// CHANGE_VAR, change %m.var by %n
+				codeBlock.type = "string";
+				codeBlock.code = StringUtil.substitute("{0} += {1};\n",
+															getCodeBlock(castVarName(blk[1])).code,
+															getCodeBlock(blk[2]).code);
+				return codeBlock;
+			}
+
+			var objs:Array = Main.app.extensionManager.specForCmd(blk[0]);
+			if(objs!=null){
+				var obj:Object = objs[objs.length-1];	//  spec[1]:"play tone ..",
+														//  spec[0]:"w",
+														//  extensionsCategory:20,
+														//  prefix+spec[2]:"remoconRobo.runBuzzerJ2",
+														//★spec.slice(3):(初期値+obj)
+				obj = obj[obj.length-1];				// 初期値, .. ★obj
+				if(typeof obj=="object"){
+					var argTypes:Array = [];
+					if(obj.hasOwnProperty("remote"))
+						argTypes = getProp(obj,'remote');
+					var ext:ScratchExtension = Main.app.extensionManager.extensionByName();//blk[0].split(".")[0]);
+					var codeObj:Object = {code:{setup:_substitute(getProp(obj,'setup'), blk as Array, ext, argTypes),
+												func :_substitute(getProp(obj,'func'),  blk as Array, ext, argTypes)}};
+					if(!availableBlock(codeObj)){	// 重複チェック
+						moduleList.push(codeObj);
 					}
-				}
-				var b:Block = BlockIO.arrayToStack([blk]);
-				if(b.op=="getParam"){
-					codeBlock.type = "number";
-					codeBlock.code = castVarName(b.spec.split(" ").join("_"));
+					codeBlock.type = "obj";
+					codeBlock.code = new CodeObj(codeObj.code.func);
+					if(codeBlock.code.code.charAt(codeBlock.code.code.length-1) == ";")
+						codeBlock.code.code+="\n";
 					return codeBlock;
 				}
-				if(b.op=="procDef"){
-					return codeBlock;
-				}
-				unknownBlocks.push(b);
-				hasUnknownCode = true;
-				codeBlock.type = "string";
-				codeBlock.code = StringUtil.substitute("//unknow {0}{1}",blk[0],b.type=='r'?"":"\n");
+			}
+
+			var b:Block = BlockIO.arrayToStack([blk]);
+			if(b.op=="getParam"){			// GET_PARAM
+				codeBlock.type = "number";
+				codeBlock.code = castVarName(b.spec.split(" ").join("_"));
 				return codeBlock;
 			}
-			codeBlock.type = "obj";
-			codeBlock.code = code;
+			else if(b.op=="procDef"){		// PROCEDURE_DEF
+				return codeBlock;
+			}
+
+			unknownBlocks.push(b);
+			hasUnknownCode = true;
+			codeBlock.type = "string";
+			codeBlock.code = StringUtil.substitute("//unknow {0}{1}", blk[0], b.type=='r'?"":"\n");
 			return codeBlock;
 		}
-		private function getProp(obj:Object, key:String):String{
+		private function getProp(obj:Object, key:String):*{
 			return obj.hasOwnProperty(key) ? obj[key] : "";
 		}
 		// デファインをext.valuesで展開し、"remoconRobo_tone({0},{1});\n" の{0},{1}を展開
-		private function substitute(str:String, params:Array, ext:ScratchExtension=null, offset:uint = 1):String{
-			for(var i:uint=0;i<params.length-offset;i++){
-				var o:CodeBlock = getCodeBlock(params[i+offset]);
-				var v:*;
-			/*
-				//满足下面的条件则不作字符替换处理
-				if(str.indexOf("ir.sendString")>-1 || (str.indexOf(".drawStr(")>-1 && i==3))
-				{
-					v = o.code;
-				}
-				else
-			*/
-				{
-					if(o.type!="string")
-						v = null;
-					else if(ext.values[o.code]!=undefined)
-						v = ext.values[o.code];
-					else
-						v = o.code;
-				}
-				var s:CodeBlock = new CodeBlock();
-				if(ext==null || v==null || v==undefined){
-					s = getCodeBlock(params[i+offset]);
-					s.type = (s.type=="obj" && s.code.type!="code")?"string":"number";
-				}else{
-					s.type = isNaN(Number(v))?"string":"number";
-					s.code = v;
-				}
-				if((s.code==""||s.code==" ") && s.code!=0 && s.type=="number"){
-					s.type = "string";
-				}
-			/*
-				if(str.indexOf(".drawStr(")>-1){
-					if(i==3 && s.type=="number"){
-						if(s.code is String){
-							s.type = "string";
-						}else if(s.code is CodeObj){
-							str = str.split("{"+i+"}").join("String("+s.code.code+").c_str()");
-							continue;
-						}
-					}
-				}else if(str.indexOf("ir.sendString(") == 0){
-					if(s.type=="number" && s.code is String){
-						s.type = "string";
+		private function _substitute(str:String, params:Array, ext:ScratchExtension, argTypes:Array):String{
+			for(var i:uint=0; i < params.length-1; i++){
+				var s:CodeBlock = getCodeBlock(params[i+1]);
+				var argType:String = "";
+				if(i < argTypes.length) argType = argTypes[i];
+
+				var tmp:String = "";
+				if(argType == "s") {
+					if(s.type == "string")
+						s.code = '"'+s.code+'"';
+					else if(s.type == "obj")		// String("hello ")+String("world")
+						s.code = s.code.code;
+				} else if(argType == "b") {
+					var j:int;
+					for(j = 0; j < s.code.length; j+=2)
+						tmp += "\\x" + s.code.substr(j,2);
+					s.code = '"'+tmp+'",'+j/2;
+				} else {
+				// B-int8, S-int16, L-int32, F-float, D-double
+					switch(s.type) {
+					case "number":
+						if(s.code==""||s.code==" ")
+							s.code = "0";
+						break;
+					case "string":
+						if(ext.values[s.code] != undefined)
+							s.code = ext.values[s.code];
+						else if(!isNaN(Number(s.code)))
+							s.code = Number(s.code);
+						break;
+					case "code":
+						break;
 					}
 				}
-				// 通信モジュールの=記号が使用されている場合、数値も比較のために文字列に変換されます。そうでない場合、エラーが報告されます
-				if(str.indexOf("se.equalString")>-1)
-				{
-					str = str.split("{"+i+"}").join((s.type=="string"||!isNaN(Number(s.code)))?('"'+s.code+'"'):((s.type=="number")?s.code:s.code.code));
-				}
-				else
-			*/
-				{
-					str = str.split("{"+i+"}").join((s.type=="string")?('"'+s.code+'"'):((s.type=="number")?s.code:s.code.code));
-				}
+				str = str.split("{"+i+"}").join(s.code);
 			}
 			return str;
 		}
@@ -750,7 +755,7 @@ void _loop(){
 					case "F": getcmd = "getFloat"; break;
 					case "D": getcmd = "getDouble"; break;
 					case "s": getcmd = "getString"; break;
-					case "b": getcmd = "getBytes"; break;
+					case "b": getcmd = "getBufLen"; break;
 					}
 					argTbl += "'"+obj.remote[j]+"',";
 					func = func.replace(new RegExp("\\{"+j+"\\}", "g"), getcmd+"("+j.toString()+")");
@@ -889,7 +894,7 @@ void _loop(){
 			for(var i:int=0;i<moduleList.length;i++){
 				var m:Object = moduleList[i];
 				var code:* = m["code"]["setup"];
-				code = code is CodeObj?code.code:code;
+				code = code is CodeObj?code.code: code;
 				if(code!=""){
 					if(ccode_setup.indexOf(code)==-1 && ccode_setup_fun.indexOf(code)==-1){
 						ccode_setup+=code+"";
@@ -915,7 +920,7 @@ void _loop(){
 			var modDefineCode:String = "";
 			for(var i:int=0;i<varList.length;i++){
 				var v:String = varList[i];
-				var code:* = StringUtil.substitute("double {0};\n" ,castVarName(v));
+				var code:* = StringUtil.substitute("double {0};\n", castVarName(v));
 				if(ccode_def.indexOf(code)==-1){
 					ccode_def+=code;
 				}
@@ -928,7 +933,7 @@ void _loop(){
 			for(var i:int=0;i<funcList.length;i++){
 				var m:Object = funcList[i];
 				var code:* = m["code"];
-				code = code is CodeObj?code.code:code;
+				code = code is CodeObj?code.code: code;
 				if(code!=""){
 					if(funcCodes.indexOf(code)==-1)
 						funcCodes+=code+"\n";

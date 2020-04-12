@@ -104,7 +104,7 @@ package cc.makeblock.interpreter
 
 			if(obj2.hasOwnProperty("remote")) {
 				for(i = 0; i < param.length; i++) {
-					if(obj2.remote.length <= i || obj2.remote[i]!="s") {
+					if(obj2.remote.length <= i || (obj2.remote[i]!="s" && obj2.remote[i]!="b")) {
 						if(typeof param[i]=="string")
 							param[i] = ext.values[param[i]];
 					}
@@ -125,6 +125,12 @@ package cc.makeblock.interpreter
 					case "F": cmd.writeFloat(param[i]);  break;
 					case "D": cmd.writeDouble(param[i]); break;
 					case "s": cmd.writeUTFBytes(param[i]); cmd.writeByte(0); break;
+					case "b":
+						var n:int = param[i].length/2;
+						cmd.writeByte(n);
+						for(var j:int = 0; j < n; j++)
+							cmd.writeByte(parseInt(param[i].substr(j*2, 2),16));
+						break;
 					}
 				}
 				cmd[2] = cmd.length-3;
