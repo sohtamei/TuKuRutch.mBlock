@@ -235,6 +235,10 @@ public class ExtensionManager {
 									ext.javascriptURL = extObj.javascriptURL;		// LoadJS
 		if(extObj.normalFW)			ext.normalFW = extObj.docPath + extObj.normalFW;
 		if(extObj.pcmodeFW)			ext.pcmodeFW = extObj.docPath + extObj.pcmodeFW;
+		if(extObj.libraryPath) {
+			var toFile:File = new File(File.applicationDirectory.resolvePath("Arduino/portable/sketchbook/libraries/" + extObj.libraryPath).nativePath);
+			File.applicationDirectory.resolvePath(extObj.docPath + extObj.libraryPath).copyTo(toFile, true);
+		}
 		if(extObj.prefs)			ext.prefs = extObj.prefs;
 
 		if(extObj.header)			ext.header = extObj.header;

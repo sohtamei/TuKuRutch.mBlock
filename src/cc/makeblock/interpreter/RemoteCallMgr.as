@@ -104,8 +104,8 @@ package cc.makeblock.interpreter
 
 			if(obj2.hasOwnProperty("remote")) {
 				for(i = 0; i < param.length; i++) {
-					if(obj2.remote.length <= i || (obj2.remote[i]!="s" && obj2.remote[i]!="b")) {
-						if(typeof param[i]=="string")
+					if(obj2.remote.length <= i || obj2.remote[i]!="s") {
+						if(typeof param[i]=="string" && ext.values[param[i]] != undefined)
 							param[i] = ext.values[param[i]];
 					}
 				}

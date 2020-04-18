@@ -524,6 +524,8 @@ package extensions
 					else if(s.type == "obj")		// String("hello ")+String("world")
 						s.code = s.code.code;
 				} else if(argType == "b") {
+					if(ext.values[s.code] != undefined)
+						s.code = ext.values[s.code];
 					var j:int;
 					for(j = 0; j < s.code.length; j+=2)
 						tmp += "\\x" + s.code.substr(j,2);
