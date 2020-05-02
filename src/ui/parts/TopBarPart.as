@@ -122,9 +122,16 @@ package ui.parts {
 			if(ConnectionManager.sharedManager().isConnected) {
 				ConnectionManager.sharedManager().onClose();
 			} else {
-				var arr:Array = ConnectionManager.sharedManager().portlist;
+				var arr:Array;
+				arr = ConnectionManager.sharedManager().portlist;
 				if(arr.length>0) {
-					ConnectionManager.sharedManager().onOpen(arr[0]);
+					ConnectionManager.sharedManager().toggle(arr[0]);
+					return;
+				}
+				arr = ConnectionManager.sharedManager().socketList;
+				if(arr.length>0) {
+					ConnectionManager.sharedManager().toggle(arr[0]);
+					return;
 				}
 			}
 		}

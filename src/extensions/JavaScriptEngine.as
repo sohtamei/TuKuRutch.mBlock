@@ -85,7 +85,7 @@ package extensions
 		private function onConnected(evt:Event):void{
 			if(_ext){
 				var dev:ConnectionManager = ConnectionManager.sharedManager();
-				_ext._deviceConnected(dev);
+				_ext._deviceConnected(dev, dev.checkDevName);
 				Main.app.track("register:"+_name);
 			}
 		}

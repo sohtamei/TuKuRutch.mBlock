@@ -10,6 +10,7 @@
 	<subMenu name="Connect" label="连接">
 		<item name="Set Robot to PC connection mode" label="安装固件" />
 		<item name="Reset Default Program" label="恢复出厂程序" />
+		<item name="Custom Connect" label="自定义连接" action="connect_network" />
 		<item isSeparator="true" />
 	</subMenu>
 	<subMenu name="Robots" label="扩展">

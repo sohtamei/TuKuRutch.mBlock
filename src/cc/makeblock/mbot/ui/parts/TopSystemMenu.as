@@ -127,23 +127,31 @@ package cc.makeblock.mbot.ui.parts
 				menu.removeItemAt(menu.numItems-1);
 			}
 
-			var arr:Array = ConnectionManager.sharedManager().portlist;
-			if(arr.length==0) {
-				var nullItem:NativeMenuItem = new NativeMenuItem(Translator.map("no serial port"));
-				nullItem.enabled = false;
-				nullItem.name = "serial_"+"null";
-				menu.addItem(nullItem);
-			} else {
-				for(var i:int=0;i<arr.length;i++){
-					var item:NativeMenuItem = menu.addItem(new NativeMenuItem(Translator.map("Connect to Robot") + "(" + arr[i] + ")"));
-					item.name = "serial_"+arr[i];
-					
-					item.enabled = true;
-					item.checked = ConnectionManager.sharedManager().selectPort==arr[i] && ConnectionManager.sharedManager().isConnected;
-				}
+			var i:int;
+			var item:NativeMenuItem;
+			var arrP:Array = ConnectionManager.sharedManager().portlist;
+			for(i=0;i<arrP.length;i++){
+				item = menu.addItem(new NativeMenuItem(Translator.map("Connect to Robot") + "(" + arrP[i] + ")"));
+				item.name = "serial_"+arrP[i];
+				item.enabled = true;
+				item.checked = ConnectionManager.sharedManager().connected(arrP[i]);
 			}
 			
-			var connected:Boolean = ConnectionManager.sharedManager().isConnected;
+			var arrS:Array = ConnectionManager.sharedManager().socketList;
+			for(i=0;i<arrS.length;i++){
+				item = menu.addItem(new NativeMenuItem(Translator.map("Connect to Robot") + "(" + arrS[i] + ")"));
+				item.name = "net_"+arrS[i];
+				item.enabled = true;
+				item.checked = ConnectionManager.sharedManager().connected(arrS[i]);
+			}
+
+			if(arrP.length==0 && arrS.length==0) {
+				item = menu.addItem(new NativeMenuItem(Translator.map("no serial port")));
+				item.enabled = false;
+				item.name = "serial_null";
+			}
+
+			var connected:Boolean = ConnectionManager.sharedManager().isConnectedUart;
 			MenuUtil.FindItem(getNativeMenu(), "Set Robot to PC connection mode").enabled	= connected;
 			MenuUtil.FindItem(getNativeMenu(), "Reset Default Program").enabled				= connected;
 		}
@@ -158,10 +166,15 @@ package cc.makeblock.mbot.ui.parts
 				case "Reset Default Program":
 					ConnectionManager.sharedManager().burnFW(ext.normalFW);
 					break;
+				case "Custom Connect":
+					ConnectionManager.sharedManager().custom();
+					break;
 				default:
+					if(item.name.indexOf("net_")>-1){
+						ConnectionManager.sharedManager().toggle(item.name.split("net_")[1]);
+					} else
 					if(item.name.indexOf("serial_")>-1){
-						var port:String = item.name.split("serial_").join("");
-						ConnectionManager.sharedManager().onConnect(port);
+						ConnectionManager.sharedManager().toggle(item.name.split("serial_")[1]);
 					}
 					break;
 			}
