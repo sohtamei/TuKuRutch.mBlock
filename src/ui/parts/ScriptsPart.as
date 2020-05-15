@@ -208,7 +208,6 @@ public class ScriptsPart extends UIPart {
 				if(showArduinoCode()){
 					htmlLoader.window.appendInfo(ArduinoManager.sharedManager().UploadToArduino(arduinoCodeText));
 					ConnectionManager.sharedManager().onClose();
-					Main.app.topBarPart.setConnectedButton(false);
 				}
 			}
 		}else{

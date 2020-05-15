@@ -24,13 +24,8 @@ package extensions
 	import flash.events.IOErrorEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.net.DatagramSocket;
-	import flash.net.InterfaceAddress;
 	import flash.net.Socket;
 	import flash.utils.getTimer;
-	import cc.makeblock.util.getLocalAddress;
-
-	import air.net.SocketMonitor;
-	import flash.events.StatusEvent;
 
 	public class ConnectionManager extends EventDispatcher
 	{
@@ -47,11 +42,10 @@ package extensions
 //		private var _avrdude:String = "";
 //		private var _avrdudeConfig:String = "";
 
-		private var _clientPort:int = 54321;
+		private var _clientPort:int = 48586;
 		private var datagramSocket:DatagramSocket;
 		public var socketList:Array = [];
 		private var _socket:Socket = new Socket();
-		private var socketMonitor:SocketMonitor = null;
 
 		public static function sharedManager():ConnectionManager{
 			if(_instance==null){
@@ -86,11 +80,30 @@ package extensions
 		}
 
 		private function onTimerCheck(evt:TimerEvent):void{
-			if(_serial.isConnected){
-				if(this.portlist.indexOf(selectPort) == -1)
-					onClose();
+			var arr:Array = portlist;
+			if(_serial.isConnected && arr.indexOf(selectPort) == -1) {
+				onClose();
+				return;
+			}
+			
+			var i:int;
+			for(i=0; i<socketList.length; i++) {
+				if(!socketList[i].updated) {
+					var address:String = socketList[i].address;
+					socketList.removeAt(i);
+					if(_socket.connected && selectPort == address) {
+						onClose();
+						return;
+					}
+				}
+			}
+			update();
+			for(i=0; i<socketList.length; i++) {
+				if(socketList[i].name != "custom")
+					socketList[i].updated = false;
 			}
 		}
+
 		public function setMain(mBlock:Main):void{
 			_mBlock = mBlock;
 		}
@@ -98,6 +111,7 @@ package extensions
 		// list
 
 		public function get portlist():Array{
+			// "COM3,COM1,COM2,COM2,COM1," ソート、重複削除、NULL削除
 			var _currentList:Array = [];
 			try{
 				_currentList = formatArray(_serial.list().split(",").sort());
@@ -121,21 +135,25 @@ package extensions
 
 		// open
 
-		// 0. loadJS (JavaScriptEngine.as)			- addEventListener(Event.CONNECT(this), onConnected)
+		// 0. JavaScriptEngine/loadJS				- addEventListener(Event.CONNECT(this), onConnected)
 		// -- USB uart --
 		// 1. toggle("COM3")
 		// -- net --
-		// 1. toggle("192.168.1.45:m5stack")		- Event.CONNECT(socket)
+		// 1. toggle("192.168.1.45")				- Event.CONNECT(socket)
 		// -- common --
 		// 2. connectHandler						- Event.CONNECT(this)
-		// 3. onConnected (JavaScriptEngine.as)
+		// 3. JavaScriptEngine/onConnected
 		// 4. _deviceConnected (robot.js, checkDevName)	- set_receive_handler(processData)
 
 		public function toggle(port:String):void{
 			BlockInterpreter.Instance.stopAllThreads();
 			if(_serial.isConnected||_socket.connected) {
-				onClose();
-				if(selectPort==port) return;
+				if(selectPort==port) {
+					onClose();
+					return;
+				} else {
+					_close();
+				}
 			}
 
 			selectPort = port;
@@ -148,7 +166,6 @@ package extensions
 				connectHandler();
 			} else {
 			// wifi
-				port = port.split(":")[0];
 				if(port.length>6 && port.split(".").length>3){
 					configureListeners(_socket);
 					try{
@@ -173,7 +190,7 @@ package extensions
 			socket.addEventListener(ProgressEvent.SOCKET_DATA, socketDataHandler);
 
 			function _closeHandler(evt:Event):void {
-				trace("closeHandler: " + evt);
+				Main.app.track("closeHandler: " + evt);
 			}
 
 			function _ioErrorHandler(evt:IOErrorEvent):void {
@@ -188,15 +205,9 @@ package extensions
 		public var checkDevName:Boolean = true;
 		private function connectHandler(evt:Event=null):void {
 			Main.app.track("connection:"+selectPort);
-			Main.app.topBarPart.setConnectedButton(true);
+			update();
 			ArduinoManager.sharedManager().isUploading = false;
 
-			if(_socket.connected) {
-				socketMonitor = new SocketMonitor(selectPort.split(":")[0], _clientPort);
-				socketMonitor.addEventListener(StatusEvent.STATUS, onSocketStatusChange);
-				socketMonitor.pollInterval = 3000;
-				socketMonitor.start();
-			}
 			checkDevName = true;
 			var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
 			switch(boards[1]) {
@@ -209,11 +220,6 @@ package extensions
 			addEventListener(Event.CHANGE,_onReceived);
 
 			this.dispatchEvent(new Event(Event.CONNECT));
-		}
-
-		private function onSocketStatusChange(e:StatusEvent):void {
-			if(!socketMonitor.available)
-				onClose();
 		}
 
 		public function set_receive_handler(receiveHandler:Function):void{
@@ -232,31 +238,6 @@ package extensions
 			return (_serial.isConnected);
 		}
 
-		public function custom():void
-		{
-			var _currentIp:String = "";
-			var local:InterfaceAddress = getLocalAddress();
-			if(local) _currentIp = local.broadcast.substr(0,local.broadcast.length-3);
-
-			var dialog:DialogBox = new DialogBox;
-			dialog.addTitle(Translator.map("Custom Connect"));
-			dialog.addField("IP Address",100,_currentIp,true);
-			dialog.addButton(Translator.map("Cancel"),cancelNow);
-			dialog.addButton(Translator.map("Connect"),connectNow);
-			dialog.showOnStage(Main.app.stage);
-
-			function connectNow():void{
-				var temp:String = dialog.fields["IP Address"].text;
-				if(socketList.toString().indexOf(temp) == -1)
-					socketList.push(temp+":");
-				toggle(temp+":");
-				dialog.cancel();
-			}
-			function cancelNow():void{
-				dialog.cancel();
-			}
-		}
-
 		public function onRemoved(extName:String = ""):void{
 			this.dispatchEvent(new Event(Event.REMOVED));
 		}
@@ -267,22 +248,30 @@ package extensions
 		}
 
 		public function update():void{
-			Main.app.topBarPart.setConnectedButton(_serial.isConnected||_socket.connected);
+			Main.app.topBarPart.setConnectedButton(
+				_serial.isConnected ? 2: (portlist.length ? 1:0),
+				_socket.connected   ? 2: (socketList.length ? 1:0));
 		}
 
 		// close
 
-		// 1. onConnect("COM3")
-		// 2. onClose								- Event.CLOSE(this)
-		// 4. onClosed (JavaScriptEngine.as)
-		// 5. _deviceRemoved (robot.js)
+		// 1. onClose								- Event.CLOSE(this)
+		// 2. JavaScriptEngine/onClosed
+		// 3. robot.js/_deviceRemoved
 
 		public function onClose():void{
+			this.dispatchEvent(new Event(Event.CLOSE));		// send "reset"(samd,esp32)
+			if(checkDevName) {
+				_close();
+			} else {
+				setTimeout(_close, 500);
+			}
+		}
+
+		private function _close():void{
 			BlockInterpreter.Instance.stopAllThreads();
 			ArduinoManager.sharedManager().isUploading = false;
 			_receiveHandler = null;
-			this.dispatchEvent(new Event(Event.CLOSE));		// send "reset"(samd,esp32)
-			if(socketMonitor) socketMonitor.stop();
 			if(_serial.isConnected){
 				_serial.close();
 			}
@@ -293,7 +282,7 @@ package extensions
 					trace(e);
 				}
 			}
-			Main.app.topBarPart.setConnectedButton(false);
+			update();
 		}
 
 		// recv
@@ -306,7 +295,7 @@ package extensions
 		// 1. socketDataHandler				- Event.CHANGE (this)
 		// -- common --
 		// 2. _onReceived					- _receiveHandler = processData(_receivedBytes)
-		// 3. processData (robot.js)		- responseValue(JavaScriptEngine) - onPacketRecv(RemoteCallMgr) - thread.push&thread.resume
+		// 3. robot.js/processData			- JavaScriptEngine/responseValue - RemoteCallMgr/onPacketRecv - thread.push&thread.resume
 
 		private var _bytes:ByteArray = new ByteArray();
 		private function onChanged(evt:Event):void{
@@ -429,7 +418,7 @@ package extensions
 				break;
 
 			case "samd":	// board=mzero_bl
-				var list:Array = this.portlist;
+				var list:Array = portlist;
 				if(list.length == 0) {
 					Main.app.track("upgrade fail!");
 					return;
@@ -463,9 +452,9 @@ package extensions
 			_dialog.setText(Translator.map('Executing'));
 			_dialog.showOnStage(_mBlock.stage);
 
-			Main.app.topBarPart.setConnectedButton(false);
-			ArduinoManager.sharedManager().isUploading = false;
 			_serial.close();
+			update();
+			ArduinoManager.sharedManager().isUploading = false;
 
 			upgradeFirmware(cmd, args);
 		}
@@ -484,45 +473,59 @@ package extensions
 			process.addEventListener(NativeProcessExitEvent.EXIT, onExit);
 			process.start(info);
 			ArduinoManager.sharedManager().isUploading = true;
-		}
-		
-		private function onStandardOutputData(event:ProgressEvent):void
-		{
-			var process:NativeProcess = event.target as NativeProcess;
-			Main.app.scriptsPart.appendRawMessage(process.standardOutput.readUTFBytes(process.standardOutput.bytesAvailable));
-			_dialog.setText(Translator.map('Uploading') + " ... " + "0%");
-		}
 
-		private function onErrorData(event:ProgressEvent):void
-		{
-			var process:NativeProcess = event.target as NativeProcess;
-			Main.app.scriptsPart.appendRawMessage(process.standardError.readUTFBytes(process.standardError.bytesAvailable));
-			_dialog.setText(Translator.map('Uploading') + " ... " + "0%");
-		}
-		
-		private function onExit(event:NativeProcessExitEvent):void
-		{
-			ArduinoManager.sharedManager().isUploading = false;
-			Main.app.track("Process exited with "+event.exitCode);
-			if(event.exitCode > 0){
-				_dialog.setText(Translator.map('Upload Failed'));
-			}else{
-				_dialog.setText(Translator.map('Upload Finish'));
+			function onStandardOutputData(event:ProgressEvent):void
+			{
+				var process:NativeProcess = event.target as NativeProcess;
+				Main.app.scriptsPart.appendRawMessage(process.standardOutput.readUTFBytes(process.standardOutput.bytesAvailable));
+				_dialog.setText(Translator.map('Uploading') + " ... " + "0%");
 			}
-			setTimeout(toggle, 2000, selectPort);
-			//setTimeout(_dialog.cancel,2000);
-		}
 
+			function onErrorData(event:ProgressEvent):void
+			{
+				var process:NativeProcess = event.target as NativeProcess;
+				Main.app.scriptsPart.appendRawMessage(process.standardError.readUTFBytes(process.standardError.bytesAvailable));
+				_dialog.setText(Translator.map('Uploading') + " ... " + "0%");
+			}
+			
+			function onExit(event:NativeProcessExitEvent):void
+			{
+				ArduinoManager.sharedManager().isUploading = false;
+				Main.app.track("Process exited with "+event.exitCode);
+				if(event.exitCode > 0){
+					_dialog.setText(Translator.map('Upload Failed'));
+				}else{
+					_dialog.setText(Translator.map('Upload Finish'));
+				}
+				setTimeout(toggle, 2000, selectPort);
+				//setTimeout(_dialog.cancel,2000);
+			}
+		}
+		
 		// SocketManager
 		
 		private function datagramReceived(evt:DatagramSocketDataEvent):void 
 		{
 			var srcName:String = evt.data.readUTFBytes(evt.data.bytesAvailable);
-			if(srcName.length>1 && socketList.toString().indexOf(evt.srcAddress) == -1) {
-				var temp:String = evt.srcAddress+":"+srcName;
-				Main.app.track("Received from " + temp);
-				socketList.push(temp);
+			if(srcName.length<=0) return;
+			addSockets(evt.srcAddress, srcName);
+		}
+
+		public function addSockets(address:String, name:String):void
+		{
+			for each(var dev:Object in socketList) {
+				if(dev.address == address) {
+					dev.updated = true;
+					return;
+				}
 			}
+
+			var temp:Object = {address:address, name:name, updated:true};
+			socketList.push(temp);
+			Main.app.track("Received from " + address);
+			update();
 		}
 	}
+
 }
+

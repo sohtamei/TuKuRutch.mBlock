@@ -49,6 +49,7 @@ package ui.parts {
 		private var growTool:IconButton;
 		private var shrinkTool:IconButton;
 		private var connectButton:IconButton;
+		private var wifiButton:IconButton;
 		private var activeTool:String;
 	
 		private var versionSprite:Sprite = new Sprite;
@@ -75,13 +76,15 @@ package ui.parts {
 			addChild(growTool		= makeToolButton('growTool', selectTool));
 			addChild(shrinkTool		= makeToolButton('shrinkTool', selectTool));
 
-			addChild(connectButton	= new IconButton(__Connect, 'connect'));
+			addChild(connectButton	= new IconButton(__Connect, 'connectNo'));
+			addChild(wifiButton		= new IconButton(__Wifi, 'wifiNo'));
 	
 			SimpleTooltips.add(copyTool,    {text: 'Duplicate', direction: 'bottom'});
 			SimpleTooltips.add(cutTool,     {text: 'Delete',    direction: 'bottom'});
 			SimpleTooltips.add(growTool,    {text: 'Grow',      direction: 'bottom'});
 			SimpleTooltips.add(shrinkTool,  {text: 'Shrink',    direction: 'bottom'});
 			SimpleTooltips.add(connectButton, {text: 'Connect',   direction: 'bottom'});
+			SimpleTooltips.add(wifiButton, {text: 'Wifi',   direction: 'bottom'});
 
 			refresh();
 		}
@@ -118,21 +121,20 @@ package ui.parts {
 		}
 
 		private function __Connect(b:IconButton):void {
-			connectButton.turnOff();
-			if(ConnectionManager.sharedManager().isConnected) {
-				ConnectionManager.sharedManager().onClose();
+			var arr:Array = ConnectionManager.sharedManager().portlist;
+			if(arr.length>0) {
+				ConnectionManager.sharedManager().toggle(arr[0]);
 			} else {
-				var arr:Array;
-				arr = ConnectionManager.sharedManager().portlist;
-				if(arr.length>0) {
-					ConnectionManager.sharedManager().toggle(arr[0]);
-					return;
-				}
-				arr = ConnectionManager.sharedManager().socketList;
-				if(arr.length>0) {
-					ConnectionManager.sharedManager().toggle(arr[0]);
-					return;
-				}
+				ConnectionManager.sharedManager().onClose();
+			}
+		}
+
+		private function __Wifi(b:IconButton):void {
+			var arr:Array = ConnectionManager.sharedManager().socketList;
+			if(arr.length>0) {
+				ConnectionManager.sharedManager().toggle(arr[0].address);
+			} else {
+				ConnectionManager.sharedManager().onClose();
 			}
 		}
 
@@ -151,9 +153,10 @@ package ui.parts {
 			growTool.x = cutTool.right() + space;
 			shrinkTool.x = growTool.right() + space;
 			connectButton.x = shrinkTool.right() + 10;
-			copyTool.y = cutTool.y = shrinkTool.y = growTool.y = connectButton.y = 4;
+			wifiButton.x = connectButton.right() + 10;
+			copyTool.y = cutTool.y = shrinkTool.y = growTool.y = connectButton.y = wifiButton.y = 4;
 
-			versionSprite.x = connectButton.right() + 10;
+			versionSprite.x = wifiButton.right() + 10;
 			versionSprite.y = 5;
 		}
 /*
@@ -206,13 +209,22 @@ package ui.parts {
 			return result;
 		}
 
-		public function setConnectedButton(connected:Boolean):void
+		public function setConnectedButton(connected:int, wifi:int):void
 		{
-			versionText.text = Translator.map('Unknown Firmware');
-			if(connected)
+			connectButton.setImage(connected==0 ? 'connectNo' : 'connect');
+			if(connected == 2)
 				connectButton.turnOn();
 			else
 				connectButton.turnOff();
+
+			wifiButton.setImage(wifi==0 ? 'wifiNo' : 'wifi');
+			if(wifi == 2)
+				wifiButton.turnOn();
+			else
+				wifiButton.turnOff();
+
+			if(connected != 2 && wifi != 2)
+				versionText.text = Translator.map('Unknown Firmware');
 		}
 	}
 }

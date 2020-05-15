@@ -472,14 +472,14 @@ package extensions
 														//  extensionsCategory:20,
 														//  prefix+spec[2]:"remoconRobo.runBuzzerJ2",
 														//★spec.slice(3):(初期値+obj)
-				obj = obj[obj.length-1];				// 初期値, .. ★obj
-				if(typeof obj=="object"){
+				var obj2:Object = obj[obj.length-1];	// 初期値, .. ★obj
+				if(typeof obj2=="object"){
 					var argTypes:Array = [];
-					if(obj.hasOwnProperty("remote"))
-						argTypes = getProp(obj,'remote');
+					if(obj2.hasOwnProperty("remote"))
+						argTypes = getProp(obj2,'remote');
 					var ext:ScratchExtension = Main.app.extensionManager.extensionByName();//blk[0].split(".")[0]);
-					var codeObj:Object = {code:{setup:_substitute(getProp(obj,'setup'), blk as Array, ext, argTypes),
-												func :_substitute(getProp(obj,'func'),  blk as Array, ext, argTypes)}};
+					var codeObj:Object = {code:{setup:_substitute(getProp(obj2,'setup'), blk as Array, ext, argTypes, objs[0]),
+												func :_substitute(getProp(obj2,'func'),  blk as Array, ext, argTypes, objs[0])}};
 					if(!availableBlock(codeObj)){	// 重複チェック
 						moduleList.push(codeObj);
 					}
@@ -511,22 +511,32 @@ package extensions
 			return obj.hasOwnProperty(key) ? obj[key] : "";
 		}
 		// デファインをext.valuesで展開し、"remoconRobo_tone({0},{1});\n" の{0},{1}を展開
-		private function _substitute(str:String, params:Array, ext:ScratchExtension, argTypes:Array):String{
+		private function _substitute(str:String, params:Array, ext:ScratchExtension, argTypes:Array, blockDef:String):String{
+			if(str == "") return "";
+
+			var blockDefs:Array = blockDef.split("%");
 			for(var i:uint=0; i < params.length-1; i++){
 				var s:CodeBlock = getCodeBlock(params[i+1]);
 				var argType:String = "";
-				if(i < argTypes.length) argType = argTypes[i];
 
-				var tmp:String = "";
+				//  %d-数値+enum, %m-文字列+enumのときvaluesで置換
+				if(i+1 < blockDefs.length) {
+					argType = blockDefs[i+1].charAt(0);
+					if(argType == "d" || argType == "m") {
+						if(s.type == "string" && ext.values[s.code] != undefined)
+							s.code = ext.values[s.code];
+					}
+				}
+
+				argType = (i < argTypes.length) ? argTypes[i]: "";
 				if(argType == "s") {
 					if(s.type == "string")
 						s.code = '"'+s.code+'"';
 					else if(s.type == "obj")		// String("hello ")+String("world")
 						s.code = s.code.code;
 				} else if(argType == "b") {
-					if(ext.values[s.code] != undefined)
-						s.code = ext.values[s.code];
 					var j:int;
+					var tmp:String = "";
 					for(j = 0; j < s.code.length; j+=2)
 						tmp += "\\x" + s.code.substr(j,2);
 					s.code = '"'+tmp+'",'+j/2;
@@ -538,9 +548,7 @@ package extensions
 							s.code = "0";
 						break;
 					case "string":
-						if(ext.values[s.code] != undefined)
-							s.code = ext.values[s.code];
-						else if(!isNaN(Number(s.code)))
+						if(!isNaN(Number(s.code)))
 							s.code = Number(s.code);
 						break;
 					case "code":
@@ -737,7 +745,7 @@ void _loop(){
 
 					_dialog = new DialogBox();
 					_dialog.addTitle(Translator.map('Error in json file'));
-					_dialog.addButton(Translator.map('Close'), _dialog.cancel);
+					_dialog.addButton(Translator.map('Close'), null);
 					_dialog.setText(msg);
 					_dialog.showOnStage(Main.app.stage);
 					Main.app.scriptsPart.appendMessage(msg);
@@ -1087,7 +1095,7 @@ void _loop(){
 
  			_dialog = new DialogBox();
  			_dialog.addTitle(Translator.map('Start Building'));
-			_dialog.addButton(Translator.map('Close'), _dialog.cancel);
+			_dialog.addButton(Translator.map('Close'), null);
 			_dialog.setText(Translator.map('Building'));
 			_dialog.showOnStage(Main.app.stage);
 		//	_dialog.setTitle(('Start Uploading'));
@@ -1147,7 +1155,7 @@ void _loop(){
 			}else{
 				_dialog.setText(Translator.map('Build Failed'));
 			}
-			Main.app.topBarPart.setConnectedButton(false);
+			ConnectionManager.sharedManager().update();
 			//ConnectionManager.sharedManager().reopen();
 		}
 
@@ -1199,7 +1207,7 @@ void _loop(){
 		{
  			_dialog = new DialogBox();
  			_dialog.addTitle(Translator.map('Start Uploading'));
-			_dialog.addButton(Translator.map('Close'), _dialog.cancel);
+			_dialog.addButton(Translator.map('Close'), null);
 			_dialog.setText(Translator.map('Uploading'));
 			_dialog.showOnStage(Main.app.stage);
 		//	_dialog.setTitle(('Start Uploading'));
@@ -1242,7 +1250,7 @@ void _loop(){
 			}else{
 				_dialog.setText(Translator.map('Upload Failed'));
 			}
-			Main.app.topBarPart.setConnectedButton(false);
+			ConnectionManager.sharedManager().update();
 			//ConnectionManager.sharedManager().reopen();
 		}
 		

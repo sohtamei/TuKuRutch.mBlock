@@ -7,9 +7,20 @@ package cc.makeblock.mbot.ui.parts
 	import flash.filesystem.File;
 	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
+	import flash.net.InterfaceAddress;
 	
 	import cc.makeblock.menu.MenuUtil;
 	import cc.makeblock.menu.SystemMenu;
+	import cc.makeblock.util.getLocalAddress;
+
+	import flash.geom.Point;
+	import ui.parts.UIPart;
+	import blockly.runtime.Interpreter;
+	import blockly.runtime.Thread;
+	import uiwidgets.DialogBox;
+	import uiwidgets.IconButton;
+	import uiwidgets.Menu;
+	import cc.makeblock.interpreter.ArduinoFunctionProvider;
 	
 	import extensions.ArduinoManager;
 	import extensions.ConnectionManager;
@@ -20,8 +31,6 @@ package cc.makeblock.mbot.ui.parts
 	
 	import util.SharedObjectManager;
 	import util.LogManager;
-
-	import cc.makeblock.mbot.util.PopupUtil;
 
 	public class TopSystemMenu extends SystemMenu
 	{
@@ -139,10 +148,10 @@ package cc.makeblock.mbot.ui.parts
 			
 			var arrS:Array = ConnectionManager.sharedManager().socketList;
 			for(i=0;i<arrS.length;i++){
-				item = menu.addItem(new NativeMenuItem(Translator.map("Connect to Robot") + "(" + arrS[i] + ")"));
-				item.name = "net_"+arrS[i];
+				item = menu.addItem(new NativeMenuItem(Translator.map("Connect to Robot") + "(" + arrS[i].address + ":" + arrS[i].name + ")"));
+				item.name = "net_"+arrS[i].address;
 				item.enabled = true;
-				item.checked = ConnectionManager.sharedManager().connected(arrS[i]);
+				item.checked = ConnectionManager.sharedManager().connected(arrS[i].address);
 			}
 
 			if(arrP.length==0 && arrS.length==0) {
@@ -152,6 +161,7 @@ package cc.makeblock.mbot.ui.parts
 			}
 
 			var connected:Boolean = ConnectionManager.sharedManager().isConnectedUart;
+			MenuUtil.FindItem(getNativeMenu(), "Setup WiFi").enabled						= connected;
 			MenuUtil.FindItem(getNativeMenu(), "Set Robot to PC connection mode").enabled	= connected;
 			MenuUtil.FindItem(getNativeMenu(), "Reset Default Program").enabled				= connected;
 		}
@@ -166,8 +176,11 @@ package cc.makeblock.mbot.ui.parts
 				case "Reset Default Program":
 					ConnectionManager.sharedManager().burnFW(ext.normalFW);
 					break;
-				case "Custom Connect":
-					ConnectionManager.sharedManager().custom();
+				case "Setup WiFi":
+					__setupWifi();
+					break;
+				case "(for network-port issue)":
+					custom();
 					break;
 				default:
 					if(item.name.indexOf("net_")>-1){
@@ -177,6 +190,116 @@ package cc.makeblock.mbot.ui.parts
 						ConnectionManager.sharedManager().toggle(item.name.split("serial_")[1]);
 					}
 					break;
+			}
+		}
+
+		public function custom():void
+		{
+			var _currentIp:String = "";
+			var local:InterfaceAddress = getLocalAddress();
+			if(local) _currentIp = local.broadcast.substr(0,local.broadcast.length-3);
+
+			var dialog:DialogBox = new DialogBox;
+			dialog.addTitle(Translator.map("(for network-port issue)"));
+			dialog.addField("IP Address",100,_currentIp,true);
+			dialog.addButton(Translator.map("Cancel"),null);
+			dialog.addButton(Translator.map("Connect"),connectNow);
+			dialog.showOnStage(Main.app.stage);
+
+			function connectNow():void{
+				var address:String = dialog.fields["IP Address"].text;
+				ConnectionManager.sharedManager().addSockets(address, "custom");
+				ConnectionManager.sharedManager().toggle(address);
+			}
+		}
+
+		public function __setupWifi():void
+		{
+			var WlanStatus:Array = ["IDLE_STATUS","NO_SSID_AVAIL","SCAN_COMPLETED","CONNECTED","CONNECT_FAILED","CONNECTION_LOST","DISCONNECTED",];
+			var realInterpreter:Interpreter = new Interpreter(new ArduinoFunctionProvider());
+
+			var dialog:DialogBox = new DialogBox;
+			dialog.addTitle(Translator.map("Setup WiFi"));
+			dialog.addField('SSID',      150,"",true);
+			dialog.addField('password',  150,"",true);
+			dialog.addField('status',    150,"not connected",true);
+			dialog.addField('IP address',150,"",true);
+			dialog.addButton(Translator.map("Cancel"),null);
+			dialog.addButton(Translator.map("Connect"),connectNow);
+			dialog.addWidget(UIPart.makeMenuButton('scan', ssidMenu, true, CSS.textColor));
+			dialog.showOnStage(Main.app.stage);
+
+			var block:Object = {argList:[], method:"robot.statusWifi", retCount:1, type:"function"};
+			var thread:Thread = realInterpreter.execute([block]);
+			thread.finishSignal.add(_statusWifi, true);
+
+			function _statusWifi(isInterput:Boolean):void{
+				if(typeof(thread.resultValue) != 'string') return;
+				Main.app.track(thread.resultValue);
+
+				var paras:Array = thread.resultValue.split('\t');		// status, SSID, IP
+				if(paras.length < 2) return;
+				paras[0] = Number(paras[0]);
+
+				if(paras[0] < WlanStatus.length)
+					dialog.fields['status'].text = WlanStatus[paras[0]];
+
+				dialog.fields["SSID"].text = paras[1];
+				dialog.fields["IP address"].text = (paras[0]==3) ? paras[2]:"";
+			}
+
+			function ssidMenu(b:IconButton):void {
+				if(!thread.isFinish) return;
+
+				block = {argList:[], method:"robot.scanWifi", retCount:1, type:"function"};
+				thread = realInterpreter.execute([block]);
+				thread.finishSignal.add(_scanWifi, true);
+
+				var m:Menu = new Menu();
+				m.addItem("scanning..");
+				var p:Point = b.localToGlobal(new Point(0, 0));
+				m.showOnStage(Main.app.stage, p.x + 1, p.y + b.height - 1);
+
+				function _scanWifi(isInterput:Boolean):void{
+					if(typeof(thread.resultValue) != 'string') return;
+					Main.app.track(thread.resultValue);
+
+					var paras:Array = thread.resultValue.split('\t');		// status, SSID, IP
+					m = new Menu(_menu);
+					for(var i:int=0;i<paras.length;i++)
+						m.addItem(paras[i], paras[i]);
+					p = b.localToGlobal(new Point(0, 0));
+					m.showOnStage(Main.app.stage, p.x + 1, p.y + b.height - 1);
+				}
+
+				function _menu(b:String):void {
+					dialog.fields["SSID"].text = b;
+				}
+			}
+
+			function connectNow():void{
+				if(!thread.isFinish) return;
+
+				var _ssid:String = dialog.fields["SSID"].text;
+				var _pass:String = dialog.fields["password"].text;
+
+				block = {argList:[{type:"string",value:_ssid}, {type:"string",value:_pass}],
+						method:"robot.connectWifi", retCount:1, type:"function"};
+				thread = realInterpreter.execute([block]);
+				thread.finishSignal.add(_connectWifi, true);
+
+				var dialog2:DialogBox = new DialogBox;
+				dialog2.addTitle(Translator.map("Setup WiFi"));
+				dialog2.addButton(Translator.map("close"),null);
+				dialog2.showOnStage(Main.app.stage);
+				dialog2.setText("connecting..");
+
+				function _connectWifi(isInterput:Boolean):void{
+					if(typeof(thread.resultValue) == 'number' && thread.resultValue < WlanStatus.length)
+						dialog2.setText(WlanStatus[thread.resultValue]);
+					else
+						dialog2.setText("failed !");
+				}
 			}
 		}
 /*

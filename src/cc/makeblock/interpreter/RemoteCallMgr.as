@@ -42,17 +42,16 @@ package cc.makeblock.interpreter
 			var thread:Thread = info[0];
 			thread.interrupt();
 			clearTimeout(timerId);
-		//	send();
 		}
-		private var value2:Object;
 		public function onPacketRecv2(value:Object=null):void
 		{
-			value2 = value;
+			var value2:Object = value;
 			setTimeout(onTimeout2, 0);
-		}
-		private function onTimeout2():void
-		{
-			onPacketRecv(value2);
+
+			function onTimeout2():void
+			{
+				onPacketRecv(value2);
+			}
 		}
 
 		public function onPacketRecv(value:Object=null):void
@@ -75,10 +74,54 @@ package cc.makeblock.interpreter
 				thread.resume();
 			}
 			clearTimeout(timerId);
-		//	send();
 			oldValue = value||oldValue;
 		}
-		
+
+		// Block/doubleClick
+		// interpreter:Interpreter/toggleThread - runThread
+		// interpreter:BlockInterpreter/execute
+		// blockly:runtime:Interpreter/execute
+		// Event.ENTER_FRAME (VirtualMachine)
+		// VirtualMachine/onUpdateThreads    while(updateThreads() && getTimer() < endTime);
+		// Thread/execNextCode
+		// InstructionExector/execute(thread, op, argList) argList.unshift(thread)
+		// regOpHandler(OpCode.CALL, __onCall);
+		// InstructionExector/__onCall()
+		// FunctionProvider/execute(thread, name:robot.localIpWifi, argList:[], retCount:1)
+		// ArduinoFunctionProvider/onCallUnregisteredFunction(thread, name, argList, retCount)
+
+		// # remote, custom
+		// call
+		//		thread.suspend();
+		//		requestList.push(arguments);
+		//		ConnectionManager/sendBytes(cmd);
+		//		----
+		//		robot.js/processData - JavaScriptEngine/responseValue - onPacketRecv
+		//		info = requestList.shift();
+		//		thread = info[0];
+		//		thread.push(value);
+		//		thread.resume();
+
+		// VirtualMachine/onUpdateThreads
+		// thread.finishSignal
+		// Thread/notifyFinish - Signal/notify
+		// Interpreter/thread.finishSignal
+
+		// # custom
+		// call
+		//		thread.suspend();
+		//		requestList.push(arguments);
+		//		ext.js.call - robot.js/ext.getRemoteX - JavaScriptEngine/responseValue2 - onPacketRecv2
+		//		setTimeout
+		//		----
+		//		info = requestList.shift();
+		//		thread = info[0];
+		//		thread.push(value);
+		//		thread.resume();
+
+		// call (enum)
+		//		thread.push(param[0]);
+
 		public function call(thread:Thread, method:String, param:Array, ext:ScratchExtension, retCount:int):void
 		{
 			log("call");
@@ -103,10 +146,15 @@ package cc.makeblock.interpreter
 			}
 
 			if(obj2.hasOwnProperty("remote")) {
+				var blockDefs:Array = obj1[1].split("%");
 				for(i = 0; i < param.length; i++) {
-					if(obj2.remote.length <= i || obj2.remote[i]!="s") {
-						if(typeof param[i]=="string" && ext.values[param[i]] != undefined)
-							param[i] = ext.values[param[i]];
+					//  %d-数値+enum, %m-文字列+enumのときvaluesで置換
+					if(i+1 < blockDefs.length) {
+						var argType:String = blockDefs[i+1].charAt(0);
+						if(argType == "d" || argType == "m") {
+							if(typeof param[i]=="string" && ext.values[param[i]] != undefined)
+								param[i] = ext.values[param[i]];
+						}
 					}
 				}
 
@@ -150,8 +198,8 @@ package cc.makeblock.interpreter
 				requestList.push(arguments);
 				ext.js.call(method, param, null);	// runBuzzerJ2, [ド4, Half]
 			}
-			if(method.slice(0,6) == "Buzzer") {
-				timerId = setTimeout(onTimeout, 5000);
+			if(method.slice(0,6) == "Buzzer"||method == "scanWifi"||method == "connectWifi") {
+				timerId = setTimeout(onTimeout, 10000);//5000);
 			} else {
 				timerId = setTimeout(onTimeout, 2000);
 			}
@@ -165,7 +213,7 @@ package cc.makeblock.interpreter
 			}
 			var info:Array = requestList[0];
 			if(info[4] > 0){	// retcount
-				onPacketRecv(oldValue);
+				onPacketRecv("");//oldValue);
 			}else{
 				onPacketRecv();
 			}

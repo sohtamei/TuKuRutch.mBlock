@@ -7,7 +7,7 @@ package cc.makeblock.interpreter
 	import extensions.ScratchExtension;
 	import extensions.ConnectionManager;
 	
-	internal class ArduinoFunctionProvider extends FunctionProvider
+	public class ArduinoFunctionProvider extends FunctionProvider
 	{
 		public function ArduinoFunctionProvider()
 		{
