@@ -83,8 +83,8 @@ package ui.parts {
 			SimpleTooltips.add(cutTool,     {text: 'Delete',    direction: 'bottom'});
 			SimpleTooltips.add(growTool,    {text: 'Grow',      direction: 'bottom'});
 			SimpleTooltips.add(shrinkTool,  {text: 'Shrink',    direction: 'bottom'});
-			SimpleTooltips.add(connectButton, {text: 'Connect',   direction: 'bottom'});
-			SimpleTooltips.add(wifiButton, {text: 'Wifi',   direction: 'bottom'});
+			SimpleTooltips.add(connectButton, {text: 'Connecting via USB',   direction: 'bottom'});
+			SimpleTooltips.add(wifiButton, {text: 'Connecting via WiFi',   direction: 'bottom'});
 
 			refresh();
 		}

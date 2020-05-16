@@ -195,8 +195,8 @@ public class ExtensionManager {
 					}
 				}
 			}
-			_extensionList.sortOn("sort", Array.NUMERIC);
 		}
+		_extensionList.sortOn(["sort","name"], [Array.NUMERIC,Array.CASEINSENSITIVE]);
 		return;
 	}
 /*

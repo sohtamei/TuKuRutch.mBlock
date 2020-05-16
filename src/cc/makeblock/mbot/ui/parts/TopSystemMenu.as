@@ -193,11 +193,13 @@ package cc.makeblock.mbot.ui.parts
 			}
 		}
 
+		private var _currentIp:String = "";
 		public function custom():void
 		{
-			var _currentIp:String = "";
-			var local:InterfaceAddress = getLocalAddress();
-			if(local) _currentIp = local.broadcast.substr(0,local.broadcast.length-3);
+			if(_currentIp == "") {
+				var local:InterfaceAddress = getLocalAddress();
+				if(local) _currentIp = local.broadcast.substr(0,local.broadcast.length-3);
+			}
 
 			var dialog:DialogBox = new DialogBox;
 			dialog.addTitle(Translator.map("(for network-port issue)"));
@@ -215,18 +217,18 @@ package cc.makeblock.mbot.ui.parts
 
 		public function __setupWifi():void
 		{
-			var WlanStatus:Array = ["IDLE_STATUS","NO_SSID_AVAIL","SCAN_COMPLETED","CONNECTED","CONNECT_FAILED","CONNECTION_LOST","DISCONNECTED",];
+		//	var WlanStatus:Array = ["IDLE_STATUS","NO_SSID_AVAIL","SCAN_COMPLETED","CONNECTED","CONNECT_FAILED","CONNECTION_LOST","DISCONNECTED",];
 			var realInterpreter:Interpreter = new Interpreter(new ArduinoFunctionProvider());
 
 			var dialog:DialogBox = new DialogBox;
-			dialog.addTitle(Translator.map("Setup WiFi"));
-			dialog.addField('SSID',      150,"",true);
-			dialog.addField('password',  150,"",true);
-			dialog.addField('status',    150,"not connected",true);
-			dialog.addField('IP address',150,"",true);
-			dialog.addButton(Translator.map("Cancel"),null);
-			dialog.addButton(Translator.map("Connect"),connectNow);
-			dialog.addWidget(UIPart.makeMenuButton('scan', ssidMenu, true, CSS.textColor));
+			dialog.addTitle(Translator.map('Setup WiFi'));
+			dialog.addField('SSID',      150,'',true);
+			dialog.addField('password',  150,'',true);
+			dialog.addField('status',    150,'',true);
+			dialog.addField('IP Address',150,'',true);
+			dialog.addButton(Translator.map('Cancel'),null);
+			dialog.addButton(Translator.map('Connect'),connectNow);
+			dialog.addWidget(UIPart.makeMenuButton(Translator.map('Scan'), ssidMenu, true, CSS.textColor));
 			dialog.showOnStage(Main.app.stage);
 
 			var block:Object = {argList:[], method:"robot.statusWifi", retCount:1, type:"function"};
@@ -241,11 +243,14 @@ package cc.makeblock.mbot.ui.parts
 				if(paras.length < 2) return;
 				paras[0] = Number(paras[0]);
 
-				if(paras[0] < WlanStatus.length)
-					dialog.fields['status'].text = WlanStatus[paras[0]];
-
 				dialog.fields["SSID"].text = paras[1];
-				dialog.fields["IP address"].text = (paras[0]==3) ? paras[2]:"";
+				if(paras[0] == 3) {
+					dialog.fields['status'].text = Translator.map('Connected');
+					dialog.fields["IP Address"].text = paras[2];
+					_currentIp = paras[2];
+				} else {
+					dialog.fields['status'].text = Translator.map('Disconnected')+'('+paras[0]+')';
+				}
 			}
 
 			function ssidMenu(b:IconButton):void {
@@ -256,7 +261,7 @@ package cc.makeblock.mbot.ui.parts
 				thread.finishSignal.add(_scanWifi, true);
 
 				var m:Menu = new Menu();
-				m.addItem("scanning..");
+				m.addItem(Translator.map('Scanning..'));
 				var p:Point = b.localToGlobal(new Point(0, 0));
 				m.showOnStage(Main.app.stage, p.x + 1, p.y + b.height - 1);
 
@@ -273,15 +278,15 @@ package cc.makeblock.mbot.ui.parts
 				}
 
 				function _menu(b:String):void {
-					dialog.fields["SSID"].text = b;
+					dialog.fields['SSID'].text = b;
 				}
 			}
 
 			function connectNow():void{
 				if(!thread.isFinish) return;
 
-				var _ssid:String = dialog.fields["SSID"].text;
-				var _pass:String = dialog.fields["password"].text;
+				var _ssid:String = dialog.fields['SSID'].text;
+				var _pass:String = dialog.fields['password'].text;
 
 				block = {argList:[{type:"string",value:_ssid}, {type:"string",value:_pass}],
 						method:"robot.connectWifi", retCount:1, type:"function"};
@@ -289,16 +294,18 @@ package cc.makeblock.mbot.ui.parts
 				thread.finishSignal.add(_connectWifi, true);
 
 				var dialog2:DialogBox = new DialogBox;
-				dialog2.addTitle(Translator.map("Setup WiFi"));
-				dialog2.addButton(Translator.map("close"),null);
+				dialog2.addTitle(Translator.map('Setup WiFi'));
+				dialog2.setText(Translator.map('Connecting..'));
+				dialog2.addButton(Translator.map('Close'),null);
 				dialog2.showOnStage(Main.app.stage);
-				dialog2.setText("connecting..");
 
 				function _connectWifi(isInterput:Boolean):void{
-					if(typeof(thread.resultValue) == 'number' && thread.resultValue < WlanStatus.length)
-						dialog2.setText(WlanStatus[thread.resultValue]);
+					var result:int;
+					if(typeof(thread.resultValue) == 'number') result = thread.resultValue;
+					if(result == 3)
+						dialog2.setText(Translator.map('Connected !'));
 					else
-						dialog2.setText("failed !");
+						dialog2.setText(Translator.map('Failed !')+' ('+result+')');
 				}
 			}
 		}
