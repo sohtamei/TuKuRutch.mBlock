@@ -50,9 +50,9 @@ package cc.makeblock.mbot.ui.parts
 
 			menu.getItemByName("Robots").submenu.addEventListener(Event.DISPLAYING, __onShowExtMenu);
 			register("Clear Cache", ArduinoManager.sharedManager().clearTempFiles);
-			register("Build PC mode firmware", ArduinoManager.sharedManager().buildPcmode);
+			register("Build PC mode firmware", __buildPcmode);
 			register("Open PC mode firmware", ArduinoManager.sharedManager().openPcmode);
-			register("Build Normal firmware", ArduinoManager.sharedManager().buildNormal);
+		//	register("Build Normal firmware", ArduinoManager.sharedManager().buildNormal);
 			register("Open Normal firmware", ArduinoManager.sharedManager().openNormal);
 
 			menu.getItemByName("Language").submenu.addEventListener(Event.DISPLAYING, __onShowLanguage);
@@ -64,64 +64,87 @@ package cc.makeblock.mbot.ui.parts
 			register(" Standard ", __Standard);
 			menu.getItemByName(" Standard ").label = Translator.map("[Standard]");
 			register(" Arduino ", __Arduino);
+
+			function clearTool(evt:Event):void
+			{
+				Main.app.clearTool();
+			}
+
+			function __onFile(item:NativeMenuItem):void
+			{
+				switch(item.name) {
+					case "New":				Main.app.createNewProject();			break;
+					case "Load Project":	Main.app.runtime.selectProjectFile();	break;
+					case "Save Project":	Main.app.saveFile();					break;
+					case "Save Project As":	Main.app.exportProjectToFile();			break;
+				}
+			}
+
+			function __buildPcmode(item:NativeMenuItem):void
+			{
+				switchStageMenu(2);
+				Main.app.showArduino();
+				ArduinoManager.sharedManager().buildPcmode();
+			}
+			function __ShowStage(item:NativeMenuItem):void
+			{
+				switchStageMenu(0);
+				Main.app.showStage(true);
+			}
+			function __Standard(item:NativeMenuItem):void
+			{
+				switchStageMenu(1);
+				Main.app.showStage(false);
+			}
+			function __Arduino(item:NativeMenuItem):void
+			{
+				switchStageMenu(2);
+				Main.app.showArduino();
+			}
 		}
+
 		public function changeLang():void
 		{
 			MenuUtil.ForEach(getNativeMenu(), changeLangImpl);
-		}
-		
-		private function changeLangImpl(item:NativeMenuItem):*
-		{
-			var index:int = getNativeMenu().getItemIndex(item);
-			if(0 <= index && index < defaultMenuCount){
-				return true;
-			}
-			if(item.name.indexOf("serial_") == 0){
-				return;
-			}
-			var p:NativeMenuItem = MenuUtil.FindParentItem(item);
-			if(p != null && p.name == "Robots"){
-				if(p.submenu.getItemIndex(item) > 4){		// ?
+
+			function changeLangImpl(item:NativeMenuItem):*
+			{
+				var index:int = getNativeMenu().getItemIndex(item);
+				if(0 <= index && index < defaultMenuCount){
+					return true;
+				}
+				if(item.name.indexOf("serial_") == 0){
+					return;
+				}
+				var p:NativeMenuItem = MenuUtil.FindParentItem(item);
+				if(p != null && p.name == "Robots"){
+					if(p.submenu.getItemIndex(item) > 4){		// ?
+						return true;
+					}
+				}
+				for each(var name:String in [" ShowStage ", " Standard ", " Arduino "] ) {
+					if(name == item.name) {
+						switchStageMenu(_stageIndex);
+						return;
+					}
+				}
+				setItemLabel(item);
+				if(item.name == "Language"){
+					item = MenuUtil.FindItem(item.submenu, "set font size");
+					setItemLabel(item);
 					return true;
 				}
 			}
-			for each(var name:String in [" ShowStage ", " Standard ", " Arduino "] ) {
-				if(name == item.name) {
-					switchStageMenu(_stageIndex);
-					return;
+
+			function setItemLabel(item:NativeMenuItem):void
+			{
+				var newLabel:String = Translator.map(item.name);
+				if(item.label != newLabel){
+					item.label = newLabel;
 				}
 			}
-			setItemLabel(item);
-			if(item.name == "Language"){
-				item = MenuUtil.FindItem(item.submenu, "set font size");
-				setItemLabel(item);
-				return true;
-			}
-		}
-		
-		private function setItemLabel(item:NativeMenuItem):void
-		{
-			var newLabel:String = Translator.map(item.name);
-			if(item.label != newLabel){
-				item.label = newLabel;
-			}
-		}
-		
-		private function clearTool(evt:Event):void
-		{
-			Main.app.clearTool();
 		}
 
-		private function __onFile(item:NativeMenuItem):void
-		{
-			switch(item.name) {
-				case "New":				Main.app.createNewProject();			break;
-				case "Load Project":	Main.app.runtime.selectProjectFile();	break;
-				case "Save Project":	Main.app.saveFile();					break;
-				case "Save Project As":	Main.app.exportProjectToFile();			break;
-			}
-		}
-		
 		private var initConnectMenuItemCount:int = -1;
 
 		private function __onShowConnect(evt:Event):void
@@ -160,10 +183,12 @@ package cc.makeblock.mbot.ui.parts
 				item.name = "serial_null";
 			}
 
+			var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
 			var connected:Boolean = ConnectionManager.sharedManager().isConnectedUart;
-			MenuUtil.FindItem(getNativeMenu(), "Setup WiFi").enabled						= connected;
 			MenuUtil.FindItem(getNativeMenu(), "Set Robot to PC connection mode").enabled	= connected;
 			MenuUtil.FindItem(getNativeMenu(), "Reset Default Program").enabled				= connected;
+			MenuUtil.FindItem(getNativeMenu(), "Setup WiFi").enabled						= (boards[1]=="esp32") && connected;
+			MenuUtil.FindItem(getNativeMenu(), "(for network-port issue)").enabled			= (boards[1]=="esp32");
 		}
 
 		private function __onConnect(item:NativeMenuItem):void
@@ -309,32 +334,6 @@ package cc.makeblock.mbot.ui.parts
 				}
 			}
 		}
-/*
-		private function __onShowEditMenu(evt:Event):void
-		{
-			var menu:NativeMenu = evt.target as NativeMenu;
-			MenuUtil.setEnable(menu.getItemByName("Undelete"),				Main.app.runtime.canUndelete());
-			MenuUtil.setChecked(menu.getItemByName("Hide stage layout"),	Main.app.stageIsHided);
-//			MenuUtil.setChecked(menu.getItemByName("Small stage layout"),	!Main.app.stageIsHided && Main.app.stageIsContracted);
-//			MenuUtil.setChecked(menu.getItemByName("Turbo mode"),			Main.app.interp.turboMode);
-			MenuUtil.setChecked(menu.getItemByName("Arduino mode"),			Main.app.stageIsArduino);
-		}
-*/
-		private function __ShowStage(item:NativeMenuItem):void
-		{
-			switchStageMenu(0);
-			Main.app.showStage(true);
-		}
-		private function __Standard(item:NativeMenuItem):void
-		{
-			switchStageMenu(1);
-			Main.app.showStage(false);
-		}
-		private function __Arduino(item:NativeMenuItem):void
-		{
-			switchStageMenu(2);
-			Main.app.showArduino();
-		}
 
 		private var _stageIndex:int = 1;
 		private function switchStageMenu(index:int):void
@@ -389,11 +388,11 @@ package cc.makeblock.mbot.ui.parts
 				subMenuItem.checked = Main.app.extensionManager.checkExtensionSelected(extName);
 				register(extName, __onExtensions);
 			}
-		}
-		
-		private function __onExtensions(item:NativeMenuItem):void
-		{
-			Main.app.extensionManager.onSelectExtension(item.name);
+
+			function __onExtensions(item:NativeMenuItem):void
+			{
+				Main.app.extensionManager.onSelectExtension(item.name);
+			}
 		}
 		
 		private function __onShowLanguage(evt:Event):void
@@ -423,15 +422,15 @@ package cc.makeblock.mbot.ui.parts
 			}catch(e:Error){
 				
 			}
-		}
-		
-		private function __onLanguageSelect(evt:Event):void
-		{
-			var item:NativeMenuItem = evt.target as NativeMenuItem;
-			if(item.name == "setFontSize"){
-				Translator.setFontSize(int(item.label));
-			}else{
-				Translator.setLanguage(item.name);
+
+			function __onLanguageSelect(evt:Event):void
+			{
+				var item:NativeMenuItem = evt.target as NativeMenuItem;
+				if(item.name == "setFontSize"){
+					Translator.setFontSize(int(item.label));
+				}else{
+					Translator.setLanguage(item.name);
+				}
 			}
 		}
 		

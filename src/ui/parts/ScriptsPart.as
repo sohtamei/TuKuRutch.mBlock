@@ -283,7 +283,7 @@ public class ScriptsPart extends UIPart {
 		return true;
 	}
 	public function resetCategory():void {
-		selector.select(Specs.motionCategory)
+		selector.select(Specs.myBlocksCategory)
 	}
 
 	public function updatePalette():void {
