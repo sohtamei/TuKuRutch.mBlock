@@ -42,7 +42,7 @@ package extensions
 //		private var _avrdude:String = "";
 //		private var _avrdudeConfig:String = "";
 
-		private var _clientPort:int = 48586;
+		private var _clientPort:int = 54321;
 		private var datagramSocket:DatagramSocket;
 		public var socketList:Array = [];
 		private var _socket:Socket = new Socket();
