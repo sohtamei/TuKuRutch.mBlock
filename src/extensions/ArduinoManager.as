@@ -9,7 +9,6 @@ package extensions
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
-	import flash.system.Capabilities;
 	import flash.utils.getQualifiedClassName;
 	
 	import blocks.Block;
@@ -23,7 +22,6 @@ package extensions
 	
 	import util.ApplicationManager;
 	import util.JSON;
-	import util.LogManager;
 	import uiwidgets.DialogBox;
 
 	public class ArduinoManager extends EventDispatcher
@@ -705,7 +703,6 @@ void _loop(){
 			return (retcode);
 		}
 		
-		private var _dialog:DialogBox;
 		public function jsonToCpp2():Boolean
 		{
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
@@ -743,7 +740,7 @@ void _loop(){
 				if(spec.length-4 != argNum || j != argNum) {
 					var msg:String = "error in argument num of \""+spec[2]+"\": BlockSpec="+j+", init="+(spec.length-4)+", remote="+argNum;
 
-					_dialog = new DialogBox();
+					var _dialog:DialogBox = new DialogBox();
 					_dialog.addTitle(Translator.map('Error in json file'));
 					_dialog.addButton(Translator.map('Close'), null);
 					_dialog.setText(msg);
@@ -987,15 +984,14 @@ void _loop(){
 			Main.app.track("projectPath:"+projectPath);
 		}
 		
-		private var compileErr:Boolean = false;
-		private var _projectDocumentName:String = "";
 		private function get projectDocumentName():String{
 			var now:Date = new Date;
 			var pName:String = Main.app.projectName().split(" ").join("").split("(").join("").split(")").join("");
 			//用正则表达式来过滤非法字符
 			var reg:RegExp = /[^A-z0-9]|^_/g;
 			pName = pName.replace(reg,"_");
-			_projectDocumentName = "project_"+pName+ (now.getMonth()+"_"+now.getDay());
+
+			var _projectDocumentName:String = "project_"+pName+ (now.getMonth()+"_"+now.getDay());
 			if(_projectDocumentName=="project_"){
 				_projectDocumentName = "project";
 			}
@@ -1013,12 +1009,12 @@ void _loop(){
 			if(!jsonToCpp2()) return;
 			openFW(Main.app.extensionManager.extensionByName().pcmodeFW + ".ino");
 		}
-
+/*
 		public function buildNormal():void
 		{
 			buildFW(Main.app.extensionManager.extensionByName().normalFW + ".ino");
 		}
-
+*/
 		public function openNormal():void
 		{
 			openFW(Main.app.extensionManager.extensionByName().normalFW + ".ino");
@@ -1040,10 +1036,12 @@ void _loop(){
 				return File.applicationDirectory.resolvePath("Arduino/arduino_debug.exe");
 		}
 
-		private var openFilePath:String = "";
 		private function openFW(filePath:String):void
 		{
-			openFilePath = filePath;
+			if(!File.applicationDirectory.resolvePath(filePath).exists)
+				return;
+			
+			var openFilePath:String = filePath;
 
 			var tmps:Array = filePath.split("/");
 			tmps.pop();
@@ -1067,40 +1065,36 @@ void _loop(){
 			var process:NativeProcess = new NativeProcess();
 			process.addEventListener(NativeProcessExitEvent.EXIT, __onSetupExit);
 			process.start(info);
+
+			function __onSetupExit(event:NativeProcessExitEvent):void
+			{
+				Main.app.track("Process exited with "+event.exitCode);
+				if(event.exitCode != 0) return;
+
+				var info:NativeProcessStartupInfo =new NativeProcessStartupInfo();
+				info.executable = getArduino();
+				info.arguments = Vector.<String>([getNativePath(openFilePath)]);
+
+				process = new NativeProcess();
+				process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA, function(e:ProgressEvent):void{});
+				process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, function(e:ProgressEvent):void{});
+				process.addEventListener(NativeProcessExitEvent.EXIT, function(e:NativeProcessExitEvent):void{});
+				process.start(info);
+				return;
+			}
 		}
 
-		private function __onSetupExit(event:NativeProcessExitEvent):void
-		{
-			Main.app.track("Process exited with "+event.exitCode);
-			if(event.exitCode != 0) return;
-
-			var info:NativeProcessStartupInfo =new NativeProcessStartupInfo();
-			info.executable = getArduino();
-			info.arguments = Vector.<String>([getNativePath(openFilePath)]);
-
-			process = new NativeProcess();
-			process.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA, function(e:ProgressEvent):void{});
-			process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, function(e:ProgressEvent):void{});
-			process.addEventListener(NativeProcessExitEvent.EXIT, function(e:NativeProcessExitEvent):void{});
-			process.start(info);
-			return;
-		}
-		
 		// build firmware
 
-		private var buildFilePath:String = null;
 		private function buildFW(filePath:String):void
 		{
-			buildFilePath = filePath;
+			var buildFilePath:String = filePath;
 
- 			_dialog = new DialogBox();
+			var _dialog:DialogBox = new DialogBox();
  			_dialog.addTitle(Translator.map('Start Building'));
 			_dialog.addButton(Translator.map('Close'), null);
 			_dialog.setText(Translator.map('Building'));
 			_dialog.showOnStage(Main.app.stage);
-		//	_dialog.setTitle(('Start Uploading'));
-		//	_dialog.setButton(('Close'));
-			_dialog.fixLayout();
 
 			var tmps:Array = filePath.split("/");
 			tmps.pop();
@@ -1127,36 +1121,36 @@ void _loop(){
 			process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, __onErrorData);
 			process.addEventListener(NativeProcessExitEvent.EXIT, __onBuildExit);
 			process.start(info);
-		}
 
-		private function __onBuildExit(event:NativeProcessExitEvent):void
-		{
-			isUploading = false;
-			if(event.exitCode == 0){
-				_dialog.setText(Translator.map('Build Finish'));
+			function __onBuildExit(event:NativeProcessExitEvent):void
+			{
+				isUploading = false;
+				if(event.exitCode == 0){
+					_dialog.setText(Translator.map('Build Finish'));
 
-				var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
-				var extensionDes:String = getHexFilename(boards);
-				var extensionSrc:String = ".hex";
-				switch(boards[1]) {
-				case "esp32":
-					extensionSrc = ".bin";
-					break;
+					var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
+					var extensionDes:String = getHexFilename(boards);
+					var extensionSrc:String = ".hex";
+					switch(boards[1]) {
+					case "esp32":
+						extensionSrc = ".bin";
+						break;
+					}
+					var tmps:Array = buildFilePath.split("/");
+					var fileName:String = tmps.pop();
+					var buildPath:String = tmps.join("/");
+
+					extensionSrc = buildPath+"/build/"+fileName+extensionSrc;
+					extensionDes = buildPath+"/"      +fileName+extensionDes;
+					Main.app.track("copy "+extensionSrc+" to "+extensionDes);
+					var desFile:File = new File(getNativePath(extensionDes));	// for security error
+					File.applicationDirectory.resolvePath(extensionSrc).copyTo(desFile, true);
+				}else{
+					_dialog.setText(Translator.map('Build Failed'));
 				}
-				var tmps:Array = buildFilePath.split("/");
-				var fileName:String = tmps.pop();
-				var buildPath:String = tmps.join("/");
-
-				extensionSrc = buildPath+"/build/"+fileName+extensionSrc;
-				extensionDes = buildPath+"/"      +fileName+extensionDes;
-				Main.app.track("copy "+extensionSrc+" to "+extensionDes);
-				var desFile:File = new File(getNativePath(extensionDes));	// for security error
-				File.applicationDirectory.resolvePath(extensionSrc).copyTo(desFile, true);
-			}else{
-				_dialog.setText(Translator.map('Build Failed'));
+				ConnectionManager.sharedManager().update();
+				//ConnectionManager.sharedManager().reopen();
 			}
-			ConnectionManager.sharedManager().update();
-			//ConnectionManager.sharedManager().reopen();
 		}
 
 		public function getHexFilename(boards:Array):String
@@ -1205,14 +1199,11 @@ void _loop(){
 
 		private function uploadFW(filePath:String):void
 		{
- 			_dialog = new DialogBox();
+			var _dialog:DialogBox = new DialogBox();
  			_dialog.addTitle(Translator.map('Start Uploading'));
 			_dialog.addButton(Translator.map('Close'), null);
 			_dialog.setText(Translator.map('Uploading'));
 			_dialog.showOnStage(Main.app.stage);
-		//	_dialog.setTitle(('Start Uploading'));
-		//	_dialog.setButton(('Close'));
-			_dialog.fixLayout();
 
 			var tmps:Array = filePath.split("/");
 			tmps.pop();
@@ -1239,19 +1230,19 @@ void _loop(){
 			process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, __onErrorData);
 			process.addEventListener(NativeProcessExitEvent.EXIT, __onUploadExit);
 			process.start(info);
-		}
 		
-		private function __onUploadExit(event:NativeProcessExitEvent):void
-		{
-			//ext.docPath+"/arduinoBuild
-			isUploading = false;
-			if(event.exitCode == 0){
-				_dialog.setText(Translator.map('Upload Finish'));
-			}else{
-				_dialog.setText(Translator.map('Upload Failed'));
+			function __onUploadExit(event:NativeProcessExitEvent):void
+			{
+				//ext.docPath+"/arduinoBuild
+				isUploading = false;
+				if(event.exitCode == 0){
+					_dialog.setText(Translator.map('Upload Finish'));
+				}else{
+					_dialog.setText(Translator.map('Upload Failed'));
+				}
+				ConnectionManager.sharedManager().update();
+				//ConnectionManager.sharedManager().reopen();
 			}
-			ConnectionManager.sharedManager().update();
-			//ConnectionManager.sharedManager().reopen();
 		}
 		
 		private function __appendRawMessage(info:String):void

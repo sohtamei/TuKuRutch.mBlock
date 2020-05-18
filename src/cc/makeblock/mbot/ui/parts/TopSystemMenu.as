@@ -183,11 +183,12 @@ package cc.makeblock.mbot.ui.parts
 				item.name = "serial_null";
 			}
 
+			var normalFW:Boolean = (Main.app.extensionManager.extensionByName().normalFW != "");
 			var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
 			var connected:Boolean = ConnectionManager.sharedManager().isConnectedUart;
 			MenuUtil.FindItem(getNativeMenu(), "Set Robot to PC connection mode").enabled	= connected;
-			MenuUtil.FindItem(getNativeMenu(), "Reset Default Program").enabled				= connected;
-			MenuUtil.FindItem(getNativeMenu(), "Setup WiFi").enabled						= (boards[1]=="esp32") && connected;
+			MenuUtil.FindItem(getNativeMenu(), "Reset Default Program").enabled				= connected && normalFW;
+			MenuUtil.FindItem(getNativeMenu(), "Setup WiFi").enabled						= connected && (boards[1]=="esp32");
 			MenuUtil.FindItem(getNativeMenu(), "(for network-port issue)").enabled			= (boards[1]=="esp32");
 		}
 
@@ -388,6 +389,8 @@ package cc.makeblock.mbot.ui.parts
 				subMenuItem.checked = Main.app.extensionManager.checkExtensionSelected(extName);
 				register(extName, __onExtensions);
 			}
+			var normalFW:Boolean = (Main.app.extensionManager.extensionByName().normalFW != "");
+			MenuUtil.FindItem(getNativeMenu(), "Open Normal firmware").enabled = normalFW;
 
 			function __onExtensions(item:NativeMenuItem):void
 			{
