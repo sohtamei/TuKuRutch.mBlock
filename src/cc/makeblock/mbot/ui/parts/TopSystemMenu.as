@@ -183,13 +183,13 @@ package cc.makeblock.mbot.ui.parts
 				item.name = "serial_null";
 			}
 
-			var normalFW:Boolean = (Main.app.extensionManager.extensionByName().normalFW != "");
-			var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
-			var connected:Boolean = ConnectionManager.sharedManager().isConnectedUart;
+			var normalFW:Boolean	= (Main.app.extensionManager.extensionByName().normalFW != "");
+			var wifi:Boolean		= (Main.app.extensionManager.extensionByName().boardType.split(':')[1] == "esp32");
+			var connected:Boolean	= ConnectionManager.sharedManager().isConnectedUart;
 			MenuUtil.FindItem(getNativeMenu(), "Set Robot to PC connection mode").enabled	= connected;
 			MenuUtil.FindItem(getNativeMenu(), "Reset Default Program").enabled				= connected && normalFW;
-			MenuUtil.FindItem(getNativeMenu(), "Setup WiFi").enabled						= connected && (boards[1]=="esp32");
-			MenuUtil.FindItem(getNativeMenu(), "(for network-port issue)").enabled			= (boards[1]=="esp32");
+			MenuUtil.FindItem(getNativeMenu(), "Setup WiFi").enabled						= connected && wifi;
+			MenuUtil.FindItem(getNativeMenu(), "(for network-port issue)").enabled			= wifi;
 		}
 
 		private function __onConnect(item:NativeMenuItem):void
@@ -389,8 +389,8 @@ package cc.makeblock.mbot.ui.parts
 				subMenuItem.checked = Main.app.extensionManager.checkExtensionSelected(extName);
 				register(extName, __onExtensions);
 			}
-			var normalFW:Boolean = (Main.app.extensionManager.extensionByName().normalFW != "");
-			MenuUtil.FindItem(getNativeMenu(), "Open Normal firmware").enabled = normalFW;
+		//	var normalFW:Boolean = (Main.app.extensionManager.extensionByName().normalFW != "");	Robot名が不正などextが正しく読み込めて無いとき落ちる
+		//	MenuUtil.FindItem(getNativeMenu(), "Open Normal firmware").enabled = normalFW;
 
 			function __onExtensions(item:NativeMenuItem):void
 			{

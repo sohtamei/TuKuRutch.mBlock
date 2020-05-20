@@ -36,7 +36,7 @@ package extensions
 		private var _receiveHandler:Function=null;
 
 		private var _mBlock:Main;
-		private var _dialog:DialogBox = new DialogBox();
+		private var _dialog:DialogBox;
 			
 //		private var _isMacOs:Boolean = ApplicationManager.sharedManager().system==ApplicationManager.MAC_OS;
 //		private var _avrdude:String = "";
@@ -63,10 +63,6 @@ package extensions
 			var timer:Timer = new Timer(4000);
 			timer.addEventListener(TimerEvent.TIMER, onTimerCheck);
 			timer.start();
-
-			function cancel():void { _dialog.cancel(); }
-			_dialog.addTitle(Translator.map('Start Uploading'));
-			_dialog.addButton(Translator.map('Close'), cancel);
 			
 			// udp port
 			datagramSocket = new DatagramSocket();
@@ -377,6 +373,9 @@ package extensions
 				_serial.close();
 
 				setTimeout(_burnFW2, 3000, hexFile);
+				_dialog = new DialogBox();
+				_dialog.addTitle(Translator.map('Start Uploading'));
+				_dialog.addButton(Translator.map('Close'), null);
 				_dialog.setText(Translator.map('Executing'));
 				_dialog.showOnStage(_mBlock.stage);
 			} else {
@@ -449,6 +448,9 @@ package extensions
 				return;
 			}
 
+			_dialog = new DialogBox();
+			_dialog.addTitle(Translator.map('Start Uploading'));
+			_dialog.addButton(Translator.map('Close'), null);
 			_dialog.setText(Translator.map('Executing'));
 			_dialog.showOnStage(_mBlock.stage);
 

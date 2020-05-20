@@ -26,7 +26,6 @@
 package extensions {
 import flash.filesystem.File;
 import flash.utils.getTimer;
-import flash.utils.setTimeout;
 
 import cc.makeblock.util.FileUtil;
 
@@ -146,8 +145,26 @@ public class ExtensionManager {
 
 		SharedObjectManager.sharedManager().setObject(name+"_selected", true);
 		loadRawExtension(extObj);
-	//	if(ConnectionManager.sharedManager().isConnected)
-	//		setTimeout(ConnectionManager.sharedManager().onReOpen,1000);
+
+		var arduinoIDE:String;
+		var msg:String;
+		switch(extensionDict.boardType.split(':')[1]) {
+		case "esp32":
+			arduinoIDE = "Arduino.1.18.11.esp";
+			msg = "ESP32";
+			break;
+		case "samd":
+			arduinoIDE = "Arduino.1.18.11.samd";
+			msg = "koov";
+			break;
+		}
+		if(arduinoIDE && !File.applicationDirectory.resolvePath("Arduino/"+arduinoIDE).exists) {
+			var dialog:DialogBox = new DialogBox();
+ 			dialog.addTitle(Translator.map('TuKuRutch package Error'));
+			dialog.setText(Translator.map('This TuKuRutch package does not support this robot. Please install TuKuRutch for ')+msg);
+			dialog.addButton(Translator.map('Close'), null);
+			dialog.showOnStage(Main.app.stage);
+		}
 	}
 	public function checkExtensionSelected(name:String):Boolean{
 		return SharedObjectManager.sharedManager().getObject(name+"_selected",false);
@@ -162,7 +179,6 @@ public class ExtensionManager {
 		fromFile.copyTo(toFile, true);
 	}
 
-	private var _dialog:DialogBox = new DialogBox();
 	public function importExtension():void
 	{
 		_extensionList = [];
@@ -187,9 +203,10 @@ public class ExtensionManager {
 							loadRawExtension(extObj);
 						}
 					}catch(e:*){
+						var _dialog:DialogBox = new DialogBox();
 						_dialog.addTitle(Translator.map('Error in json file'));
-						_dialog.addButton(Translator.map('Close'), _dialog.cancel);
 						_dialog.setText(e.toString());
+						_dialog.addButton(Translator.map('Close'), null);
 						_dialog.showOnStage(Main.app.stage);
 						Main.app.scriptsPart.appendMessage(e.toString());
 					}
