@@ -71,6 +71,7 @@ package cc.makeblock.interpreter
 		public function stopAllThreads():void
 		{
 			realInterpreter.stopAllThreads();
+			RemoteCallMgr.Instance.clear();
 		}
 		
 		public function hasTheadsRunning():Boolean

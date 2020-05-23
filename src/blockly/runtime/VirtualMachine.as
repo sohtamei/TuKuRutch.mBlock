@@ -63,6 +63,7 @@ package blockly.runtime
 				var thread:Thread = threadList[index];
 				for(;;){
 					if(thread.isFinish()){
+						trace(thread.userData.block.op+"-finish");
 						threadList.splice(index, 1);
 						thread.notifyFinish();
 						--threadCount;

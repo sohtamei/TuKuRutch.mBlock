@@ -131,13 +131,13 @@ package extensions
 
 		// open
 
-		// 0. JavaScriptEngine/loadJS				- addEventListener(Event.CONNECT(this), onConnected)
+		// 0. JavaScriptEngine/loadJS		- addEventListener(Event.CONNECT(this), onConnected)
 		// -- USB uart --
 		// 1. toggle("COM3")
 		// -- net --
-		// 1. toggle("192.168.1.45")				- Event.CONNECT(socket)
+		// 1. toggle("192.168.1.45")		- Event.CONNECT(socket)
 		// -- common --
-		// 2. connectHandler						- Event.CONNECT(this)
+		// 2. connectHandler				- Event.CONNECT(this)
 		// 3. JavaScriptEngine/onConnected
 		// 4. _deviceConnected (robot.js, checkDevName)	- set_receive_handler(processData)
 
@@ -187,6 +187,7 @@ package extensions
 
 			function _closeHandler(evt:Event):void {
 				Main.app.track("closeHandler: " + evt);
+				_close();
 			}
 
 			function _ioErrorHandler(evt:IOErrorEvent):void {
@@ -251,7 +252,7 @@ package extensions
 
 		// close
 
-		// 1. onClose								- Event.CLOSE(this)
+		// 1. onClose						- Event.CLOSE(this)
 		// 2. JavaScriptEngine/onClosed
 		// 3. robot.js/_deviceRemoved
 

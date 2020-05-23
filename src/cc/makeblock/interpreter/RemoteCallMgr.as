@@ -16,14 +16,13 @@ package cc.makeblock.interpreter
 		
 		private const requestList:Array = [];
 		private var timerId:uint = uint(-1);
-		private var oldValue:Object=0;
 		public function RemoteCallMgr()
 		{
 		}
 		public function init():void
 		{
 		}
-
+/*
 		private function log(mes:String):void
 		{
 			mes += ":"+requestList.length;
@@ -31,15 +30,15 @@ package cc.makeblock.interpreter
 				mes += "-"+requestList[0][1];
 			Main.app.track(mes);
 		}
-	
+*/
 		public function interruptThread():void
 		{
-			log("interruptThread");
 			if(requestList.length <= 0){
 				return;
 			}
 			var info:Array = requestList.shift();
 			var thread:Thread = info[0];
+			trace(thread.userData.block.op+"-interruptThread");
 			thread.interrupt();
 			clearTimeout(timerId);
 		}
@@ -56,12 +55,12 @@ package cc.makeblock.interpreter
 
 		public function onPacketRecv(value:Object=null):void
 		{
-			log("onPacketRecv");
 			if(requestList.length <= 0){
 				return;
 			}
 			var info:Array = requestList.shift();
 			var thread:Thread = info[0];
+			trace(thread.userData.block.op+"-onPacketRecv");
 			if(thread != null){
 				if(info[4] > 0){
 					if(arguments.length > 0){
@@ -74,7 +73,6 @@ package cc.makeblock.interpreter
 				thread.resume();
 			}
 			clearTimeout(timerId);
-			oldValue = value||oldValue;
 		}
 
 		// Block/doubleClick
@@ -124,7 +122,7 @@ package cc.makeblock.interpreter
 
 		public function call(thread:Thread, method:String, param:Array, ext:ScratchExtension, retCount:int):void
 		{
-			log("call");
+			trace(thread.userData.block.op+"-call "+method);
 			var index:int;
 			var obj1:Array;
 			for(index = 0; index<ext.blockSpecs.length; index++) {
@@ -203,20 +201,26 @@ package cc.makeblock.interpreter
 			} else {
 				timerId = setTimeout(onTimeout, 2000);
 			}
+
+			function onTimeout():void
+			{
+				if(requestList.length <= 0){
+					return;
+				}
+				var info:Array = requestList[0];
+				trace(info[0].userData.block.op+"-onTimeout");
+				if(info[4] > 0){	// retcount
+					onPacketRecv("");
+				}else{
+					onPacketRecv();
+				}
+			}
 		}
-		
-		private function onTimeout():void
+
+		public function clear():void
 		{
-			log("onTimeout");
-			if(requestList.length <= 0){
-				return;
-			}
-			var info:Array = requestList[0];
-			if(info[4] > 0){	// retcount
-				onPacketRecv("");//oldValue);
-			}else{
-				onPacketRecv();
-			}
+			requestList.splice(0,requestList.length);
+			clearTimeout(timerId);
 		}
 	}
 }

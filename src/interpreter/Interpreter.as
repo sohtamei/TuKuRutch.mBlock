@@ -97,8 +97,15 @@ public class Interpreter {
 	public function runThread(b:Block, targetObj:ScratchObj):Thread
 	{
 		var thread:Thread = BlockInterpreter.Instance.execute(b, targetObj);
-		thread.finishSignal.add(function(isInterput:Boolean):void{
+		thread.finishSignal.add(finish, true);
+		b.showRunFeedback();
+		trace(b.op+"-show");
+		app.threadStarted();
+		return thread;
+
+		function finish(isInterput:Boolean):void{
 			b.hideRunFeedback();
+			trace(b.op+"-hide");
 			var p:Point = b.localToGlobal(zeroPt);
 			switch(b.type.toLowerCase()){
 				case "r":
@@ -108,10 +115,7 @@ public class Interpreter {
 					Main.app.showBubble(Boolean(thread.resultValue).toString(), p.x, p.y, b.width);
 					break;
 			}
-		}, true);
-		b.showRunFeedback();
-		app.threadStarted();
-		return thread;
+		}
 	}
 
 	public function toggleThread(b:Block, targetObj:ScratchObj, startupDelay:int = 0):Thread {
