@@ -84,14 +84,14 @@ package blockly.runtime
 		
 		public function suspend():void
 		{
-			trace(userData.block.op+"-suspend");
+			if(userData) trace(userData.block.op+"-suspend");
 			_isSuspend = true;
 			_suspendTimestamp = getTimer();
 		}
 		
 		public function resume():void
 		{
-			trace(userData.block.op+"-resume");
+			if(userData) trace(userData.block.op+"-resume");
 			if(needCheckStack)
 				assert(sp == sc);
 			_isSuspend = false;

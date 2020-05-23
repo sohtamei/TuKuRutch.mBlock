@@ -38,7 +38,7 @@ package cc.makeblock.interpreter
 			}
 			var info:Array = requestList.shift();
 			var thread:Thread = info[0];
-			trace(thread.userData.block.op+"-interruptThread");
+			if(thread.userData) trace(thread.userData.block.op+"-interruptThread");
 			thread.interrupt();
 			clearTimeout(timerId);
 		}
@@ -60,7 +60,7 @@ package cc.makeblock.interpreter
 			}
 			var info:Array = requestList.shift();
 			var thread:Thread = info[0];
-			trace(thread.userData.block.op+"-onPacketRecv");
+			if(thread.userData) trace(thread.userData.block.op+"-onPacketRecv");
 			if(thread != null){
 				if(info[4] > 0){
 					if(arguments.length > 0){
@@ -122,7 +122,7 @@ package cc.makeblock.interpreter
 
 		public function call(thread:Thread, method:String, param:Array, ext:ScratchExtension, retCount:int):void
 		{
-			trace(thread.userData.block.op+"-call "+method);
+			if(thread.userData) trace(thread.userData.block.op+"-call "+method);
 			var index:int;
 			var obj1:Array;
 			for(index = 0; index<ext.blockSpecs.length; index++) {
@@ -208,7 +208,7 @@ package cc.makeblock.interpreter
 					return;
 				}
 				var info:Array = requestList[0];
-				trace(info[0].userData.block.op+"-onTimeout");
+				if(info[0].userData) trace(info[0].userData.block.op+"-onTimeout");
 				if(info[4] > 0){	// retcount
 					onPacketRecv("");
 				}else{
