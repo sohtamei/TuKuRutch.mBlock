@@ -88,7 +88,7 @@ package cc.makeblock.interpreter
 		// FunctionProvider/execute(thread, name:robot.localIpWifi, argList:[], retCount:1)
 		// ArduinoFunctionProvider/onCallUnregisteredFunction(thread, name, argList, retCount)
 
-		// # remote, custom
+		// # remote
 		// call
 		//		thread.suspend();
 		//		requestList.push(arguments);
@@ -117,7 +117,8 @@ package cc.makeblock.interpreter
 		//		thread.push(value);
 		//		thread.resume();
 
-		// call (enum)
+		// # enum
+		// call
 		//		thread.push(param[0]);
 
 		public function call(thread:Thread, method:String, param:Array, ext:ScratchExtension, retCount:int):void
