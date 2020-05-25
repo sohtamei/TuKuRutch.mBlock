@@ -436,7 +436,8 @@ package extensions
 				cmd = "Arduino/portable/packages/esp32/tools/esptool_py/2.6.1/esptool.exe";
 				cmd = File.applicationDirectory.resolvePath(cmd).nativePath;
 
-				args = "--chip esp32 --port "+selectPort+" --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
+				var baud:String = (boards[2] == "m5stick-c") ? "750000": "921600";
+				args = "--chip esp32 --port "+selectPort+" --baud "+baud+" --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
 					+" 0xe000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/partitions/boot_app0.bin"
 					+" 0x1000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/sdk/bin/bootloader_qio_80m.bin"
 					+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath
