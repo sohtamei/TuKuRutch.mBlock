@@ -346,12 +346,12 @@ package extensions
 			if(_serial.isConnected){
 				_serial.writeBytes(bytes);
 			} else if(_socket.connected){
-				var cTime:Number = getTimer();
-				if(cTime-_prevTime>20){
-					_prevTime = cTime; 
+			//	var cTime:Number = getTimer();
+			//	if(cTime-_prevTime>20){
+			//		_prevTime = cTime; 
 					_socket.writeBytes(bytes);
 					_socket.flush();
-				}
+			//	}
 			}
 			bytes.clear();
 		}

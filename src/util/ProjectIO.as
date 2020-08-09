@@ -171,7 +171,7 @@ public class ProjectIO {
 		trace(util.JSON.stringify(jsonObj));
 		if(jsonObj['info']){
 			if(jsonObj['info']['boardVersion']){
-				Main.app.extensionManager.onSelectExtension(jsonObj['info']['boardVersion']);
+			//	Main.app.extensionManager.onSelectExtension(jsonObj['info']['boardVersion']);
 			}
 		}
 		if (jsonObj['children']) { // project JSON

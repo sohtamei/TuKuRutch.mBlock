@@ -703,7 +703,164 @@ void _loop(){
 			return (retcode);
 		}
 		
-		public function jsonToCpp2():Boolean
+		private function jsonToJs():Boolean
+		{
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
+			var _blocks:String = "";
+			var menus:String = "";
+			var funcs:String = "";
+			var i:int;
+			for(i=1; i<ext.blockSpecs.length; i++) {
+//		["w", "set LED %d.led %d.onoff", "setLED", 1,"On", {"remote":["B","B"],	"func":"_setLED({0},{1});"}],
+
+				var spec:Array = ext.blockSpecs[i];
+				if(spec.length < 3){
+					if(spec[0] == "-") _blocks += "'---',\n";
+					continue;
+				}
+
+				var txtEnOrg:String = spec[1];
+				var txtEnNew:String = "";
+				var txtJpOrg:String = "";
+				var txtJpNew:String = "";
+				var args:Array = new Array();
+
+				if(ext.translators.ja.hasOwnProperty(txtEnOrg))
+					txtJpOrg = ext.translators.ja[txtEnOrg];
+				
+				var pos:int;
+				var j:int;
+				for(j = 0;;j++) {
+					pos = txtEnOrg.indexOf("%");
+					if(pos == -1) {
+						txtEnNew += txtEnOrg;
+						break;
+					}
+					txtEnNew += txtEnOrg.slice(0,pos) + "[ARG" + (j+1) + "]";
+					txtEnOrg = txtEnOrg.slice(pos);
+
+					pos = txtEnOrg.indexOf(" ");
+					if(pos == -1) {
+						args.push(txtEnOrg);
+						txtEnOrg = "";
+					} else {
+						args.push(txtEnOrg.slice(0,pos));
+						txtEnOrg = txtEnOrg.slice(pos);
+					}
+				}
+				var argNum:int = j;
+				for(j = 0;j < argNum;j++) {
+					pos = txtJpOrg.indexOf(args[j]);
+					if(pos == -1) {
+						txtJpNew = "";
+						break;
+					}
+					txtJpNew += txtJpOrg.slice(0,pos) + "[ARG" + (j+1) + "]";
+					txtJpOrg = txtJpOrg.slice(pos + args[j].length);
+				}
+				if(txtJpNew != "") txtJpNew += txtJpOrg;
+
+				var obj:Object = spec[spec.length-1];
+				var types:Array = new Array();
+				if(obj.hasOwnProperty("enum")) {
+					 types.push("B");
+					funcs += spec[2] + "(args) { return args.ARG1; }\n";
+				} else if(obj.hasOwnProperty("remote")) {
+					types = obj["remote"];
+					if(types.length < argNum)
+						continue;
+					funcs += spec[2] + "(args,util) { return this.getTest(arguments.callee.name, args); }\n";
+				} else {
+					continue;
+				}
+
+				switch(spec[0]) {
+				case "w":
+					_blocks += "{blockType: BlockType.COMMAND, opcode: '" + spec[2] + "', text: ";
+					break;
+				case "R":
+					_blocks += "{blockType: BlockType.REPORTER, opcode: '" + spec[2] + "', text: ";
+					break;
+				case "B":
+					_blocks += "{blockType: BlockType.BOOLEAN, opcode: '" + spec[2] + "', text: ";
+					break;
+				}
+				if(txtJpNew == "") {
+					_blocks += "'" + txtEnNew + "', arguments: {\n";
+				} else {
+					_blocks += "{\n";
+					_blocks += "    'en': '" + txtEnNew + "',\n";
+					_blocks += "    'ja': '" + txtJpNew + "',\n";
+					_blocks += "}[this._locale], arguments: {\n";
+				}
+
+				for(j = 0;j < argNum;j++) {
+			//	ARG1: { type: ArgumentType.NUMBER, menu: 'led',	defaultValue:1,		type2:"B" },
+					pos = args[j].indexOf(".");
+					_blocks += "    ARG" + (j+1) + ": { type: ArgumentType.NUMBER, type2:'" + types[j] + "', ";
+					var init:String = spec[3+j];
+					if(pos == -1) {
+						if(isNaN(Number(init))) init = "'"+init+"'";
+						_blocks += "defaultValue:" + init +" },\n";
+					} else {
+						if(types[j] != "s" && ext.values.hasOwnProperty(init)) {
+							init = ext.values[init];
+						}
+						if(isNaN(Number(init))) init = "'"+init+"'";
+						_blocks += "defaultValue:" + init +", menu: '" + args[j].slice(pos+1) + "' },\n";
+					}
+				}
+				_blocks += "}},\n\n"
+			}
+
+			for(var id:String in ext.menus) {
+				var values:Object = ext.menus[id];
+
+	//	"noteJ1":["C2","D2","E2","F2","G2","A2","B2","C3","D3","E3","F3","G3","A3","B3",],
+
+				menus += id + ": { acceptReporters: true, items: [";
+				for(i=0;i<values.length;i++) {
+					var en:String = values[i];
+					if(!isNaN(Number(en)) && !ext.values.hasOwnProperty(en)) {
+						menus += "'" + en + "',";
+					} else {
+					//	{ text: 'ド4', value: 262 },
+						if(i==0) menus += "\n";
+
+						var val:String = en;
+						val = ext.values[en];
+						if(isNaN(Number(val))) val = "'"+val+"'";
+						if(!ext.translators.ja.hasOwnProperty(en)) {
+							menus += "{ text: '" + en + "', value: " + val + " },\n";
+						} else {
+							menus += "{ text: '\n"
+									+ "    'en': '" + en + "',\n"
+									+ "    'ja': '" + ext.translators.ja[en] + "',\n"
+									+ "}[this._locale], value: " + val + " },\n";
+						}
+					}
+
+				}
+				menus += "]},\n\n";
+			}
+
+			var f:File = new File(ext.pcmodeFW + ".js.template");
+			if(f==null || !f.exists)
+				return false;
+			var code:String = FileUtil.ReadString(f);
+
+			code = code.replace("// BLOCKS", _blocks)
+						.replace("// MENUS", menus)
+						.replace("// FUNCS", funcs);
+
+			f = new File(getNativePath(ext.pcmodeFW + ".js"));
+			FileUtil.WriteString(f, code);
+
+			return true;
+		}
+		
+		
+		private function jsonToCpp2():Boolean
 		{
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
 			var f:File = new File(ext.pcmodeFW + ".ino.template");
@@ -1006,6 +1163,7 @@ void _loop(){
 
 		public function openPcmode():void
 		{
+			jsonToJs();
 			if(!jsonToCpp2()) return;
 			openFW(Main.app.extensionManager.extensionByName().pcmodeFW + ".ino");
 		}
