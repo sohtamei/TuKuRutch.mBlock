@@ -706,11 +706,13 @@ void _loop(){
 		private function jsonToJs():Boolean
 		{
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
+			if(ext.boardType.slice(0,12) != "esp32:esp32:") return false;
+
 			var _blocks:String = "";
 			var menus:String = "";
 			var funcs:String = "";
 			var i:int;
-			for(i=1; i<ext.blockSpecs.length; i++) {
+			for(i=1; i<ext.blockSpecs.length-4; i++) {
 //		["w", "set LED %d.led %d.onoff", "setLED", 1,"On", {"remote":["B","B"],	"func":"_setLED({0},{1});"}],
 
 				var spec:Array = ext.blockSpecs[i];
@@ -758,7 +760,8 @@ void _loop(){
 					txtJpNew += txtJpOrg.slice(0,pos) + "[ARG" + (j+1) + "]";
 					txtJpOrg = txtJpOrg.slice(pos + args[j].length);
 				}
-				if(txtJpNew != "") txtJpNew += txtJpOrg;
+				if(j == 0) txtJpNew = txtJpOrg;
+				else if(txtJpNew != "") txtJpNew += txtJpOrg;
 
 				var obj:Object = spec[spec.length-1];
 				var types:Array = new Array();
@@ -813,7 +816,12 @@ void _loop(){
 				_blocks += "}},\n\n"
 			}
 
-			for(var id:String in ext.menus) {
+			var ids:Array = new Array();
+			var id:String;
+			for(id in ext.menus)
+				ids.push(id);
+
+			for each(id in ids.sort()) {
 				var values:Object = ext.menus[id];
 
 	//	"noteJ1":["C2","D2","E2","F2","G2","A2","B2","C3","D3","E3","F3","G3","A3","B3",],
@@ -833,7 +841,7 @@ void _loop(){
 						if(!ext.translators.ja.hasOwnProperty(en)) {
 							menus += "{ text: '" + en + "', value: " + val + " },\n";
 						} else {
-							menus += "{ text: '\n"
+							menus += "{ text: {\n"
 									+ "    'en': '" + en + "',\n"
 									+ "    'ja': '" + ext.translators.ja[en] + "',\n"
 									+ "}[this._locale], value: " + val + " },\n";
@@ -844,7 +852,8 @@ void _loop(){
 				menus += "]},\n\n";
 			}
 
-			var f:File = new File(ext.pcmodeFW + ".js.template");
+		//	var f:File = new File(ext.pcmodeFW + ".js.template");
+			var f:File = File.applicationDirectory.resolvePath("ext/libraries/Common/robot_pcmode.js.template");
 			if(f==null || !f.exists)
 				return false;
 			var code:String = FileUtil.ReadString(f);
@@ -863,7 +872,8 @@ void _loop(){
 		private function jsonToCpp2():Boolean
 		{
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
-			var f:File = new File(ext.pcmodeFW + ".ino.template");
+		//	var f:File = new File(ext.pcmodeFW + ".ino.template");
+			var f:File = File.applicationDirectory.resolvePath("ext/libraries/Common/robot_pcmode.ino.template");
 			if(f==null || !f.exists)
 				return false;
 			var code:String = FileUtil.ReadString(f);
