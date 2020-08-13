@@ -124,8 +124,11 @@ public class ExtensionManager {
 	}
 	public function onSelectExtension(name:String):void
 	{
-		if(extensionDict && extensionDict.name == name)
+		if(extensionDict && extensionDict.name == name) {
+			// reload .json
+			importExtension();
 			return;
+		}
 
 		var extObj:Object = null;
 		for each(var e:Object in _extensionList){
@@ -137,6 +140,7 @@ public class ExtensionManager {
 		if(null == extObj)
 			return;
 
+		// remove previous ext
 		if(extensionDict) {
 			SharedObjectManager.sharedManager().setObject(extensionDict.name+"_selected", false);
 			ConnectionManager.sharedManager().onRemoved(extensionDict.name);
