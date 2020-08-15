@@ -1,6 +1,8 @@
 <menu>
 	<subMenu name="File" label="文件">
+<!--
 		<item name="Undelete" label="撤销删除" />
+-->
 		<item name="New" label="新建项目" keyEquivalent="N" />
 		<item isSeparator="true" />
 		<item name="Load Project" label="打开项目" keyEquivalent="o" />
@@ -16,7 +18,9 @@
 	</subMenu>
 	<subMenu name="Robots" label="扩展">
 		<item name="Clear Cache" label="清空缓存" />
+<!--
 		<item name="Build PC mode firmware"/>
+-->
 		<item name="Open PC mode firmware"/>
 <!--
 		<item name="Build Normal firmware"/>

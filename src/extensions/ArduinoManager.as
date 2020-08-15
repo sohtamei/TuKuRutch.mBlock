@@ -773,7 +773,11 @@ void _loop(){
 					if(types.length < argNum)
 						continue;
 					funcs += spec[2] + "(args,util) { return this.getTest(arguments.callee.name, args); }\n";
+				} else if(obj.hasOwnProperty("custom")) {
+					_blocks += "'---',\n";
+					continue;
 				} else {
+					_blocks += "'---',\n";
 					continue;
 				}
 
@@ -782,6 +786,7 @@ void _loop(){
 					_blocks += "{blockType: BlockType.COMMAND, opcode: '" + spec[2] + "', text: ";
 					break;
 				case "R":
+				case "r":
 					_blocks += "{blockType: BlockType.REPORTER, opcode: '" + spec[2] + "', text: ";
 					break;
 				case "B":
@@ -942,6 +947,7 @@ void _loop(){
 					break;
 				case "B":
 				case "R":
+				case "r":
 				//	case 2: sendByte(pinMode(getByte(0), INPUT), digitalRead(getByte(0))); break;
 					var setcmd:String;
 					switch(obj.remote[obj.remote.length-1]) {
@@ -1260,7 +1266,7 @@ void _loop(){
 
 			var _dialog:DialogBox = new DialogBox();
  			_dialog.addTitle(Translator.map('Start Building'));
-			_dialog.addButton(Translator.map('Close'), null);
+		//	_dialog.addButton(Translator.map('Close'), null);
 			_dialog.setText(Translator.map('Building'));
 			_dialog.showOnStage(Main.app.stage);
 
@@ -1293,6 +1299,7 @@ void _loop(){
 			function __onBuildExit(event:NativeProcessExitEvent):void
 			{
 				isUploading = false;
+				_dialog.addButton(Translator.map('Close'), null);
 				if(event.exitCode == 0){
 					_dialog.setText(Translator.map('Build Finish'));
 
@@ -1369,7 +1376,7 @@ void _loop(){
 		{
 			var _dialog:DialogBox = new DialogBox();
  			_dialog.addTitle(Translator.map('Start Uploading'));
-			_dialog.addButton(Translator.map('Close'), null);
+		//	_dialog.addButton(Translator.map('Close'), null);
 			_dialog.setText(Translator.map('Uploading'));
 			_dialog.showOnStage(Main.app.stage);
 
@@ -1403,6 +1410,7 @@ void _loop(){
 			{
 				//ext.docPath+"/arduinoBuild
 				isUploading = false;
+				_dialog.addButton(Translator.map('Close'), null);
 				if(event.exitCode == 0){
 					_dialog.setText(Translator.map('Upload Finish'));
 				}else{

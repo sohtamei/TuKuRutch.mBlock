@@ -376,7 +376,7 @@ package extensions
 				setTimeout(_burnFW2, 3000, hexFile);
 				_dialog = new DialogBox();
 				_dialog.addTitle(Translator.map('Start Uploading'));
-				_dialog.addButton(Translator.map('Close'), null);
+			//	_dialog.addButton(Translator.map('Close'), null);
 				_dialog.setText(Translator.map('Executing'));
 				_dialog.showOnStage(_mBlock.stage);
 			} else {
@@ -388,7 +388,8 @@ package extensions
 		{
 			Main.app.track("/burnFW2");
 
-			var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
+			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
+			var boards:Array = ext.boardType.split(":");
 
 			var partFile:String = hexFile+".ino.partitions.bin";
 			hexFile = hexFile+".ino"+ArduinoManager.sharedManager().getHexFilename(boards);
@@ -436,10 +437,23 @@ package extensions
 				cmd = "Arduino/portable/packages/esp32/tools/esptool_py/2.6.1/esptool.exe";
 				cmd = File.applicationDirectory.resolvePath(cmd).nativePath;
 
-				var baud:String = (boards[2] == "m5stick-c") ? "750000": "921600";
+				var baud:String = "921600";
+				var bootloader:String = "bootloader_qio_80m.bin";
+				if(boards[2] == "m5stick-c") {
+					baud = "750000";
+					bootloader = "bootloader_dio_80m.bin";
+				}
+				for each(var pref:String in ext.prefs) {
+					if(pref.indexOf("custom_UploadSpeed=")>=0) {
+						if(pref.indexOf("115200")>=0)
+							baud = "115200";
+						break;
+					}
+				}
+				
 				args = "--chip esp32 --port "+selectPort+" --baud "+baud+" --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
 					+" 0xe000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/partitions/boot_app0.bin"
-					+" 0x1000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/sdk/bin/bootloader_qio_80m.bin"
+					+" 0x1000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/sdk/bin/" + bootloader
 					+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath
 					+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath;
 				break;
@@ -452,7 +466,7 @@ package extensions
 
 			_dialog = new DialogBox();
 			_dialog.addTitle(Translator.map('Start Uploading'));
-			_dialog.addButton(Translator.map('Close'), null);
+		//	_dialog.addButton(Translator.map('Close'), null);
 			_dialog.setText(Translator.map('Executing'));
 			_dialog.showOnStage(_mBlock.stage);
 
@@ -496,6 +510,7 @@ package extensions
 			{
 				ArduinoManager.sharedManager().isUploading = false;
 				Main.app.track("Process exited with "+event.exitCode);
+				_dialog.addButton(Translator.map('Close'), null);
 				if(event.exitCode > 0){
 					_dialog.setText(Translator.map('Upload Failed'));
 				}else{

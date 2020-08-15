@@ -255,6 +255,7 @@ public class ScriptsPart extends UIPart {
 		
 		fixlayout();
 		if(ArduinoManager.sharedManager().hasUnknownCode){
+/*
 			if(!isDialogBoxShowing){
 				isDialogBoxShowing = true;
 				var dBox:DialogBox = new DialogBox();
@@ -272,6 +273,7 @@ public class ScriptsPart extends UIPart {
 				dBox.showOnStage(app.stage);
 				dBox.fixLayout();
 			}
+*/
 			arduinoFrame.visible = false;
 			if(app.stageIsArduino){
 				app.toggleArduinoMode();

@@ -322,16 +322,33 @@ package cc.makeblock.mbot.ui.parts
 				var dialog2:DialogBox = new DialogBox;
 				dialog2.addTitle(Translator.map('Setup WiFi'));
 				dialog2.setText(Translator.map('Connecting..'));
-				dialog2.addButton(Translator.map('Close'),null);
 				dialog2.showOnStage(Main.app.stage);
 
 				function _connectWifi(isInterput:Boolean):void{
 					var result:int;
 					if(typeof(thread.resultValue) == 'number') result = thread.resultValue;
-					if(result == 3)
+					dialog2.addButton(Translator.map('Close'),null);
+					if(result == 3) {
 						dialog2.setText(Translator.map('Connected !'));
-					else
+
+						block = {argList:[], method:"robot.statusWifi", retCount:1, type:"function"};
+						thread = realInterpreter.execute([block]);
+						thread.finishSignal.add(_connectWifi2, true);
+					} else
 						dialog2.setText(Translator.map('Failed !')+' ('+result+')');
+				}
+
+				function _connectWifi2(isInterput:Boolean):void{
+					if(typeof(thread.resultValue) != 'string') return;
+					Main.app.track(thread.resultValue);
+
+					var paras:Array = thread.resultValue.split('\t');		// status, SSID, IP
+					if(paras.length < 2) return;
+					paras[0] = Number(paras[0]);
+					if(paras[0] == 3) {
+						dialog2.setText(Translator.map('Connected !') + "  " + paras[2]);
+						_currentIp = paras[2];
+					}
 				}
 			}
 		}
