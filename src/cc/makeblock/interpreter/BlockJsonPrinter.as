@@ -163,7 +163,9 @@ package cc.makeblock.interpreter
 					return SyntaxTreeFactory.NewNumber(value);
 				}else if(StringChecker.IsNumber(item.argValue)){
 					var num:Number;
-					if(item.argValue.slice(0,2)=="0x")
+					if(item.argValue is Number)
+						num = item.argValue; 
+					else if(item.argValue.slice(0,2)=="0x")
 						num = parseInt(item.argValue,16);
 					else
 						num = parseFloat(item.argValue);
