@@ -805,16 +805,17 @@ void _loop(){
 				for(j = 0;j < argNum;j++) {
 			//	ARG1: { type: ArgumentType.NUMBER, menu: 'led',	defaultValue:1,		type2:"B" },
 					pos = args[j].indexOf(".");
-					_blocks += "    ARG" + (j+1) + ": { type: ArgumentType.NUMBER, type2:'" + types[j] + "', ";
+					_blocks += "    ARG" + (j+1) + ": { type: ArgumentType." + (types[j] == "s" ? "STRING, ": "NUMBER, ")
+							+ "type2:'" + types[j] + "', ";
 					var init:String = spec[3+j];
 					if(pos == -1) {
-						if(isNaN(Number(init))) init = "'"+init+"'";
+						if(types[j] == "s" || isNaN(Number(init))) init = "'"+init+"'";
 						_blocks += "defaultValue:" + init +" },\n";
 					} else {
 						if(types[j] != "s" && ext.values.hasOwnProperty(init)) {
 							init = ext.values[init];
 						}
-						if(isNaN(Number(init))) init = "'"+init+"'";
+						if(types[j] == "s" || isNaN(Number(init))) init = "'"+init+"'";
 						_blocks += "defaultValue:" + init +", menu: '" + args[j].slice(pos+1) + "' },\n";
 					}
 				}

@@ -445,8 +445,8 @@ package extensions
 				}
 				for each(var pref:String in ext.prefs) {
 					if(pref.indexOf("custom_UploadSpeed=")>=0) {
-						if(pref.indexOf("115200")>=0)
-							baud = "115200";
+						if(pref.indexOf("115200")>=0) baud = "115200";
+						else if(pref.indexOf("1500000")>=0) baud = "1500000";
 						break;
 					}
 				}
