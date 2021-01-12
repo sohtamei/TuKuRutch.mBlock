@@ -360,8 +360,7 @@ package extensions
 
 		public function burnFW(hexFile:String):void
 		{
-			if(!_serial.isConnected)
-				return;
+			if(!_serial.isConnected) return;	// debug
 			Main.app.track("/burnFW");
 			Main.app.scriptsPart.clearInfo();
 
@@ -438,22 +437,18 @@ package extensions
 				cmd = File.applicationDirectory.resolvePath(cmd).nativePath;
 
 				var baud:String = "921600";
-				var bootloader:String = "bootloader_qio_80m.bin";
-				if(boards[2] == "m5stick-c") {
-					baud = "750000";
-					bootloader = "bootloader_dio_80m.bin";
-				}
 				for each(var pref:String in ext.prefs) {
 					if(pref.indexOf("custom_UploadSpeed=")>=0) {
-						if(pref.indexOf("115200")>=0) baud = "115200";
-						else if(pref.indexOf("1500000")>=0) baud = "1500000";
+						pref = pref.substr("custom_UploadSpeed=".length);
+						var pos:int = pref.indexOf("_");
+						if(pos > 0) baud = pref.substr(pos+1);
 						break;
 					}
 				}
 				
 				args = "--chip esp32 --port "+selectPort+" --baud "+baud+" --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
 					+" 0xe000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/partitions/boot_app0.bin"
-					+" 0x1000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/sdk/bin/" + bootloader
+					+" 0x1000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/sdk/bin/bootloader_qio_80m.bin"
 					+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath
 					+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath;
 				break;
