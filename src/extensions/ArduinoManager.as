@@ -706,13 +706,21 @@ void _loop(){
 		private function jsonToJs():Boolean
 		{
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
-			if(ext.boardType.slice(0,12) != "esp32:esp32:") return false;
+			if(!ext.scratch3ext) return false;
 
+			var define:String = "";
 			var _blocks:String = "";
 			var menus:String = "";
 			var funcs:String = "";
 			var i:int;
-			for(i=1; i<ext.blockSpecs.length-4; i++) {
+
+			var extNames:Array = ext.scratch3ext.split(",");
+			define = "const extName = '" + extNames[0] + "';\n";
+			if(extNames.length >= 2) {
+				define += "const " + extNames[1] + " = true;\n";
+			}
+
+			for(i=1; i<ext.blockSpecs.length; i++) {
 //		["w", "set LED %d.led %d.onoff", "setLED", 1,"On", {"remote":["B","B"],	"func":"_setLED({0},{1});"}],
 
 				var spec:Array = ext.blockSpecs[i];
@@ -772,7 +780,7 @@ void _loop(){
 					types = obj["remote"];
 					if(types.length < argNum)
 						continue;
-					funcs += spec[2] + "(args,util) { return this.getTest(arguments.callee.name, args); }\n";
+					funcs += spec[2] + "(args,util) { return this.sendRecv(arguments.callee.name, args); }\n";
 				} else if(obj.hasOwnProperty("custom")) {
 					_blocks += "'---',\n";
 					continue;
@@ -796,10 +804,10 @@ void _loop(){
 				if(txtJpNew == "") {
 					_blocks += "'" + txtEnNew + "', arguments: {\n";
 				} else {
-					_blocks += "{\n";
-					_blocks += "    'en': '" + txtEnNew + "',\n";
-					_blocks += "    'ja': '" + txtJpNew + "',\n";
-					_blocks += "}[this._locale], arguments: {\n";
+					_blocks += "[\n";
+					_blocks += "    '" + txtEnNew + "',\n";
+					_blocks += "    '" + txtJpNew + "',\n";
+					_blocks += "][this._locale], arguments: {\n";
 				}
 
 				for(j = 0;j < argNum;j++) {
@@ -847,10 +855,7 @@ void _loop(){
 						if(!ext.translators.ja.hasOwnProperty(en)) {
 							menus += "{ text: '" + en + "', value: " + val + " },\n";
 						} else {
-							menus += "{ text: {\n"
-									+ "    'en': '" + en + "',\n"
-									+ "    'ja': '" + ext.translators.ja[en] + "',\n"
-									+ "}[this._locale], value: " + val + " },\n";
+							menus += "{ text: ['" + en + "','" + ext.translators.ja[en] + "'][this._locale], value: " + val + " },\n";
 						}
 					}
 
@@ -864,11 +869,12 @@ void _loop(){
 				return false;
 			var code:String = FileUtil.ReadString(f);
 
-			code = code.replace("// BLOCKS", _blocks)
+			code = code.replace("// DEFINE", define)
+						.replace("// BLOCKS", _blocks)
 						.replace("// MENUS", menus)
 						.replace("// FUNCS", funcs);
 
-			f = new File(getNativePath(ext.pcmodeFW + ".js"));
+			f = new File(getNativePath("ext/scratch3/"+extNames[0]+".js"));
 			FileUtil.WriteString(f, code);
 
 			return true;

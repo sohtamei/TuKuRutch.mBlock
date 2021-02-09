@@ -269,14 +269,7 @@ public class ExtensionManager {
 									ext.menus = extObj.menus;
 		if(extObj.values)			ext.values = extObj.values;
 		if(extObj.translators)		ext.translators = extObj.translators;
-
-//									ext.showBlocks = true;
-//		if(extObj.url)				ext.url = extObj.url;
-//		if(extObj.extensionHost)	ext.host = extObj.extensionHost;
-//		if(extObj.extensionType)	ext.type = extObj.extensionType;
-//		if(extObj.firmware)			ext.firmware = extObj.firmware;
-//		if(extObj.host)				ext.host = extObj.host; // non-local host allowed but not saved in project
-//		if(extObj.sort)				ext.sort = extObj.sort;
+		if(extObj.scratch3ext)		ext.scratch3ext = extObj.scratch3ext;
 
 		if(ext.port==0 && ext.javascriptURL!=""){
 			ext.useSerial = true;

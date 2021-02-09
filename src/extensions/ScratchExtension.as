@@ -47,6 +47,8 @@ public class ScratchExtension {
 
 	public var name:String = '';
 	public var port:int;
+
+	public var docPath:String = "";
 	public var boardType:String;
 	public var sort:int = 10;
 	public var helpURL:String = "";
@@ -56,36 +58,35 @@ public class ScratchExtension {
 	public var normalFW:String = "";
 	public var pcmodeFW:String = "";
 	public var prefs:Array = [];
-
+	public var header:String = "";
+	public var setup:String = "";
+	public var loop:String = "";
 	public var blockSpecs:Array = [];
 	public var menus:Object = {};
 	public var values:Object = {};
 	public var translators:Object = {};
-	public var header:String = "";
-	public var setup:String = "";
-	public var loop:String = "";
-	public var useSerial:Boolean = false;
+	public var scratch3ext:String = "";
 
-//	public var sort:int = 10;
+	public var useSerial:Boolean = false;
 
 	public var isInternal:Boolean;
 	public var useScratchPrimitives:Boolean; // true for extensions built into Scratch (WeDo, PicoBoard) that have custom primitives
 	private var _showBlocks:Boolean;
-//	public var firmware:String = "";
 	public var thumbnailMD5:String = ''; // md5 has for extension image shown in extension library
-//	public var url:String = ''; // URL for extension documentation page (with helper app download link, if appropriate)
 	public var tags:Array = []; // tags for the extension library filter
-	public var isBusy:Boolean = false;
 	// Runtime state
 	public var stateVars:Object = {};
 	public var lastPollResponseTime:int;
 	public var problem:String = '';
 	public var success:String = 'Okay';
-	public var nextID:int;
-	public var docPath:String = "";
-	public var busy:Array = [];
-	public var waiting:Dictionary = new Dictionary(true);
 	private var _jsEngine:JavaScriptEngine;
+
+//	public var firmware:String = "";
+//	public var url:String = ''; // URL for extension documentation page (with helper app download link, if appropriate)
+//	public var isBusy:Boolean = false;
+//	public var nextID:int;
+//	public var busy:Array = [];
+//	public var waiting:Dictionary = new Dictionary(true);
 
 	public function ScratchExtension(name:String, port:int) {
 		this.name = name;
