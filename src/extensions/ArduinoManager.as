@@ -709,15 +709,39 @@ void _loop(){
 			if(!ext.scratch3ext) return false;
 
 			var define:String = "";
+			var flashes:String = "";
 			var _blocks:String = "";
 			var menus:String = "";
 			var funcs:String = "";
 			var i:int;
+			var f:File;
 
 			var extNames:Array = ext.scratch3ext.split(",");
 			define = "const extName = '" + extNames[0] + "';\n";
 			if(extNames.length >= 2) {
 				define += "const " + extNames[1] + " = true;\n";
+			}
+
+			for(i=0; i<ext.scratch3burn.length; i++) {
+				var partName:String = ext.scratch3burn[i].name+".part.bin";
+				var imageName:String = ext.scratch3burn[i].name+".image.bin";
+				define += "const _part"+i+" = require('!arraybuffer-loader!./"+partName+"');\n"
+						+ "const _image"+i+" = require('!arraybuffer-loader!./"+imageName+"');\n";
+
+				//{name:'TukuBoard1.0', type:'esp32', baudrate:230400, part:_part0, image:_image0},
+
+				flashes += "{name:'"+ext.scratch3burn[i].name
+							+"', type:'"+ext.scratch3burn[i].type
+							+"', baudrate:"+ext.scratch3burn[i].baudrate
+							+", part:_part"+i+", image:_image"+i+"},\n";
+
+				f = File.applicationDirectory.resolvePath("ext/libraries/"+ext.scratch3burn[i].binPath+"/robot_pcmode/robot_pcmode.ino.partitions.bin");
+				if(f.exists)
+					f.copyTo(new File(getNativePath("ext/scratch3/"+partName)), true);
+
+				f = File.applicationDirectory.resolvePath("ext/libraries/"+ext.scratch3burn[i].binPath+"/robot_pcmode/robot_pcmode.ino.esp32.bin");
+				if(f.exists)
+					f.copyTo(new File(getNativePath("ext/scratch3/"+imageName)), true);
 			}
 
 			for(i=1; i<ext.blockSpecs.length; i++) {
@@ -864,15 +888,16 @@ void _loop(){
 			}
 
 		//	var f:File = new File(ext.pcmodeFW + ".js.template");
-			var f:File = File.applicationDirectory.resolvePath("ext/libraries/Common/robot_pcmode.js.template");
+			f = File.applicationDirectory.resolvePath("ext/libraries/Common/robot_pcmode.js.template");
 			if(f==null || !f.exists)
 				return false;
 			var code:String = FileUtil.ReadString(f);
 
-			code = code.replace("// DEFINE", define)
-						.replace("// BLOCKS", _blocks)
-						.replace("// MENUS", menus)
-						.replace("// FUNCS", funcs);
+			code = code.replace("// DEFINE\n", define)
+						.replace("// FLASHES\n", flashes)
+						.replace("// BLOCKS\n", _blocks)
+						.replace("// MENUS\n", menus)
+						.replace("// FUNCS\n", funcs);
 
 			f = new File(getNativePath("ext/scratch3/"+extNames[0]+".js"));
 			FileUtil.WriteString(f, code);
@@ -890,9 +915,9 @@ void _loop(){
 				return false;
 			var code:String = FileUtil.ReadString(f);
 
-			code = code.replace("// HEADER", getProp(ext, "header"))
-						.replace("// SETUP", getProp(ext, "setup"))
-						.replace("// LOOP", getProp(ext, "loop"));
+			code = code.replace("// HEADER\n", getProp(ext, "header"))
+						.replace("// SETUP\n", getProp(ext, "setup"))
+						.replace("// LOOP\n", getProp(ext, "loop"));
 
 			var argTbl:String = "";
 			var work:String = "";

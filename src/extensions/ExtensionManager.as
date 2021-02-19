@@ -270,6 +270,7 @@ public class ExtensionManager {
 		if(extObj.values)			ext.values = extObj.values;
 		if(extObj.translators)		ext.translators = extObj.translators;
 		if(extObj.scratch3ext)		ext.scratch3ext = extObj.scratch3ext;
+		if(extObj.scratch3burn)		ext.scratch3burn = extObj.scratch3burn;
 
 		if(ext.port==0 && ext.javascriptURL!=""){
 			ext.useSerial = true;

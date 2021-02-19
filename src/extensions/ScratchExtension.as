@@ -66,6 +66,7 @@ public class ScratchExtension {
 	public var values:Object = {};
 	public var translators:Object = {};
 	public var scratch3ext:String = "";
+	public var scratch3burn:Array = [];
 
 	public var useSerial:Boolean = false;
 
