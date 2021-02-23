@@ -725,15 +725,12 @@ void _loop(){
 			for(i=0; i<ext.scratch3burn.length; i++) {
 				var partName:String = ext.scratch3burn[i].name+".part.bin";
 				var imageName:String = ext.scratch3burn[i].name+".image.bin";
-				define += "const _part"+i+" = require('!arraybuffer-loader!./"+partName+"');\n"
-						+ "const _image"+i+" = require('!arraybuffer-loader!./"+imageName+"');\n";
 
-				//{name:'TukuBoard1.0', type:'esp32', baudrate:230400, part:_part0, image:_image0},
+				//{name:'TukuBoard1.0', type:'esp32', baudrate:230400},
 
 				flashes += "{name:'"+ext.scratch3burn[i].name
 							+"', type:'"+ext.scratch3burn[i].type
-							+"', baudrate:"+ext.scratch3burn[i].baudrate
-							+", part:_part"+i+", image:_image"+i+"},\n";
+							+"', baudrate:"+ext.scratch3burn[i].baudrate+"},\n";
 
 				f = File.applicationDirectory.resolvePath("ext/libraries/"+ext.scratch3burn[i].binPath+"/robot_pcmode/robot_pcmode.ino.partitions.bin");
 				if(f.exists)
