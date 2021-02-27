@@ -131,7 +131,8 @@ public class ScratchExtension {
 	}
 	public function set javascriptURL(v:String):void{
 		if(v){
-			_jsEngine.loadJS(this.docPath+v);
+		//	_jsEngine.loadJS(this.docPath+v);
+			_jsEngine.loadJS("app:/ext/libraries/Common/"+v);
 		}
 		_javascriptURL = v;
 	}
