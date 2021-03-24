@@ -986,9 +986,9 @@ void _loop(){
 					case "F": setcmd = "sendFloat"; break;
 					case "D": setcmd = "sendDouble"; break;
 					case "s": setcmd = "sendString"; break;
-					case "b": setcmd = "sendString"; break;
+					case "b": break;
 					}
-					work += setcmd+"(("+func+"));";
+					work += (setcmd==null) ? func+";" : setcmd+"(("+func+"));";
 					break;
 				}
 				argTbl += "},\n";
