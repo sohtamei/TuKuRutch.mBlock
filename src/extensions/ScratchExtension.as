@@ -62,6 +62,7 @@ public class ScratchExtension {
 	public var setup:String = "";
 	public var loop:String = "";
 	public var blockSpecs:Array = [];
+	public var blockSpecsSize:int = 0;
 	public var menus:Object = {};
 	public var values:Object = {};
 	public var translators:Object = {};

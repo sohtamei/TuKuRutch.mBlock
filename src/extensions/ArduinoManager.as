@@ -741,7 +741,7 @@ void _loop(){
 					f.copyTo(new File(getNativePath("ext/scratch3/"+imageName)), true);
 			}
 
-			for(i=1; i<ext.blockSpecs.length; i++) {
+			for(i=1; i<ext.blockSpecsSize; i++) {
 //		["w", "set LED %d.led %d.onoff", "setLED", 1,"On", {"remote":["B","B"],	"func":"_setLED({0},{1});"}],
 
 				var spec:Array = ext.blockSpecs[i];
@@ -918,7 +918,7 @@ void _loop(){
 
 			var argTbl:String = "";
 			var work:String = "";
-			for(var i:int=0; i<ext.blockSpecs.length; i++) {
+			for(var i:int=0; i<ext.blockSpecsSize; i++) {
 				var spec:Array = ext.blockSpecs[i];
 				if(spec.length < 3){
 					argTbl += "  {},\n";

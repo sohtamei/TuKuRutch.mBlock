@@ -266,11 +266,26 @@ public class ExtensionManager {
 		if(extObj.setup)			ext.setup = extObj.setup;
 		if(extObj.loop)				ext.loop = extObj.loop;
 									ext.blockSpecs = extObj.blockSpecs;
+									ext.blockSpecsSize = ext.blockSpecs.length;
 									ext.menus = extObj.menus;
 		if(extObj.values)			ext.values = extObj.values;
 		if(extObj.translators)		ext.translators = extObj.translators;
 		if(extObj.scratch3ext)		ext.scratch3ext = extObj.scratch3ext;
 		if(extObj.scratch3burn)		ext.scratch3burn = extObj.scratch3burn;
+
+		var i:int;
+		if(ext.boardType == "esp32:esp32:esp32") {
+			var ArgTypesTbl3:Array = [
+				["R", "status WIFI",		"statusWifi",				{remote:[		"s"],func:"statusWifi()"}],			// 0xFB
+				["R", "scan WIFI",			"scanWifi",					{remote:[		"s"],func:"scanWifi()"}],			// 0xFC
+				["R", "connect WIFI %s %s",	"connectWifi","ssid","pass",{remote:["s","s","B"],func:"connectWifi({0},{1})"}],// 0xFD
+			];
+			const CMD3_MIN:int = 0xFB;
+
+			for(i = ext.blockSpecs.length; i < CMD3_MIN; i++)
+				ext.blockSpecs.push([""]);
+			ext.blockSpecs = ext.blockSpecs.concat(ArgTypesTbl3);
+		}
 
 		if(ext.port==0 && ext.javascriptURL!=""){
 			ext.useSerial = true;
@@ -283,7 +298,7 @@ public class ExtensionManager {
 		Main.app.translationChanged();
 		Main.app.updatePalette();
 		// Update the indicator
-		for (var i:int = 0; i < app.palette.numChildren; i++) {
+		for (i = 0; i < app.palette.numChildren; i++) {
 			var indicator:IndicatorLight = app.palette.getChildAt(i) as IndicatorLight;
 			if (indicator && indicator.target === ext) {
 				updateIndicator(indicator, indicator.target, true);
