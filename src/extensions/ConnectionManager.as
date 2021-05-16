@@ -158,7 +158,9 @@ package extensions
 				if(_serial.isConnected) _serial.close();
 				_serial.removeEventListener(Event.CHANGE, onChanged);
 				_serial.addEventListener(Event.CHANGE, onChanged);
-				_serial.open(selectPort, 115200);
+
+				var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
+				_serial.open(selectPort, (boards[1]=="nRF5")?19200:115200);
 				connectHandler();
 			} else {
 			// wifi

@@ -834,7 +834,7 @@ void _loop(){
 				for(j = 0;j < argNum;j++) {
 			//	ARG1: { type: ArgumentType.NUMBER, menu: 'led',	defaultValue:1,		type2:"B" },
 					pos = args[j].indexOf(".");
-					_blocks += "    ARG" + (j+1) + ": { type: ArgumentType." + (types[j] == "s" ? "STRING, ": "NUMBER, ")
+					_blocks += "    ARG" + (j+1) + ": { type: ArgumentType." + ((types[j] == "s" || pos != -1) ? "STRING, ": "NUMBER, ")
 							+ "type2:'" + types[j] + "', ";
 					var init:String = spec[3+j];
 					if(pos == -1) {
@@ -844,8 +844,7 @@ void _loop(){
 						if(types[j] != "s" && ext.values.hasOwnProperty(init)) {
 							init = ext.values[init];
 						}
-						if(types[j] == "s" || isNaN(Number(init))) init = "'"+init+"'";
-						_blocks += "defaultValue:" + init +", menu: '" + args[j].slice(pos+1) + "' },\n";
+						_blocks += "defaultValue:'" + init +"', menu: '" + args[j].slice(pos+1) + "' },\n";
 					}
 				}
 				_blocks += "}},\n\n"
@@ -864,7 +863,7 @@ void _loop(){
 				menus += id + ": { acceptReporters: true, items: [";
 				for(i=0;i<values.length;i++) {
 					var en:String = values[i];
-					if(!isNaN(Number(en)) && !ext.values.hasOwnProperty(en)) {
+					if(!ext.values.hasOwnProperty(en)) {
 						menus += "'" + en + "',";
 					} else {
 					//	{ text: 'ド4', value: 262 },
@@ -872,11 +871,10 @@ void _loop(){
 
 						var val:String = en;
 						val = ext.values[en];
-						if(isNaN(Number(val))) val = "'"+val+"'";
 						if(!ext.translators.ja.hasOwnProperty(en)) {
-							menus += "{ text: '" + en + "', value: " + val + " },\n";
+							menus += "{ text: '" + en + "', value: '" + val + "' },\n";
 						} else {
-							menus += "{ text: ['" + en + "','" + ext.translators.ja[en] + "'][this._locale], value: " + val + " },\n";
+							menus += "{ text: ['" + en + "','" + ext.translators.ja[en] + "'][this._locale], value: '" + val + "' },\n";
 						}
 					}
 
@@ -955,7 +953,7 @@ void _loop(){
 
 				var func:String = obj.func;
 				for(j = 0; j<argNum; j++) {
-					var getcmd:String;
+					var getcmd:String = null;
 					switch(obj.remote[j]) {
 					case "B": getcmd = "getByte"; break;
 					case "S": getcmd = "getShort"; break;
@@ -978,7 +976,7 @@ void _loop(){
 				case "R":
 				case "r":
 				//	case 2: sendByte(pinMode(getByte(0), INPUT), digitalRead(getByte(0))); break;
-					var setcmd:String;
+					var setcmd:String = null;
 					switch(obj.remote[obj.remote.length-1]) {
 					case "B": setcmd = "sendByte"; break;
 					case "S": setcmd = "sendShort"; break;
