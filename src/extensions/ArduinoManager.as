@@ -720,6 +720,8 @@ void _loop(){
 			define = "const extName = '" + extNames[0] + "';\n";
 			if(extNames.length >= 2) {
 				define += "const " + extNames[1] + " = true;\n";
+			} else {
+				define += "const SupportCamera = false;\n";
 			}
 
 			for(i=0; i<ext.scratch3burn.length; i++) {
@@ -801,7 +803,7 @@ void _loop(){
 					types = obj["remote"];
 					if(types.length < argNum)
 						continue;
-					funcs += spec[2] + "(args,util) { return this.sendRecv(arguments.callee.name, args); }\n";
+					funcs += spec[2] + "(args,util) { return this.sendRecv('" + spec[2] + "', args); }\n";
 				} else if(obj.hasOwnProperty("custom")) {
 					_blocks += "'---',\n";
 					continue;
@@ -895,6 +897,14 @@ void _loop(){
 						.replace("// FUNCS\n", funcs);
 
 			f = new File(getNativePath("ext/scratch3/"+extNames[0]+".js"));
+			FileUtil.WriteString(f, code);
+
+			code = code.replace( /\n\/\/\*\n/g, "\n/*_\n")		// \n//*\n
+						.replace(/\n\/\/\*\/\n/g,"\n_*/\n")		// \n//*/\n
+						.replace(/\n\/\*\n/g,  "\n//*\n")		// \n/*\n
+						.replace(/\n\*\/\n/g,  "\n//*/\n");		// \n*/\n
+
+			f = new File(getNativePath("ext/scratch3/"+extNames[0]+".load.js"));
 			FileUtil.WriteString(f, code);
 
 			return true;
