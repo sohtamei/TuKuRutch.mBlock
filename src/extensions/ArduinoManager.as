@@ -717,7 +717,7 @@ void _loop(){
 			var f:File;
 
 			var extNames:Array = ext.scratch3ext.split(",");
-			define = "const extName = '" + extNames[0] + "';\n";
+			define = "var extName = '" + extNames[0] + "';\n";
 			if(extNames.length >= 2) {
 				define += "const " + extNames[1] + " = true;\n";
 			} else {
