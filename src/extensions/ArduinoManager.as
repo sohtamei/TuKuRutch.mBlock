@@ -742,6 +742,7 @@ void _loop(){
 				if(f.exists)
 					f.copyTo(new File(getNativePath("ext/scratch3/"+imageName)), true);
 			}
+			if(ext.scratch3burn.length==0) flashes += "{name:'dummy', type:'', baudrate:0},\n";
 
 			for(i=1; i<ext.blockSpecsSize; i++) {
 //		["w", "set LED %d.led %d.onoff", "setLED", 1,"On", {"remote":["B","B"],	"func":"_setLED({0},{1});"}],
