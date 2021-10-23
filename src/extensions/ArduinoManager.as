@@ -725,8 +725,7 @@ void _loop(){
 			}
 
 			for(i=0; i<ext.scratch3burn.length; i++) {
-				var partName:String = ext.scratch3burn[i].name+".part.bin";
-				var imageName:String = ext.scratch3burn[i].name+".image.bin";
+				var imageName:String = ext.scratch3burn[i].name;
 
 				//{name:'TukuBoard1.0', type:'esp32', baudrate:230400},
 
@@ -734,13 +733,18 @@ void _loop(){
 							+"', type:'"+ext.scratch3burn[i].type
 							+"', baudrate:"+ext.scratch3burn[i].baudrate+"},\n";
 
-				f = File.applicationDirectory.resolvePath("ext/libraries/"+ext.scratch3burn[i].binPath+"/robot_pcmode/robot_pcmode.ino.partitions.bin");
+				var pcmodeFWpath:String = "ext/libraries/"+ext.scratch3burn[i].binPath+"/"+ext.pcmodeFW.replace(ext.docPath,"");
+				f = File.applicationDirectory.resolvePath(pcmodeFWpath+".ino.partitions.bin");
 				if(f.exists)
-					f.copyTo(new File(getNativePath("ext/scratch3/"+partName)), true);
+					f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".part.bin")), true);
 
-				f = File.applicationDirectory.resolvePath("ext/libraries/"+ext.scratch3burn[i].binPath+"/robot_pcmode/robot_pcmode.ino.esp32.bin");
+				f = File.applicationDirectory.resolvePath(pcmodeFWpath+".ino.esp32.bin");
 				if(f.exists)
-					f.copyTo(new File(getNativePath("ext/scratch3/"+imageName)), true);
+					f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".image.bin")), true);
+
+				f = File.applicationDirectory.resolvePath(pcmodeFWpath+".ino.standard.hex");
+				if(f.exists)
+					f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".hex")), true);
 			}
 			if(ext.scratch3burn.length==0) flashes += "{name:'dummy', type:'', baudrate:0},\n";
 
