@@ -244,16 +244,26 @@ public class ExtensionManager {
 			return;
 		}
 		if(!ext || (ext.blockSpecs && ext.blockSpecs.length)){
-			ext = new ScratchExtension(extObj.name, extObj.port);
+			ext = new ScratchExtension(extObj.name, 0/*extObj.port*/);
 		}
+		ext.boardType		= "arduino:avr:uno";
+		ext.javascriptURL	= "robot.js";
+		ext.pcmodeFW		= extObj.docPath + "src/src";
+		ext.setup			= "Serial.begin(115200);";
+		ext.blockSpecs		= [];
+		ext.menus			= {};
+		ext.values			= {};
+		ext.translators		= {ja:{}};
+		ext.scratch3ext		= extObj.name;
+
 									ext.docPath = extObj.docPath;
 
-									ext.boardType = extObj.boardType;
+		if(extObj.boardType)		ext.boardType = extObj.boardType;
 		if(extObj.sort)				ext.sort = extObj.sort;
 		if(extObj.helpURL)			ext.helpURL = extObj.helpURL;
 		if(extObj.productInfoURL)	ext.productInfoURL = extObj.productInfoURL;
 		if(extObj.sampleDir)		ext.sampleDir = extObj.sampleDir;
-									ext.javascriptURL = extObj.javascriptURL;		// LoadJS
+		if(extObj.javascriptURL)	ext.javascriptURL = extObj.javascriptURL;		// LoadJS
 		if(extObj.normalFW)			ext.normalFW = extObj.docPath + extObj.normalFW;
 		if(extObj.pcmodeFW)			ext.pcmodeFW = extObj.docPath + extObj.pcmodeFW;
 		if(extObj.libraryPath) {
@@ -265,9 +275,9 @@ public class ExtensionManager {
 		if(extObj.header)			ext.header = extObj.header;
 		if(extObj.setup)			ext.setup = extObj.setup;
 		if(extObj.loop)				ext.loop = extObj.loop;
-									ext.blockSpecs = extObj.blockSpecs;
+		if(extObj.blockSpecs)		ext.blockSpecs = extObj.blockSpecs;
 									ext.blockSpecsSize = ext.blockSpecs.length;
-									ext.menus = extObj.menus;
+		if(extObj.menus)			ext.menus = extObj.menus;
 		if(extObj.values)			ext.values = extObj.values;
 		if(extObj.translators)		ext.translators = extObj.translators;
 		if(extObj.scratch3ext)		ext.scratch3ext = extObj.scratch3ext;
