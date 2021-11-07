@@ -275,7 +275,7 @@ public class ExtensionManager {
 		if(extObj.header)			ext.header = extObj.header;
 		if(extObj.setup)			ext.setup = extObj.setup;
 		if(extObj.loop)				ext.loop = extObj.loop;
-		if(extObj.blockSpecs)		ext.blockSpecs = extObj.blockSpecs;
+		if(extObj.blockSpecs)		ext.blockSpecs = extObj.blockSpecs.concat();
 									ext.blockSpecsSize = ext.blockSpecs.length;
 		if(extObj.menus)			ext.menus = extObj.menus;
 		if(extObj.values)			ext.values = extObj.values;
