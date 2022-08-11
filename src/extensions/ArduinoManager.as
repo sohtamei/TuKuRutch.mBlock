@@ -532,7 +532,7 @@ package extensions
 						s.code = '"'+s.code+'"';
 					else if(s.type == "obj")		// String("hello ")+String("world")
 						s.code = s.code.code;
-				} else if(argType == "b") {
+				} else if(argType == "b"||argType == "b2"||argType == "b3") {
 					var j:int;
 					var tmp:String = "";
 					for(j = 0; j < s.code.length; j+=2)
@@ -977,8 +977,10 @@ void _loop(){
 					case "D": getcmd = "getDouble"; break;
 					case "s": getcmd = "getString"; break;
 					case "b": getcmd = "getBufLen"; break;
+					case "b2": getcmd = "getBufLen2"; break;
+					case "b3": getcmd = "getBufLen3"; break;
 					}
-					argTbl += "'"+obj.remote[j]+"',";
+					argTbl += "'"+obj.remote[j].slice(-1)+"',";
 					func = func.replace(new RegExp("\\{"+j+"\\}", "g"), getcmd+"("+j.toString()+")");
 				}
 
@@ -1000,6 +1002,8 @@ void _loop(){
 					case "D": setcmd = "sendDouble"; break;
 					case "s": setcmd = "sendString"; break;
 					case "b": break;
+					case "b2": break;
+					case "b3": break;
 					}
 					work += (setcmd==null) ? func+";" : setcmd+"(("+func+"));";
 					break;

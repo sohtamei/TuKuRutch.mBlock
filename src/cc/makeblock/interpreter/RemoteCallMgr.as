@@ -159,28 +159,40 @@ package cc.makeblock.interpreter
 
 				var cmd:ByteArray = new ByteArray();
 				cmd.endian = Endian.LITTLE_ENDIAN;
-				var tmp:Array = [0xff, 0x55, 0x00, index];
-				for(i = 0; i < tmp.length; i++)
-					cmd.writeByte(tmp[i]);
-				var size:int = obj2.remote.length;
-				if(obj1[0] != "w") size--;
-				for(i = 0; i < size; i++) {
-					switch(obj2.remote[i]) {
-					case "B": cmd.writeByte(param[i]);   break;
-					case "S": cmd.writeShort(param[i]);  break;
-					case "L": cmd.writeInt(param[i]);    break;
-					case "F": cmd.writeFloat(param[i]);  break;
-					case "D": cmd.writeDouble(param[i]); break;
-					case "s": cmd.writeUTFBytes(param[i]); cmd.writeByte(0); break;
-					case "b":
-						var n:int = param[i].length/2;
-						cmd.writeByte(n);
-						for(var j:int = 0; j < n; j++)
-							cmd.writeByte(parseInt(param[i].substr(j*2, 2),16));
-						break;
+				var n:int;
+				var j:int;
+				if(obj2.remote[0] == "b2") {
+					n = param[0].length/2;
+					cmd.writeByte(0xff);
+					cmd.writeByte(0x54);
+					cmd.writeShort(1+n);
+					cmd.writeByte(index);
+					for(j = 0; j < n; j++)
+						cmd.writeByte(parseInt(param[0].substr(j*2, 2),16));
+				} else {
+					var tmp:Array = [0xff, 0x55, 0x00, index];
+					for(i = 0; i < tmp.length; i++)
+						cmd.writeByte(tmp[i]);
+					var size:int = obj2.remote.length;
+					if(obj1[0] != "w") size--;
+					for(i = 0; i < size; i++) {
+						switch(obj2.remote[i]) {
+						case "B": cmd.writeByte(param[i]);   break;
+						case "S": cmd.writeShort(param[i]);  break;
+						case "L": cmd.writeInt(param[i]);    break;
+						case "F": cmd.writeFloat(param[i]);  break;
+						case "D": cmd.writeDouble(param[i]); break;
+						case "s": cmd.writeUTFBytes(param[i]); cmd.writeByte(0); break;
+						case "b":
+							n = param[i].length/2;
+							cmd.writeByte(n);
+							for(j = 0; j < n; j++)
+								cmd.writeByte(parseInt(param[i].substr(j*2, 2),16));
+							break;
+						}
 					}
+					cmd[2] = cmd.length-3;
 				}
-				cmd[2] = cmd.length-3;
 				thread.suspend();
 				requestList.push(arguments);
 				Main.app.scriptsPart.onSerialSend(cmd);	// debug

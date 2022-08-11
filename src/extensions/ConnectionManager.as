@@ -346,7 +346,13 @@ package extensions
 		private var _prevTime:Number = 0;
 		public function sendBytes(bytes:ByteArray):void{
 			if(_serial.isConnected){
-				_serial.writeBytes(bytes);
+				bytes.position = 0;
+				for(var i:int=0;i<bytes.length;i+=256){
+					var size:int = Math.min(bytes.length - i, 256);
+					var tmp:ByteArray = new ByteArray();
+					bytes.readBytes(tmp,0,size);
+					_serial.writeBytes(tmp);
+				}
 			} else if(_socket.connected){
 			//	var cTime:Number = getTimer();
 			//	if(cTime-_prevTime>20){
