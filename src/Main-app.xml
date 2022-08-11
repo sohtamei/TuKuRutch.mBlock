@@ -18,7 +18,7 @@
 	<id>com.sohtamei.TuKuRutch1.01</id>
 
 	<!-- Used as the filename for the application. Required. -->
-	<filename>つくるっち</filename>
+	<filename>TuKuRutch</filename>
 
 	<!-- The name that is displayed in the AIR application installer. 
 	May have multiple values for each language. See samples or xsd schema file. Optional. -->
