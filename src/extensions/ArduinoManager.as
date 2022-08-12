@@ -847,7 +847,7 @@ void _loop(){
 				for(j = 0;j < argNum;j++) {
 			//	ARG1: { type: ArgumentType.NUMBER, menu: 'led',	defaultValue:1,		type2:"B" },
 					pos = args[j].indexOf(".");
-					_blocks += "    ARG" + (j+1) + ": { type: ArgumentType." + ((types[j] == "s" || types[j].slice(1) == "b" || pos != -1) ? "STRING, ": "NUMBER, ")
+					_blocks += "    ARG" + (j+1) + ": { type: ArgumentType." + ((types[j] == "s" || types[j].slice(0,1) == "b" || pos != -1) ? "STRING, ": "NUMBER, ")
 							+ "type2:'" + types[j] + "', ";
 					var init:String = spec[3+j];
 					if(pos == -1) {
