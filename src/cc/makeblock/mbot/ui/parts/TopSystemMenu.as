@@ -50,7 +50,7 @@ package cc.makeblock.mbot.ui.parts
 
 			menu.getItemByName("Robots").submenu.addEventListener(Event.DISPLAYING, __onShowExtMenu);
 			register("Clear Cache", ArduinoManager.sharedManager().clearTempFiles);
-			register("Build PC mode firmware", __buildPcmode);
+		//	register("Build PC mode firmware", __buildPcmode);
 			register("Open PC mode firmware", ArduinoManager.sharedManager().openPcmode);
 		//	register("Build Normal firmware", ArduinoManager.sharedManager().buildNormal);
 			register("Open Normal firmware", ArduinoManager.sharedManager().openNormal);
@@ -79,13 +79,14 @@ package cc.makeblock.mbot.ui.parts
 					case "Save Project As":	Main.app.exportProjectToFile();			break;
 				}
 			}
-
+/*
 			function __buildPcmode(item:NativeMenuItem):void
 			{
 				switchStageMenu(2);
 				Main.app.showArduino();
 				ArduinoManager.sharedManager().buildPcmode();
 			}
+*/
 			function __ShowStage(item:NativeMenuItem):void
 			{
 				switchStageMenu(0);

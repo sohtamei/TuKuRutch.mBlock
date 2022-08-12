@@ -127,6 +127,8 @@ public class ExtensionManager {
 		if(extensionDict && extensionDict.name == name) {
 			// reload .json
 			importExtension();
+			ArduinoManager.sharedManager().jsonToJs();
+			ArduinoManager.sharedManager().jsonToCpp2();
 			return;
 		}
 
@@ -154,11 +156,11 @@ public class ExtensionManager {
 		var msg:String;
 		switch(extensionDict.boardType.split(':')[1]) {
 		case "esp32":
-			arduinoIDE = "Arduino.1.18.11.esp";
+			arduinoIDE = "Arduino.esp";
 			msg = "ESP32";
 			break;
 		case "samd":
-			arduinoIDE = "Arduino.1.18.11.samd";
+			arduinoIDE = "Arduino.samd";
 			msg = "koov";
 			break;
 		}

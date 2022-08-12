@@ -703,7 +703,7 @@ void _loop(){
 			return (retcode);
 		}
 		
-		private function jsonToJs():Boolean
+		public function jsonToJs():Boolean
 		{
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
 			if(!ext.scratch3ext) return false;
@@ -724,8 +724,10 @@ void _loop(){
 				define += "const SupportCamera = false;\n";
 			}
 
+			var copyFiles:String = "";
 			for(i=0; i<ext.scratch3burn.length; i++) {
 				var imageName:String = ext.scratch3burn[i].name;
+				copyFiles += imageName+", ";
 
 				//{name:'TukuBoard1.0', type:'esp32', baudrate:230400},
 
@@ -746,7 +748,11 @@ void _loop(){
 				if(f.exists)
 					f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".hex")), true);
 			}
-			if(ext.scratch3burn.length==0) flashes += "{name:'dummy', type:'', baudrate:0},\n";
+			if(ext.scratch3burn.length==0) {
+				flashes += "{name:'dummy', type:'', baudrate:0},\n";
+			} else {
+				Main.app.scriptsPart.appendMessage("copy bin:"+copyFiles);
+			}
 
 			for(i=1; i<ext.blockSpecsSize; i++) {
 //		["w", "set LED %d.led %d.onoff", "setLED", 1,"On", {"remote":["B","B"],	"func":"_setLED({0},{1});"}],
@@ -841,7 +847,7 @@ void _loop(){
 				for(j = 0;j < argNum;j++) {
 			//	ARG1: { type: ArgumentType.NUMBER, menu: 'led',	defaultValue:1,		type2:"B" },
 					pos = args[j].indexOf(".");
-					_blocks += "    ARG" + (j+1) + ": { type: ArgumentType." + ((types[j] == "s" || pos != -1) ? "STRING, ": "NUMBER, ")
+					_blocks += "    ARG" + (j+1) + ": { type: ArgumentType." + ((types[j] == "s" || types[j].slice(1) == "b" || pos != -1) ? "STRING, ": "NUMBER, ")
 							+ "type2:'" + types[j] + "', ";
 					var init:String = spec[3+j];
 					if(pos == -1) {
@@ -916,7 +922,7 @@ void _loop(){
 		}
 		
 		
-		private function jsonToCpp2():Boolean
+		public function jsonToCpp2():Boolean
 		{
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
 		//	var f:File = new File(ext.pcmodeFW + ".ino.template");
@@ -1216,13 +1222,13 @@ void _loop(){
 			}
 			return _projectDocumentName;
 		}
-
+/*
 		public function buildPcmode():void
 		{
 			if(!jsonToCpp2()) return;
 			buildFW(Main.app.extensionManager.extensionByName().pcmodeFW + ".ino");
 		}
-
+*/
 		public function openPcmode():void
 		{
 			jsonToJs();

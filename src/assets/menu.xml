@@ -18,13 +18,7 @@
 	</subMenu>
 	<subMenu name="Robots" label="扩展">
 		<item name="Clear Cache" label="清空缓存" />
-<!--
-		<item name="Build PC mode firmware"/>
--->
 		<item name="Open PC mode firmware"/>
-<!--
-		<item name="Build Normal firmware"/>
--->
 		<item name="Open Normal firmware"/>
 		<item isSeparator="true" />
 	</subMenu>
