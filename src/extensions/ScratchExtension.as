@@ -58,6 +58,7 @@ public class ScratchExtension {
 	public var normalFW:String = "";
 	public var pcmodeFW:String = "";
 	public var prefs:Array = [];
+
 	public var header:String = "";
 	public var setup:String = "";
 	public var loop:String = "";
@@ -68,6 +69,10 @@ public class ScratchExtension {
 	public var translators:Object = {};
 	public var scratch3ext:String = "";
 	public var scratch3burn:Array = [];
+	public var scratch3constructor:String = "";
+	public var scratch3blocks:String = "";
+	public var scratch3menus:String = "";
+	public var scratch3funcs:String = "";
 
 	public var useSerial:Boolean = false;
 

@@ -895,17 +895,22 @@ void _loop(){
 				menus += "]},\n\n";
 			}
 
-		//	var f:File = new File(ext.pcmodeFW + ".js.template");
 			f = File.applicationDirectory.resolvePath("ext/libraries/Common/robot_pcmode.js.template");
 			if(f==null || !f.exists)
 				return false;
 			var code:String = FileUtil.ReadString(f);
 
+			if(ext.boardType.split(":")[1] == "esp32") {
+				code = code.replace("/*ESP32*", "")
+							.replace("*ESP32*/", "");
+			}
+
 			code = code.replace("// DEFINE\n", define)
 						.replace("// FLASHES\n", flashes)
-						.replace("// BLOCKS\n", _blocks)
-						.replace("// MENUS\n", menus)
-						.replace("// FUNCS\n", funcs);
+						.replace("// CONSTRUCTOR\n", ext.scratch3constructor)
+						.replace("// BLOCKS\n", _blocks+ext.scratch3blocks)
+						.replace("// MENUS\n", menus+ext.scratch3menus)
+						.replace("// FUNCS\n", funcs+ext.scratch3funcs);
 
 			f = new File(getNativePath("ext/scratch3/"+extNames[0]+".js"));
 			FileUtil.WriteString(f, code);

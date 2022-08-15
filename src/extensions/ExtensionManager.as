@@ -154,7 +154,7 @@ public class ExtensionManager {
 
 		var arduinoIDE:String;
 		var msg:String;
-		switch(extensionDict.boardType.split(':')[1]) {
+		switch(extensionDict.boardType.split(":")[1]) {
 		case "esp32":
 			arduinoIDE = "Arduino.esp";
 			msg = "ESP32";
@@ -251,12 +251,19 @@ public class ExtensionManager {
 		ext.boardType		= "arduino:avr:uno";
 		ext.javascriptURL	= "robot.js";
 		ext.pcmodeFW		= extObj.docPath + "src/src";
+
+		ext.header			= "";
 		ext.setup			= "Serial.begin(115200);";
 		ext.blockSpecs		= [];
 		ext.menus			= {};
 		ext.values			= {};
 		ext.translators		= {ja:{}};
 		ext.scratch3ext		= extObj.name;
+		ext.scratch3burn	= [];
+		ext.scratch3constructor = "";
+		ext.scratch3blocks	= "";
+		ext.scratch3menus	= "";
+		ext.scratch3funcs	= "";
 
 									ext.docPath = extObj.docPath;
 
@@ -284,9 +291,13 @@ public class ExtensionManager {
 		if(extObj.translators)		ext.translators = extObj.translators;
 		if(extObj.scratch3ext)		ext.scratch3ext = extObj.scratch3ext;
 		if(extObj.scratch3burn)		ext.scratch3burn = extObj.scratch3burn;
+		if(extObj.scratch3constructor) ext.scratch3constructor = extObj.scratch3constructor;
+		if(extObj.scratch3blocks)	ext.scratch3blocks = extObj.scratch3blocks;
+		if(extObj.scratch3menus)	ext.scratch3menus = extObj.scratch3menus;
+		if(extObj.scratch3funcs)	ext.scratch3funcs = extObj.scratch3funcs;
 
 		var i:int;
-		if(ext.boardType == "esp32:esp32:esp32") {
+		if(ext.boardType.split(":")[1] == "esp32") {
 			var ArgTypesTbl3:Array = [
 				["R", "status WIFI",		"statusWifi",				{remote:[		"s"],func:"statusWifi()"}],			// 0xFB
 				["R", "scan WIFI",			"scanWifi",					{remote:[		"s"],func:"scanWifi()"}],			// 0xFC

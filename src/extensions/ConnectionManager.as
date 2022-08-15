@@ -441,7 +441,7 @@ package extensions
 				break;
 
 			case "esp32":
-				cmd = "Arduino/portable/packages/esp32/tools/esptool_py/2.6.1/esptool.exe";
+				cmd = "Arduino/esp32.tools/esptool.exe";
 				cmd = File.applicationDirectory.resolvePath(cmd).nativePath;
 
 				var baud:String = "921600";
@@ -454,13 +454,23 @@ package extensions
 					}
 				}
 				
-				args = "--chip esp32 --port "+selectPort+" --baud "+baud+" --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
-			//		+" 0xe000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/partitions/boot_app0.bin"
-			//		+" 0x1000 Arduino/portable/packages/esp32/hardware/esp32/1.0.4/tools/sdk/bin/bootloader_qio_80m.bin"
-					+" 0xe000 Arduino/esp32.tools/partitions/boot_app0.bin"
-					+" 0x1000 Arduino/esp32.tools/sdk/esp32/bin/bootloader_qio_80m.bin"
-					+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath
-					+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath;
+				switch(boards[2]) {
+				case "esp32":
+				default:
+					args = "--chip esp32 --port "+selectPort+" --baud "+baud+" --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
+						+" 0xe000 Arduino/esp32.tools/partitions/boot_app0.bin"
+						+" 0x1000 Arduino/esp32.tools/sdk/esp32/bin/bootloader_qio_80m.bin"
+						+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath
+						+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath;
+					break;
+				case "esp32c3":
+					args = "--chip esp32c3 --port "+selectPort+" --baud "+baud+" --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
+						+" 0xe000 Arduino/esp32.tools/partitions/boot_app0.bin"
+						+" 0x0 Arduino/esp32.tools/sdk/esp32c3/bin/bootloader_qio_80m.bin"
+						+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath
+						+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath;
+					break;
+				}
 				break;
 			}
 
