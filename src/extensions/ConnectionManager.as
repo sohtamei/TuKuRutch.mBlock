@@ -391,29 +391,20 @@ package extensions
 			}
 		}
 
-		private function _burnFW2(hexFile:String):void
+		private function _burnFW2(targetPath:String):void
 		{
 			Main.app.track("/burnFW2");
 
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
 			var boards:Array = ext.boardType.split(":");
 
-			var partFile:String = hexFile+".ino.partitions.bin";
-			hexFile = hexFile+".ino"+ArduinoManager.sharedManager().getHexFilename(boards);
+			var hexFile:String = targetPath+".ino"+ArduinoManager.sharedManager().getHexFilename(boards);
 			if(!File.applicationDirectory.resolvePath(hexFile).exists){
 				Main.app.track("upgrade fail!");
 				return;
 			}
 
-			var hardwareDir:String;
-			var extStr:String = "";
-			if(ApplicationManager.sharedManager().system == ApplicationManager.MAC_OS) {
-				hardwareDir = "Arduino/Arduino.app/Contents/Java";
-			} else {
-				hardwareDir = "Arduino";
-				extStr = ".exe";
-			}
-			hardwareDir = File.applicationDirectory.resolvePath(hardwareDir).nativePath;
+			var hardwareDir:String = File.applicationDirectory.resolvePath("Arduino").nativePath;
 
 			var cmd:String;
 			var args:String;
@@ -422,7 +413,7 @@ package extensions
 			default:
 				args = "-C"+hardwareDir+"/hardware/tools/avr/etc/avrdude.conf -v -patmega328p -carduino -P"+selectPort+" -b115200 -D -V"
 					+" -Uflash:w:"+File.applicationDirectory.resolvePath(hexFile).nativePath+":i";
-				cmd = hardwareDir+"/hardware/tools/avr/bin/avrdude"+extStr;
+				cmd = hardwareDir+"/hardware/tools/avr/bin/avrdude.exe";
 				break;
 
 			case "samd":	// board=mzero_bl
@@ -437,7 +428,7 @@ package extensions
 
 				args = "-C"+hardwareDir+"/hardware/tools/avr/etc/avrdude.conf -v -patmega2560 -cstk500v2 -P"+burnPort+" -b57600"
 					+" -Uflash:w:"+File.applicationDirectory.resolvePath(hexFile).nativePath+":i";
-				cmd = hardwareDir+"/hardware/tools/avr/bin/avrdude"+extStr;
+				cmd = hardwareDir+"/hardware/tools/avr/bin/avrdude.exe";
 				break;
 
 			case "esp32":
@@ -453,7 +444,18 @@ package extensions
 						break;
 					}
 				}
-				
+
+				var bootFile:String = targetPath+".ino.bootloader.bin";
+				var partFile:String = targetPath+".ino.partitions.bin";
+				var f:File;
+				f = File.applicationDirectory.resolvePath(bootFile.replace("src/src","src/build/src"));
+				if(f.exists)
+					f.copyTo(new File(File.applicationDirectory.resolvePath(bootFile).nativePath), true);
+
+				f = File.applicationDirectory.resolvePath(partFile.replace("src/src","src/build/src"));
+				if(f.exists)
+					f.copyTo(new File(File.applicationDirectory.resolvePath(partFile).nativePath), true);
+
 				switch(boards[2]) {
 				case "esp32":
 				default:
@@ -467,6 +469,13 @@ package extensions
 					args = "--chip esp32c3 --port "+selectPort+" --baud "+baud+" --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
 						+" 0xe000 Arduino/esp32.tools/partitions/boot_app0.bin"
 						+" 0x0 Arduino/esp32.tools/sdk/esp32c3/bin/bootloader_qio_80m.bin"
+						+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath
+						+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath;
+					break;
+				case "esp32s3":
+					args = "--chip esp32s3 --port "+selectPort+" --baud "+baud+" --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
+						+" 0xe000 Arduino/esp32.tools/partitions/boot_app0.bin"
+						+" 0x0 "+File.applicationDirectory.resolvePath(bootFile).nativePath
 						+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath
 						+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath;
 					break;

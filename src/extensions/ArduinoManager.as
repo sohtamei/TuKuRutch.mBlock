@@ -736,17 +736,30 @@ void _loop(){
 							+"', baudrate:"+ext.scratch3burn[i].baudrate+"},\n";
 
 				var pcmodeFWpath:String = "ext/libraries/"+ext.scratch3burn[i].binPath+"/"+ext.pcmodeFW.replace(ext.docPath,"");
-				f = File.applicationDirectory.resolvePath(pcmodeFWpath+".ino.partitions.bin");
-				if(f.exists)
-					f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".part.bin")), true);
+				var pcmodeBuildPath:String = "ext/libraries/"+ext.scratch3burn[i].binPath+"/build/"+ext.pcmodeFW.replace(ext.docPath,"");
+				switch(ext.scratch3burn[i].type) {
+				case 'esp32':
+				case 'esp32c3':
+				case 'esp32s3':
+					f = File.applicationDirectory.resolvePath(pcmodeFWpath+".ino.bootloader.bin");
+					if(f.exists)
+						f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".boot.bin")), true);
 
-				f = File.applicationDirectory.resolvePath(pcmodeFWpath+".ino.esp32.bin");
-				if(f.exists)
-					f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".image.bin")), true);
+					f = File.applicationDirectory.resolvePath(pcmodeFWpath+".ino.partitions.bin");
+					if(f.exists)
+						f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".part.bin")), true);
 
-				f = File.applicationDirectory.resolvePath(pcmodeFWpath+".ino.standard.hex");
-				if(f.exists)
-					f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".hex")), true);
+					f = File.applicationDirectory.resolvePath(pcmodeFWpath+".ino."+ext.scratch3burn[i].type+".bin");
+					if(f.exists)
+						f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".image.bin")), true);
+					break;
+				case 'avr':
+				case 'samd':
+					f = File.applicationDirectory.resolvePath(pcmodeFWpath+".ino.standard.hex");
+					if(f.exists)
+						f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".hex")), true);
+					break;
+				}
 			}
 			if(ext.scratch3burn.length==0) {
 				flashes += "{name:'dummy', type:'', baudrate:0},\n";
