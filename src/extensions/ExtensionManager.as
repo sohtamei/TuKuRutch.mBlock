@@ -258,7 +258,7 @@ public class ExtensionManager {
 		ext.menus			= {};
 		ext.values			= {};
 		ext.translators		= {ja:{}};
-		ext.scratch3ext		= extObj.name;
+		ext.scratch3ext		= "";
 		ext.scratch3burn	= [];
 		ext.scratch3constructor = "";
 		ext.scratch3blocks	= "";
