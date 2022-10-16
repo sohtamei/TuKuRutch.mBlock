@@ -864,10 +864,10 @@ void _loop(){
 							+ "type2:'" + types[j] + "', ";
 					var init:String = spec[3+j];
 					if(pos == -1) {
-						if(types[j] == "s" || isNaN(Number(init))) init = "'"+init+"'";
+						if((types[j] == "s" || types[j].slice(0,1) == "b") || isNaN(Number(init))) init = "'"+init+"'";
 						_blocks += "defaultValue:" + init +" },\n";
 					} else {
-						if(types[j] != "s" && ext.values.hasOwnProperty(init)) {
+						if(!(types[j] == "s" || types[j].slice(0,1) == "b") && ext.values.hasOwnProperty(init)) {
 							init = ext.values[init];
 						}
 						_blocks += "defaultValue:'" + init +"', menu: '" + args[j].slice(pos+1) + "' },\n";
