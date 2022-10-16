@@ -152,7 +152,8 @@ package cc.makeblock.interpreter
 		{
 			var item:* = block.args[index];
 			if(item is BlockArg){
-				var argType:String = block.argTypes[2+index];
+			//	var argType:String = block.argTypes[2+index];	// ★ずれる (set config type=%d.lcdType %s)
+				var argType:String = block.argTypes[(block.argTypes.length-block.args.length)+index];
 				if(argType == "%s" || argType == "%m") {
 					;
 				} else if(item.isNumber){

@@ -230,6 +230,7 @@ package extensions
 		}
 
 		public function get isConnected():Boolean{
+		//	return true;	// debug
 			return (_serial.isConnected||_socket.connected);
 		}
 
