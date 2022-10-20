@@ -921,7 +921,7 @@ void _loop(){
 			code = code.replace("// DEFINE\n", define)
 						.replace("// FLASHES\n", flashes)
 						.replace("// CONSTRUCTOR\n", ext.scratch3constructor)
-						.replace("// BLOCKS\n", _blocks+ext.scratch3blocks)
+						.replace("// BLOCKS\n", ext.scratch3blocks+"'---',\n"+_blocks)
 						.replace("// MENUS\n", menus+ext.scratch3menus)
 						.replace("// FUNCS\n", funcs+ext.scratch3funcs);
 
