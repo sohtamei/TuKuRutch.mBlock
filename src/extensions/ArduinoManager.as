@@ -1300,6 +1300,15 @@ void _loop(){
 				argList.push("--pref", ext.prefs[i]);
 			argList.push("--save-prefs");
 
+			if(!getArduinoDebug().exists) {
+				var dialog:DialogBox = new DialogBox();
+	 			dialog.addTitle(Translator.map('TuKuRutch package Error'));
+				dialog.setText('Please open ext/libraries/xx/src with ArduinoIDE');
+				dialog.addButton(Translator.map('Close'), null);
+				dialog.showOnStage(Main.app.stage);
+				return;
+			}
+
 			Main.app.scriptsPart.appendMessage(getArduinoDebug().nativePath + " " + argList.join(" "));
 			
 			var info:NativeProcessStartupInfo = new NativeProcessStartupInfo();

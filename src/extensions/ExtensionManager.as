@@ -151,7 +151,7 @@ public class ExtensionManager {
 
 		SharedObjectManager.sharedManager().setObject(name+"_selected", true);
 		loadRawExtension(extObj);
-
+/*
 		var arduinoIDE:String;
 		var msg:String;
 		switch(extensionDict.boardType.split(":")[1]) {
@@ -171,6 +171,7 @@ public class ExtensionManager {
 			dialog.addButton(Translator.map('Close'), null);
 			dialog.showOnStage(Main.app.stage);
 		}
+*/
 	}
 	public function checkExtensionSelected(name:String):Boolean{
 		return SharedObjectManager.sharedManager().getObject(name+"_selected",false);

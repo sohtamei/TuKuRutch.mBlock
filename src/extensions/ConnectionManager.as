@@ -412,9 +412,9 @@ package extensions
 			switch(boards[1]) {
 			case "avr":
 			default:
-				args = "-C"+hardwareDir+"/hardware/tools/avr/etc/avrdude.conf -v -patmega328p -carduino -P"+selectPort+" -b115200 -D -V"
+				args = "-C"+"tools/avr/etc/avrdude.conf -v -patmega328p -carduino -P"+selectPort+" -b115200 -D -V"
 					+" -Uflash:w:"+File.applicationDirectory.resolvePath(hexFile).nativePath+":i";
-				cmd = hardwareDir+"/hardware/tools/avr/bin/avrdude.exe";
+				cmd = "tools/avr/bin/avrdude.exe";
 				break;
 
 			case "samd":	// board=mzero_bl
@@ -427,13 +427,13 @@ package extensions
 				Main.app.track(selectPort+"->"+burnPort);
 				Main.app.scriptsPart.appendMessage(selectPort+"->"+burnPort);
 
-				args = "-C"+hardwareDir+"/hardware/tools/avr/etc/avrdude.conf -v -patmega2560 -cstk500v2 -P"+burnPort+" -b57600"
+				args = "-C"+"tools/avr/etc/avrdude.conf -v -patmega2560 -cstk500v2 -P"+burnPort+" -b57600"
 					+" -Uflash:w:"+File.applicationDirectory.resolvePath(hexFile).nativePath+":i";
-				cmd = hardwareDir+"/hardware/tools/avr/bin/avrdude.exe";
+				cmd = "tools/avr/bin/avrdude.exe";
 				break;
 
 			case "esp32":
-				cmd = "Arduino/esp32.tools/esptool.exe";
+				cmd = "tools/esp32/esptool.exe";
 				cmd = File.applicationDirectory.resolvePath(cmd).nativePath;
 
 				var baud:String = "921600";
@@ -461,21 +461,21 @@ package extensions
 				case "esp32":
 				default:
 					args = "--chip esp32 --port "+selectPort+" --baud "+baud+" --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
-						+" 0xe000 Arduino/esp32.tools/partitions/boot_app0.bin"
-						+" 0x1000 Arduino/esp32.tools/sdk/esp32/bin/bootloader_qio_80m.bin"
+						+" 0xe000 tools/esp32/partitions/boot_app0.bin"
+						+" 0x1000 tools/esp32/sdk/esp32/bin/bootloader_qio_80m.bin"
 						+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath
 						+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath;
 					break;
 				case "esp32c3":
 					args = "--chip esp32c3 --port "+selectPort+" --baud "+baud+" --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
-						+" 0xe000 Arduino/esp32.tools/partitions/boot_app0.bin"
-						+" 0x0 Arduino/esp32.tools/sdk/esp32c3/bin/bootloader_qio_80m.bin"
+						+" 0xe000 tools/esp32/partitions/boot_app0.bin"
+						+" 0x0 tools/esp32/sdk/esp32c3/bin/bootloader_qio_80m.bin"
 						+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath
 						+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath;
 					break;
 				case "esp32s3":
 					args = "--chip esp32s3 --port "+selectPort+" --baud "+baud+" --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
-						+" 0xe000 Arduino/esp32.tools/partitions/boot_app0.bin"
+						+" 0xe000 tools/esp32/partitions/boot_app0.bin"
 						+" 0x0 "+File.applicationDirectory.resolvePath(bootFile).nativePath
 						+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath
 						+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath;
