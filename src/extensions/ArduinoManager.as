@@ -532,7 +532,7 @@ package extensions
 						s.code = '"'+s.code+'"';
 					else if(s.type == "obj")		// String("hello ")+String("world")
 						s.code = s.code.code;
-				} else if(argType == "b"||argType == "b2"||argType == "b3") {
+				} else if(argType.slice(0,1) == "b") {
 					var j:int;
 					var tmp:String = "";
 					for(j = 0; j < s.code.length; j+=2)
@@ -1303,7 +1303,7 @@ void _loop(){
 			if(!getArduinoDebug().exists) {
 				var dialog:DialogBox = new DialogBox();
 	 			dialog.addTitle(Translator.map('TuKuRutch package Error'));
-				dialog.setText('Please open ext/libraries/xx/src with ArduinoIDE');
+				dialog.setText('src.ino and xx.js have been generated. Please open ext/libraries/xx/src with ArduinoIDE.');
 				dialog.addButton(Translator.map('Close'), null);
 				dialog.showOnStage(Main.app.stage);
 				return;

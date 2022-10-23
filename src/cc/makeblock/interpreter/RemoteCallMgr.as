@@ -161,7 +161,9 @@ package cc.makeblock.interpreter
 				cmd.endian = Endian.LITTLE_ENDIAN;
 				var n:int;
 				var j:int;
-				if(obj2.remote[0] == "b2") {
+				var size:int = obj2.remote.length;
+				if(obj1[0] != "w") size--;
+				if(size >= 1 && obj2.remote[0] == "b2") {
 					n = param[0].length/2;
 					cmd.writeByte(0xff);
 					cmd.writeByte(0x54);
@@ -173,8 +175,6 @@ package cc.makeblock.interpreter
 					var tmp:Array = [0xff, 0x55, 0x00, index];
 					for(i = 0; i < tmp.length; i++)
 						cmd.writeByte(tmp[i]);
-					var size:int = obj2.remote.length;
-					if(obj1[0] != "w") size--;
 					for(i = 0; i < size; i++) {
 						switch(obj2.remote[i]) {
 						case "B": cmd.writeByte(param[i]);   break;
