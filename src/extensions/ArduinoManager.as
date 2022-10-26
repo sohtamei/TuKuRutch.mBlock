@@ -873,7 +873,11 @@ void _loop(){
 						_blocks += "defaultValue:'" + init +"', menu: '" + args[j].slice(pos+1) + "' },\n";
 					}
 				}
-				_blocks += "}},\n\n"
+				if(obj.hasOwnProperty("hide")) {
+					_blocks += "}, hideFromPalette:true},\n\n"
+				} else {
+					_blocks += "}},\n\n"
+				}
 			}
 
 			var ids:Array = new Array();
@@ -932,7 +936,9 @@ void _loop(){
 						.replace(/\n\/\/\*\/\n/g,"\n_*/\n")		// \n//*/\n
 						.replace(/\n\/\*\n/g,  "\n//*\n")		// \n/*\n
 						.replace(/\n\*\/\n/g,  "\n//*/\n")		// \n*/\n
-						.replace("var extName = '" + extNames[0], "var extName = '" + extNames[0]+'0');
+						.replace("var extName = '" + extNames[0], "var extName = '" + extNames[0]+'0')
+						.replace("color1:'#0FBD8C',color2:'#0DA57A',color3:'#0B8E69',", "color1:'#0F83BD',color2:'#0D73A6',color3:'#0B638F',")
+						;
 
 			f = new File(getNativePath(ext.pcmodeFW+".update.js"));
 			FileUtil.WriteString(f, code);
