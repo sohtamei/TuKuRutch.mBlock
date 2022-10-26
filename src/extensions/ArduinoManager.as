@@ -931,9 +931,10 @@ void _loop(){
 			code = code.replace( /\n\/\/\*\n/g, "\n/*_\n")		// \n//*\n
 						.replace(/\n\/\/\*\/\n/g,"\n_*/\n")		// \n//*/\n
 						.replace(/\n\/\*\n/g,  "\n//*\n")		// \n/*\n
-						.replace(/\n\*\/\n/g,  "\n//*/\n");		// \n*/\n
+						.replace(/\n\*\/\n/g,  "\n//*/\n")		// \n*/\n
+						.replace("var extName = '" + extNames[0], "var extName = '" + extNames[0]+'0');
 
-			f = new File(getNativePath("ext/scratch3/"+extNames[0]+".load.js"));
+			f = new File(getNativePath(ext.pcmodeFW+".update.js"));
 			FileUtil.WriteString(f, code);
 
 			return true;
