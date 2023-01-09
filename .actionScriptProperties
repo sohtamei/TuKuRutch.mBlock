@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<actionScriptProperties analytics="false" mainApplicationPath="Main.as" projectUUID="e6767beb-9950-42f6-9ce7-f72c6fb5355b" version="11">
+<actionScriptProperties analytics="false" mainApplicationPath="Main.as" projectUUID="9c597304-0571-4362-acb0-86b86e3eb234" version="11">
   <compiler additionalCompilerArguments="-locale en_US" advancedTelemetry="false" autoRSLOrdering="true" copyDependentFiles="true" fteInMXComponents="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="false" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="true" useDebugRSLSwfs="true" useFlashSDK="true" verifyDigests="true" warn="true">
     <compilerSourcePath/>
     <libraryPath defaultLinkType="0">
@@ -46,15 +46,13 @@
   <flashCatalyst validateFlashCatalystCompatibility="false"/>
   <buildTargets>
     <buildTarget buildTargetName="default" platformId="default">
-      <airSettings airCertificatePath="C:/Users/n-tom/fd_work/mBlock/SohtaMei.tomita.p12" airTimestamp="false" anePathSet="true" version="1">
-        <airExcludes/>
+      <airSettings airCertificatePath="C:/fd_work/mBlock/SohtaMei.tomita.p12" airTimestamp="true" anePathSet="true" version="1">
+        <airExcludes>
+          <pathEntry path="Arduino__"/>
+        </airExcludes>
         <anePaths>
           <anePathEntry path="libs/AIRSerial_win.ane"/>
         </anePaths>
-        <newLaunchParams/>
-        <modifiedLaunchParams/>
-        <newPackagingParams/>
-        <modifiedPackagingParams/>
       </airSettings>
       <actionScriptSettings version="1"/>
     </buildTarget>

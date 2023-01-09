@@ -461,24 +461,24 @@ package extensions
 				case "esp32":
 				default:
 					args = "--chip esp32 --port "+selectPort+" --baud "+baud+" --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
-						+" 0xe000 tools/esp32/partitions/boot_app0.bin"
 						+" 0x1000 tools/esp32/sdk/esp32/bin/bootloader_qio_80m.bin"
-						+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath
-						+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath;
+						+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath
+						+" 0xe000 tools/esp32/partitions/boot_app0.bin"
+						+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath;
 					break;
 				case "esp32c3":
 					args = "--chip esp32c3 --port "+selectPort+" --baud "+baud+" --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
-						+" 0xe000 tools/esp32/partitions/boot_app0.bin"
 						+" 0x0 tools/esp32/sdk/esp32c3/bin/bootloader_qio_80m.bin"
-						+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath
-						+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath;
+						+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath
+						+" 0xe000 tools/esp32/partitions/boot_app0.bin"
+						+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath;
 					break;
 				case "esp32s3":
 					args = "--chip esp32s3 --port "+selectPort+" --baud "+baud+" --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect"
-						+" 0xe000 tools/esp32/partitions/boot_app0.bin"
 						+" 0x0 "+File.applicationDirectory.resolvePath(bootFile).nativePath
-						+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath
-						+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath;
+						+" 0x8000 "+File.applicationDirectory.resolvePath(partFile).nativePath
+						+" 0xe000 tools/esp32/partitions/boot_app0.bin"
+						+" 0x10000 "+File.applicationDirectory.resolvePath(hexFile).nativePath;
 					break;
 				}
 				break;

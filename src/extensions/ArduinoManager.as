@@ -740,7 +740,9 @@ void _loop(){
 				switch(ext.scratch3burn[i].type) {
 				case 'esp32':
 				case 'esp32c3':
+				case 'esp32c3u':
 				case 'esp32s3':
+				case 'esp32s3u':
 					f = File.applicationDirectory.resolvePath(pcmodeFWpath+".ino.bootloader.bin");
 					if(f.exists)
 						f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".boot.bin")), true);
