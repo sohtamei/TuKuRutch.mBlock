@@ -373,23 +373,7 @@ package extensions
 			Main.app.track("/burnFW");
 			Main.app.scriptsPart.clearInfo();
 
-			var boards:Array = Main.app.extensionManager.extensionByName().boardType.split(":");
-			if(boards[1] == "samd") {
-				_serial.close();
-				_serial.open(selectPort,1200);
-			//	var start:uint = getTimer();
-			//	while(getTimer() - start < 100){}
-				_serial.close();
-
-				setTimeout(_burnFW2, 3000, hexFile);
-				_dialog = new DialogBox();
-				_dialog.addTitle(Translator.map('Start Uploading'));
-			//	_dialog.addButton(Translator.map('Close'), null);
-				_dialog.setText(Translator.map('Executing'));
-				_dialog.showOnStage(_mBlock.stage);
-			} else {
-				_burnFW2(hexFile);
-			}
+			_burnFW2(hexFile);
 		}
 
 		private function _burnFW2(targetPath:String):void
@@ -405,29 +389,12 @@ package extensions
 				return;
 			}
 
-			var hardwareDir:String = File.applicationDirectory.resolvePath("Arduino").nativePath;
-
 			var cmd:String;
 			var args:String;
 			switch(boards[1]) {
 			case "avr":
 			default:
 				args = "-C"+"tools/avr/etc/avrdude.conf -v -patmega328p -carduino -P"+selectPort+" -b115200 -D -V"
-					+" -Uflash:w:"+File.applicationDirectory.resolvePath(hexFile).nativePath+":i";
-				cmd = "tools/avr/bin/avrdude.exe";
-				break;
-
-			case "samd":	// board=mzero_bl
-				var list:Array = portlist;
-				if(list.length == 0) {
-					Main.app.track("upgrade fail!");
-					return;
-				}
-				var burnPort:String = list[list.length-1];
-				Main.app.track(selectPort+"->"+burnPort);
-				Main.app.scriptsPart.appendMessage(selectPort+"->"+burnPort);
-
-				args = "-C"+"tools/avr/etc/avrdude.conf -v -patmega2560 -cstk500v2 -P"+burnPort+" -b57600"
 					+" -Uflash:w:"+File.applicationDirectory.resolvePath(hexFile).nativePath+":i";
 				cmd = "tools/avr/bin/avrdude.exe";
 				break;

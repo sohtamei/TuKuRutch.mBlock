@@ -735,31 +735,32 @@ void _loop(){
 							+"', type:'"+ext.scratch3burn[i].type
 							+"', baudrate:"+ext.scratch3burn[i].baudrate+"},\n";
 
-				var pcmodeFWpath:String = "ext/libraries/"+ext.scratch3burn[i].binPath+"/"+ext.pcmodeFW.replace(ext.docPath,"");
-				var pcmodeBuildPath:String = "ext/libraries/"+ext.scratch3burn[i].binPath+"/build/"+ext.pcmodeFW.replace(ext.docPath,"");
-				switch(ext.scratch3burn[i].type) {
+				var binPath:String = "ext/libraries/"+ext.scratch3burn[i].binPath;
+				var type:String = ext.scratch3burn[i].type;
+				switch(type) {
+				case 'atmega328':
+					f = File.applicationDirectory.resolvePath(binPath+"/src/src.ino.standard.hex");
+					if(f.exists)
+						f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".hex")), true);
+					break;
+
+				case 'esp32c3u':
+				case 'esp32s3u':
+					type = type.slice(0,type.length-1);
 				case 'esp32':
 				case 'esp32c3':
-				case 'esp32c3u':
 				case 'esp32s3':
-				case 'esp32s3u':
-					f = File.applicationDirectory.resolvePath(pcmodeFWpath+".ino.bootloader.bin");
+					f = File.applicationDirectory.resolvePath(binPath+"/src/src.ino."+type+".bin");
+					if(f.exists)
+						f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".image.bin")), true);
+
+					f = File.applicationDirectory.resolvePath(binPath+"/src/src.ino.bootloader.bin");
 					if(f.exists)
 						f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".boot.bin")), true);
 
-					f = File.applicationDirectory.resolvePath(pcmodeFWpath+".ino.partitions.bin");
+					f = File.applicationDirectory.resolvePath(binPath+"/src/src.ino.partitions.bin");
 					if(f.exists)
 						f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".part.bin")), true);
-
-					f = File.applicationDirectory.resolvePath(pcmodeFWpath+".ino."+ext.scratch3burn[i].type+".bin");
-					if(f.exists)
-						f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".image.bin")), true);
-					break;
-				case 'avr':
-				case 'samd':
-					f = File.applicationDirectory.resolvePath(pcmodeFWpath+".ino.standard.hex");
-					if(f.exists)
-						f.copyTo(new File(getNativePath("ext/scratch3/"+imageName+".hex")), true);
 					break;
 				}
 			}
@@ -784,7 +785,7 @@ void _loop(){
 				var txtJpNew:String = "";
 				var args:Array = new Array();
 
-				if(ext.translators.ja.hasOwnProperty(txtEnOrg))
+				if(ext.hasOwnProperty("translators") && ext.translators.ja.hasOwnProperty(txtEnOrg))
 					txtJpOrg = ext.translators.ja[txtEnOrg];
 				
 				var pos:int;
@@ -903,7 +904,7 @@ void _loop(){
 
 						var val:String = en;
 						val = ext.values[en];
-						if(!ext.translators.ja.hasOwnProperty(en)) {
+						if(!ext.hasOwnProperty("translators") || !ext.translators.ja.hasOwnProperty(en)) {
 							menus += "{ text: '" + en + "', value: '" + val + "' },\n";
 						} else {
 							menus += "{ text: ['" + en + "','" + ext.translators.ja[en] + "'][this._locale], value: '" + val + "' },\n";
@@ -926,10 +927,10 @@ void _loop(){
 
 			code = code.replace("// DEFINE\n", define)
 						.replace("// FLASHES\n", flashes)
-						.replace("// CONSTRUCTOR\n", ext.scratch3constructor)
-						.replace("// BLOCKS\n", ext.scratch3blocks+"'---',\n"+_blocks)
-						.replace("// MENUS\n", menus+ext.scratch3menus)
-						.replace("// FUNCS\n", funcs+ext.scratch3funcs);
+						.replace("// CONSTRUCTOR\n", getProp(ext, "scratch3constructor"))
+						.replace("// BLOCKS\n", getProp(ext, "scratch3blocks")+"'---',\n"+_blocks)
+						.replace("// MENUS\n", menus+getProp(ext, "scratch3menus"))
+						.replace("// FUNCS\n", funcs+getProp(ext, "scratch3funcs"));
 
 			f = new File(getNativePath("ext/scratch3/"+extNames[0]+".js"));
 			FileUtil.WriteString(f, code);
@@ -942,8 +943,8 @@ void _loop(){
 						.replace("color1:'#0FBD8C',color2:'#0DA57A',color3:'#0B8E69',", "color1:'#0F83BD',color2:'#0D73A6',color3:'#0B638F',")
 						;
 
-			f = new File(getNativePath(ext.pcmodeFW+".update.js"));
-			FileUtil.WriteString(f, code);
+			//f = new File(getNativePath(ext.pcmodeFW+".update.js"));
+			//FileUtil.WriteString(f, code);
 
 			return true;
 		}
@@ -952,7 +953,6 @@ void _loop(){
 		public function jsonToCpp2():Boolean
 		{
 			var ext:ScratchExtension = Main.app.extensionManager.extensionByName();
-		//	var f:File = new File(ext.pcmodeFW + ".ino.template");
 			var f:File = File.applicationDirectory.resolvePath("ext/libraries/Common/robot_pcmode.ino.template");
 			if(f==null || !f.exists)
 				return false;
@@ -1046,7 +1046,7 @@ void _loop(){
 			}
 			code = code.replace("// ARG_TYPES_TBL\n", argTbl);
 			code = code.replace("// WORK\n", work);
-			code = fixTabs(code);
+			//code = fixTabs(code);
 
 			f = new File(getNativePath(ext.pcmodeFW + ".ino"));
 			FileUtil.WriteString(f, code);
@@ -1422,8 +1422,6 @@ void _loop(){
 			case "avr":
 			default:
 				return ".standard.hex";
-			case "samd":	// board=mzero_bl
-				return ".arduino_mzero.hex";
 			case "esp32":
 				var reg:RegExp = /-/g;
 				return "."+boards[2].replace(reg,"_")+".bin";		// m5stack-core-esp32 -> m5stack_core_esp32
